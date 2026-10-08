@@ -4,6 +4,7 @@ title: High Up on Peaks and Glaciers
 year: 2024
 place: Dachstein, Austria
 summary: Four days hut to hut around the Dachstein in Austria, as a photo book.
+opening: Four days hut to hut around the Dachstein.
 photographs: Adhit Chandy
 text: Adhit Chandy
 format: Photo book, 28 × 19 cm, 40 pages

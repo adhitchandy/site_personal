@@ -4,6 +4,7 @@ type: software
 kind: Software
 year: 2026
 summary: A research tool that collects listings for the same kind of product from Amazon, eBay, Zalando and MediaMarkt in up to 70 country storefronts and compares the prices in US dollars.
+opening: One product, 70 storefronts, prices in US dollars.
 lead: A tool for price research
 facts: Shops: Amazon, eBay, Zalando, MediaMarkt | Storefronts: Up to 70, by country | Runs: On your own computer | Written in: Python
 cover: projects/price-lens-cover.png

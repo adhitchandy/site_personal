@@ -736,8 +736,9 @@ body.fieldlive{height:100svh;overflow:hidden}
 #enter .ed::after{content:"";display:inline-block;width:.55em;height:1em;margin-left:2px;background:#efece6;vertical-align:-.15em;animation:blink .7s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 html.entering.nobar body{overflow:hidden}
-html.entering main{transform:translateY(80px);opacity:0}
-html.entering.entered main{transform:none;opacity:1;transition:transform 1.2s cubic-bezier(.16,1,.3,1) .3s,opacity .9s .3s}
+/* drawn up like a blind, the picture uncovers a page that already stands still, where it will stay: nothing under it may still be on its way */
+html.entering main{opacity:0}
+html.entering.entered main{opacity:1}
 html.entering.morph main{transform:none;transition:opacity .9s .25s}
 html.entering.morph .top{opacity:0}
 html.entering.morph.entered .top{opacity:1;transition:opacity .9s .25s,transform .35s var(--ease)}
@@ -925,6 +926,8 @@ html.came :is(.lead>p,.filters,.shd,.hl,.rint>*,.pjs .stick>*,.pjc>*,.paper .phe
 .js img.fi.ok{opacity:1;animation:fin .7s ease}
 .js .door img.fi{transition:transform 1.6s var(--ease),opacity .7s ease}
 .js .door img.fi.ok{animation:doorimg 1.9s var(--ease) backwards;animation-delay:calc(.15s + var(--d,0)*.11s)}
+/* arriving on the Photography page from its card, the stories and genres are already in place when the picture lifts off them */
+html.came :is(.door,.door img.fi.ok,.lab .pz){animation:none}
 @keyframes fin{from{opacity:0}}
 
 /* ---------- about ---------- */

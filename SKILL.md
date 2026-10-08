@@ -98,6 +98,7 @@ Photography page
 
 Motion
 - A cover grows to fill the window, the next page opens under it, and the picture settles exactly onto that page's own picture (`data-hero`).
+- Where the arriving page has no such picture, the cover is drawn up like a blind over a page that already stands still: `main` does not rise or fade under it, and the Photography page's stories and genres skip their own entrance (`html.came`).
 - Nothing may shift because of the scroll bar. Never toggle `overflow` on `body` directly: use `hush(1)` / `hush(0)` in `site.js`. The arriving page begins as wide as the page it came from (`bar` in the `enter` record, class `nobar` on `html`).
 - The title written on the growing picture is set letter by letter and must stand exactly where the plain title stands on the next page: `tight()` in `site.js` gives the letters their kerning. Any title set letter by letter needs it, or it closes up and moves left when the plain one takes over ("To Meet the Ends" moved 12px).
 - The growing picture ends at the page's real width (`clientWidth`, beside the scroll bar), not `innerWidth`.
@@ -109,7 +110,7 @@ Motion
 - Safari: view transitions are skipped for Apple browsers (they caused jitter). Do not turn them back on.
 
 Pointer
-- On a mouse or trackpad the system pointer is hidden everywhere (`html.curon`, set by `site.js` only when the ring runs, so without the script the normal pointer stays). A 6px dot (`.cdot`, `mix-blend-mode:difference`) marks the exact point; the ring trails it and hugs controls; over covers the Open disc replaces the dot. Touch screens are untouched.
+- On a mouse or trackpad the system pointer is hidden everywhere (`html.curon`, set by a small script written into every page right after `#cur` (`build.mjs`), so a page still loading never shows the system pointer; it also sets the dot down where the pointer was left and moves it until `site.js` takes the dot over). A 6px dot (`.cdot`, `mix-blend-mode:difference`) marks the exact point; the ring trails it and hugs controls; over covers the Open disc replaces the dot. Touch screens are untouched.
 
 Links and contact
 - Every link that leaves the site opens in a new tab; `outward()` in `build.mjs` writes that into the pages.
@@ -118,6 +119,7 @@ Links and contact
 ## Content quick reference (details in README.md)
 
 - Photo story: folder in `content/stories/` with `story.md`; `## Chapter`, text, `@images: a.jpg, b.jpg`. `draft: true` hides it. `cover:` sets the cover.
+- The line typed under the title while a page opens is `opening` (projects, stories, papers, genres, `about.opening`), else the summary or intro. Keep it under 60 characters: there is time to read about eight words.
 - Project: `content/projects/<slug>.md` with `title`, `type`, `year`, `summary`, optional `cover`, `poster`, `link`, `repo`, `lead`, `facts: A: x | B: y`. A line `@screens: folder` with `name-light.png` / `name-dark.png` pairs makes the staged page used by Price Lens.
 - Paper: `content/research/<slug>/paper.json` (`repo` adds the code link) plus `body.html`. Follow the paper checklist in `AGENTS.md` point by point; the master's thesis is the model. Covers are his own photographs; `"coverFit": "contain"` (keeps a chart whole) is only for a chart he asks to use as a cover. Other cover keys: `coverAlt`, `coverPosition` (CSS object-position; the arriving picture follows it) and `coverCredit` (author, authorUrl, source, sourceUrl) for a picture that is not his. Everything in a paper's `fig/` is published as it is, so keep the cover and drafts in the paper folder itself, not in `fig/`. `data.json` is not used by the build. Simple bar charts can be written in the body as HTML (`figure.survey-chart` with `ul.survey-bars`, styled in `site.css`); tables take `class="num"` and `class="r"` on number columns. The 2021 EV bachelor’s thesis preserves its 2026 revision date separately; its source counts are in `data.json`.
 - About me, Research text, home sentence, links, facts: `content/site.json`.

@@ -9,6 +9,7 @@
   ],
   "poster": "c",
   "summary": "In 2021 we asked 400 students and working people in Kerala what they knew about electric vehicles. Almost all of them knew the cars were on sale; fewer than four in ten knew the government would help pay for one. And asked what was holding electric cars back, they gave one answer more than any other: nowhere to charge.",
+  "opening": "What holds electric cars back in Kerala? Nowhere to charge.",
   "cover": "projects/to-meet-the-ends/edited/03.jpg",
   "facts": [
     [
@@ -75,42 +76,42 @@
     "note": "The short version · 2021 respondents",
     "question": {
       "lead": "What did surveyed students and professionals in Kerala know about electric vehicles, and what held them back?",
-      "text": "Our bachelor project surveyed 400 respondents in 2021: 299 students and 101 professionals. This 2026 revision reanalyses the original aggregate tables; it contains no new fieldwork."
+      "text": "Our bachelor project surveyed 400 people in 2021: 299 students and 101 professionals. This 2026 revision reanalyses the summary tables of the original report; no new survey was carried out."
     },
     "figure": {
       "src": "fig/awareness-overview.png",
-      "caption": "In the 2021 survey, 370 of 400 respondents (92.50%) reported awareness of EV availability; 151 (37.75%) reported awareness of government incentives. Source: original report, Table 4.2.1 (p. 48). Self-reported awareness, not a knowledge test or a population estimate.",
+      "caption": "In the 2021 survey, 370 of 400 respondents (92.50%) said they knew electric vehicles were available; 151 (37.75%) said they knew about government incentives. Source: original report, Table 4.2.1 (p. 48). These are respondents' own answers, not a knowledge test, and not an estimate for Kerala as a whole.",
       "ref": "figure-awareness",
       "refLabel": "Figure 4.1 in the text"
     },
     "finding": {
-      "lead": "Among these respondents, availability awareness was widespread. Incentive awareness was much lower, and charging access was the leading reported barrier.",
+      "lead": "Almost all respondents knew electric vehicles were available. Far fewer knew about government incentives, and the lack of charging stations was the barrier they named most often.",
       "points": [
         [
           "92.50%",
-          "370 of 400 surveyed respondents in 2021. Respondents reporting awareness that electric vehicles were available."
+          "370 of 400 respondents said they knew electric vehicles were available."
         ],
         [
           "37.75%",
-          "151 of 400 surveyed respondents in 2021. Respondents reporting awareness of government incentives."
+          "151 of 400 respondents said they knew about government incentives."
         ],
         [
           "67.25%",
-          "269 of 400 surveyed respondents in 2021. Respondents selecting unavailable charging stations; multiple responses were permitted."
+          "269 of 400 respondents named the lack of charging stations as a barrier. Each could name more than one."
         ],
         [
           "38.61%",
-          "39 of 101 surveyed respondents in 2021. Professionals answering yes to baseline electric-car consideration; this is not a purchase rate."
+          "39 of 101 professionals said they would consider an electric car if buying a new car. This is not the share who actually bought one."
         ]
       ]
     },
     "limits": {
       "lead": "An exploratory survey, read within its limits.",
       "points": [
-        "This exploratory survey is dominated by students and lacks sufficient documentation to establish representativeness. Only aggregate tables are recoverable. The analysis cannot estimate Kerala-wide prevalence, track individual response changes, or identify causal effects.",
-        "The barrier question allowed multiple answers; its percentages need not sum to 100%.",
-        "Professional purchase consideration describes answers to separate hypothetical questions. It is neither actual purchasing nor a causal effect.",
-        "The results motivate testing clearer incentive information and targeted charging-access pilots. Investment and subsidy choices require evidence on actual use, costs, distribution and additionality; this survey alone cannot determine an optimal policy."
+        "Most respondents were students, and the survey is not documented well enough to say whom it represents. Only the summary tables survive, not the individual answers. So it cannot say how common these views are across Kerala, follow how one person's answers changed, or show cause and effect.",
+        "Respondents could name more than one barrier, so those percentages do not add up to 100%.",
+        "Whether professionals would consider an electric car comes from separate hypothetical questions. The answers are not actual purchases, and they do not show what caused anyone's choice.",
+        "The results suggest trying clearer information about incentives and small pilots that bring charging closer to people. Decisions on investment or subsidies need evidence on actual use, costs, who benefits, and whether the money brings in buyers who would not have bought anyway. This survey alone cannot decide the best policy."
       ]
     }
   },

@@ -9,6 +9,7 @@
     "research"
   ],
   "summary": "Did India's National Clean Air Programme lower fine-particle pollution in its target cities? Satellite data from 1998 to 2023 and a synthetic difference-in-differences design say it has not, so far.",
+  "opening": "Did India's clean air programme cut pollution? Not so far.",
   "cover": "projects/to-meet-the-ends/edited/09.jpg",
   "facts": [
     [
@@ -78,7 +79,7 @@
     },
     "figure": {
       "src": "fig/sdid_plot_c1.webp",
-      "caption": "Annual mean PM2.5 in the NCAP cities (blue) and in their synthetic counterpart (grey), 1998–2023. The dashed line marks the start of the programme. The two lines move together for two decades before it; afterwards the NCAP cities sit slightly above the counterpart, not below it.",
+      "caption": "Annual mean PM2.5 in the NCAP cities (blue) and in their synthetic counterpart (grey), 1998–2023. The dashed line marks the start of the programme in 2019. For two decades before that the two lines move together; after it the NCAP cities sit slightly above their counterpart, not below it.",
       "ref": "fig:sdid_trends",
       "refLabel": "Figure 4.9 in the text"
     },
@@ -87,29 +88,29 @@
       "points": [
         [
           "+0.85 µg/m³",
-          "The national estimate (standard error 0.25). NCAP cities ended slightly above their counterfactual, not below it."
+          "The national estimate for 2019–2023 (standard error 0.25). Pollution in NCAP cities came out slightly above their counterfactual, not below it."
         ],
         [
           "1.79 and 3.06",
-          "What a standard difference-in-differences model reports with the two control groups. NCAP cities were already on a different path before 2019; correcting for that shrinks the estimate."
+          "What a standard difference-in-differences model estimates, one figure for each of the two control groups. NCAP cities were already on a different path before 2019, and once that is accounted for the estimate shrinks."
         ],
         [
           "+1.10 / −0.85",
-          "Regions differ. The Arid West did worse than its counterfactual, while the North-East & East shows a modest improvement."
+          "Regions differ. In the Arid West pollution came out above its counterfactual; in the North-East & East it came out a little below."
         ],
         [
           "R² 0.004",
-          "How much of a city's result is explained by the share of its funds it used. Spending more did not go with cleaner air."
+          "How much of the difference between cities' results is explained by the share of its allocated funds each city spent. Spending more did not go with cleaner air."
         ]
       ]
     },
     "limits": {
       "lead": "The thesis names these itself.",
       "points": [
-        "The treated sample is narrower than intended. The official data portal was unavailable for much of the research period, and collecting the data by hand was not feasible in the time available.",
+        "The NCAP cities are measured through the sub-district or district they lie in, so the areas studied are less precise than intended. The official data portal was unavailable for much of the research period, and collecting the data by hand did not fit the time available.",
         "Some fine-grained controls are missing, such as fuel use or industrial density at sub-district level, which could explain more of the variation in pollution.",
         "In the Indo-Gangetic Plain the placebo tests are unstable. Pollution there is so strongly correlated across neighbouring areas that a clean comparison group is hard to build, even with this method.",
-        "It covers the first five years and the programme as a whole. A longer period, other pollutants and the individual measures are left for later work."
+        "The thesis covers only the programme's first five years, and the programme as a whole. A longer period, other pollutants and the individual measures are left for later work."
       ]
     }
   },

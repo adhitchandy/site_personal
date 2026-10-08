@@ -4,6 +4,7 @@ subtitle: A journey
 year: 2020
 place: On the road to Bangalore, India
 summary: People, their work and the vehicles that carry them, photographed on a drive to Bangalore in December 2020.
+opening: People, work and vehicles on a drive to Bangalore.
 photographs: Adhit Chandy George
 creditLabel: Photographs and text
 cover: projects/to-meet-the-ends/edited/06.jpg

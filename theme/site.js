@@ -34,8 +34,10 @@
   const cur = $('#cur');
   if (cur && fine) {
     const GL = { Open: '→', Read: '→', Visit: '↗', Next: '→', Previous: '←', Close: '✕' };
-    cur.innerHTML = '<span class="cw"></span><span class="cg"></span>'; const cw = cur.firstChild, cg = cur.lastChild, dot = document.createElement('i');
-    dot.className = 'cdot'; dot.setAttribute('aria-hidden', 'true'); cur.after(dot); document.documentElement.classList.add('curon');
+    cur.innerHTML = '<span class="cw"></span><span class="cg"></span>'; const cw = cur.firstChild, cg = cur.lastChild, pre = cur.nextElementSibling, dot = pre && pre.classList.contains('cdot') ? pre : document.createElement('i');
+    /* The page itself hides the system pointer and sets the dot down the moment it begins, before this script has arrived: a page that is still
+       loading would otherwise show the system pointer until then. This script takes the dot over from there. */
+    if (!dot.isConnected) { dot.className = 'cdot'; dot.setAttribute('aria-hidden', 'true'); cur.after(dot); } document.documentElement.classList.add('curon');
     let x = -200, y = -200, tx = -200, ty = -200, w = 14, h = 14, tw = 14, th = 14, r = 60, tr = 60, hug = null, shown = '|', press = 1, drag = null, dragging = false, out = false, tick = 0;
     try { const p = (sessionStorage.getItem('cur') || '').split(','); if (p.length === 2 && +p[0] > 0) { x = tx = +p[0]; y = ty = +p[1]; } } catch (e) {}
     dot.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';   /* the dot stands where the pointer was left on the page before */
@@ -121,7 +123,7 @@
   const fillGo = (pzv, d, ext) => {
     pzv.href = d.href; pzv.textContent = ext ? 'Visit the site ↗' : d.go || 'View project →'; pzv.removeAttribute('data-cur');      /* the button says what it does; the ring only settles round it */
     if (ext) { pzv.target = '_blank'; pzv.rel = 'noopener'; } else { pzv.removeAttribute('target'); pzv.removeAttribute('rel'); }
-    pzv.dataset.in = d.sum || ''; pzv.dataset.im = d.im || ''; pzv.dataset.big = d.big || '';
+    pzv.dataset.in = d.in || d.sum || '';   /* the short line typed while the page opens, else the summary */ pzv.dataset.im = d.im || ''; pzv.dataset.big = d.big || '';
   };
   /* On a phone an opened piece of work is a sheet. The poster that was tapped travels to the head of the sheet, and back again. */
   const flight = (a, b) => 'translate(' + (a.left + a.width / 2 - b.left - b.width / 2).toFixed(1) + 'px,' + (a.top + a.height / 2 - b.top - b.height / 2).toFixed(1) + 'px) scale(' + (a.width / Math.max(1, b.width)).toFixed(4) + ')';

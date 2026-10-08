@@ -4,6 +4,7 @@ subtitle: A journey through the Dachstein
 year: 2024
 place: Dachstein, Austria
 summary: A photo book of four days hut to hut around the Dachstein in Austria.
+opening: Four days hut to hut around the Dachstein.
 photographs: Adhit Chandy George
 creditLabel: Photographs and text
 format: Photo book, 28 × 19 cm, 40 pages
