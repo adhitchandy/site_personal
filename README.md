@@ -24,7 +24,11 @@ The code and text are kept on GitHub (a private repository). `photos/` is left o
 
 ## Saving a change to GitHub
 
-In Terminal: `~/Personal/sites/push.sh "what changed"`. It saves the change in both sites (this one and Two Readings) and sends it to GitHub.
+In Terminal, inside the site folder:
+
+    git add -A
+    git commit -m "what changed"
+    git push
 
 ## Every time you change something
 
