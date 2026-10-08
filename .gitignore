@@ -1,0 +1,8 @@
+# Made by the build or by tools; rebuilt on any computer.
+node_modules/
+dist/
+.cache/
+.wrangler/
+unused-images.txt
+# Made by macOS.
+.DS_Store

@@ -1,0 +1,14 @@
+{
+  "name": "adhitchandy-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "preview": "npx --yes serve dist",
+    "deploy": "node build.mjs && npx wrangler deploy"
+  },
+  "dependencies": {
+    "exif-reader": "^2.0.2",
+    "sharp": "^0.34.0"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "title": "City-Level Effectiveness of the National Clean Air Programme (NCAP) in India",
+  "short": "Clean air in India, evaluated",
+  "kind": "Master's thesis",
+  "year": "2025",
+  "repo": "https://github.com/adhitchandy/NCAP_thesis",
+  "date": "December 2025",
+  "types": [
+    "research"
+  ],
+  "summary": "Did India's National Clean Air Programme lower fine-particle pollution in its target cities? Satellite data from 1998 to 2023 and a synthetic difference-in-differences design say it has not, so far.",
+  "cover": "stories/to-meet-the-ends/img/09.jpg",
+  "facts": [
+    [
+      "Author",
+      "Adhit Chandy George"
+    ],
+    [
+      "Degree",
+      "MSc Economics"
+    ],
+    [
+      "University",
+      "Universität Hamburg"
+    ],
+    [
+      "Supervisor",
+      "Prof. Dr. Andreas Lange"
+    ],
+    [
+      "Advisor",
+      "Dr. Sebastian Renner"
+    ],
+    [
+      "Submitted",
+      "15 December 2025"
+    ],
+    [
+      "Grade",
+      "1.0"
+    ]
+  ],
+  "abstract": [
+    "The effectiveness of India’s National Clean Air Programme (NCAP) is evaluated using high-resolution satellite data (1998–2023). A standard Difference-in-Differences (DiD) baseline is first employed, but it is found to be unsuitable due to violations of parallel trend assumptions. Consequently, a Synthetic Difference-in-Differences (SDiD) estimator is utilised to rigorously isolate policy impacts. It is indicated by the results that aggregate urban pollution trajectories were not altered by the NCAP between 2019 and 2023.",
+    "No improvement relative to synthetic counterfactuals is shown in national estimates, though significant regional heterogeneity is observed: deterioration relative to the counterfactual is recorded in the Arid West, while modest reductions are exhibited in the North-East & East. Crucially, no correlation between fund utilisation and air quality outcomes is found via meta-regression, suggesting that effectiveness has not been driven by spending. The insufficiency of the NCAP’s design — relying on non-binding, city-specific mechanical interventions — is implied by these widespread null results. A shift from city-centric plans to enforceable, source-specific interventions coordinated across transboundary airsheds is required to effectively combat India’s pollution."
+  ],
+  "keywords": [
+    "Air Pollution",
+    "National Clean Air Programme (NCAP)",
+    "Policy Evaluation",
+    "India",
+    "Causal Inference",
+    "Synthetic Difference-in-Difference"
+  ],
+  "glance": [
+    [
+      "129",
+      "NCAP cities, each compared with a synthetic counterpart built from 2,013 untreated urban units"
+    ],
+    [
+      "1998–2023",
+      "satellite-derived PM2.5 at sub-district level"
+    ],
+    [
+      "+0.85 µg/m³",
+      "national SDiD estimate for 2019–2023 (SE 0.25): no reduction relative to the counterfactual"
+    ],
+    [
+      "R² 0.004",
+      "between the share of funds a city used and its estimated effect"
+    ]
+  ],
+  "overview": {
+    "note": "The short version",
+    "question": {
+      "lead": "Has India's National Clean Air Programme made the air cleaner in the cities it targets?",
+      "text": "The programme began in January 2019. It named 131 “non-attainment” cities, set out to cut particulate pollution by 20–30% by 2024 (later 40% by 2026), and has been allocated about US$ 1.6 billion. The thesis asks whether fine-particle pollution (PM2.5) in those cities fell below what it would have been without the programme."
+    },
+    "figure": {
+      "src": "fig/sdid_plot_c1.webp",
+      "caption": "Annual mean PM2.5 in the NCAP cities (blue) and in their synthetic counterpart (grey), 1998–2023. The dashed line marks the start of the programme. The two lines move together for two decades before it; afterwards the NCAP cities sit slightly above the counterpart, not below it.",
+      "ref": "fig:sdid_trends",
+      "refLabel": "Figure 4.9 in the text"
+    },
+    "finding": {
+      "lead": "No detectable reduction in PM2.5 between 2019 and 2023.",
+      "points": [
+        [
+          "+0.85 µg/m³",
+          "The national estimate (standard error 0.25). NCAP cities ended slightly above their counterfactual, not below it."
+        ],
+        [
+          "1.79 and 3.06",
+          "What a standard difference-in-differences model reports with the two control groups. NCAP cities were already on a different path before 2019; correcting for that shrinks the estimate."
+        ],
+        [
+          "+1.10 / −0.85",
+          "Regions differ. The Arid West did worse than its counterfactual, while the North-East & East shows a modest improvement."
+        ],
+        [
+          "R² 0.004",
+          "How much of a city's result is explained by the share of its funds it used. Spending more did not go with cleaner air."
+        ]
+      ]
+    },
+    "limits": {
+      "lead": "The thesis names these itself.",
+      "points": [
+        "The treated sample is narrower than intended. The official data portal was unavailable for much of the research period, and collecting the data by hand was not feasible in the time available.",
+        "Some fine-grained controls are missing, such as fuel use or industrial density at sub-district level, which could explain more of the variation in pollution.",
+        "In the Indo-Gangetic Plain the placebo tests are unstable. Pollution there is so strongly correlated across neighbouring areas that a clean comparison group is hard to build, even with this method.",
+        "It covers the first five years and the programme as a whole. A longer period, other pollutants and the individual measures are left for later work."
+      ]
+    }
+  },
+  "poster": "c",
+  "tone": "yellow"
+}

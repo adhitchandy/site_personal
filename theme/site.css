@@ -1,0 +1,1180 @@
+/* adhitchandy.com — one dark room ruled by hairlines; photographs carry the colour. */
+/* the two typefaces are kept with the site (theme/fonts), so no other server is asked for them */
+@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:200 800;font-display:swap;src:url(/fonts/bricolage-grotesque-latin-opsz-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:200 800;font-display:swap;src:url(/fonts/bricolage-grotesque-latin-ext-opsz-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+20A0-20C0,U+2113}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/ibm-plex-mono-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/ibm-plex-mono-latin-500-normal.woff2) format('woff2')}
+:root{
+  --accent:#e0492c;
+  --t-open:.8s; --t-close:.6s; --e-open:cubic-bezier(.2,.7,.2,1); --e-close:cubic-bezier(.5,0,.2,1);
+  color-scheme:dark;
+  --bg:#0b0b0a; --fg:#efece6; --dim:#96928a; --line:#2a2925; --panel:#141412;
+  --tfield:#efece6; --tink:#0b0b0a; --mark:#3a3524;
+  --pan:#141413; --vein:#1e1d1b;
+  --display:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --gut:clamp(16px,1.4vw,22px);
+  --rail:clamp(220px,25vw,380px);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --shade:#000;
+}
+/* light theme: follows the system unless the reader has chosen one with the switch in the top bar */
+@media(prefers-color-scheme:light){:root:not([data-theme=dark]){color-scheme:light;--bg:#f4f2ec;--fg:#11110f;--dim:#6a665e;--line:#d8d4ca;--panel:#e8e5dc;--tfield:#11110f;--tink:#f4f2ec;--mark:#f3e3a0;--pan:#0c0c0b;--vein:#1b1b19;--shade:rgba(52,44,28,.55)}}
+:root[data-theme=light]{color-scheme:light;--bg:#f4f2ec;--fg:#11110f;--dim:#6a665e;--line:#d8d4ca;--panel:#e8e5dc;--tfield:#11110f;--tink:#f4f2ec;--mark:#f3e3a0;--pan:#0c0c0b;--vein:#1b1b19;--shade:rgba(52,44,28,.55)}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--display);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:clip;min-height:100svh;display:flex;flex-direction:column}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:4px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+[hidden]{display:none!important}
+.k{color:var(--dim)}
+.sm{font-size:13px;line-height:1.35;font-weight:500}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;font-weight:400}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.035em;line-height:1.02;text-wrap:balance}
+@keyframes rise{from{transform:translateY(105%)}to{transform:none}}
+@keyframes in{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+/* Headings rise into place when a page opens. Every word is a small window; a short heading's letters come up through it one after
+   another, a long heading's words come up whole. Once they have arrived the windows are taken away again. Arriving through a
+   picture that grew to fill the window, the title has just been written across that picture, so the heading simply stands there. */
+.hw{display:inline-block;white-space:nowrap;padding:.14em .07em .24em;margin:-.14em -.07em -.24em;clip-path:inset(0);animation:hfree 0s linear 2.6s forwards}
+.hi{display:inline-block;animation:hrise 1s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--hd,.1s) + var(--n,0)*var(--hs,.04s))}
+.hr.w .hi{--hrot:1.5deg}
+@keyframes hrise{from{transform:translateY(130%) rotate(var(--hrot,5deg))}}
+@keyframes hfree{to{clip-path:none}}
+html.came .hw{clip-path:none;animation:none}
+html.came .hi{animation:none}
+/* what stands with a heading comes up just after it */
+@keyframes abup{from{opacity:0;transform:translateY(34px)}}
+@keyframes abwipe{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+.lead>p,.filters,.shd{animation:abup .9s var(--ease) backwards;animation-delay:calc(.28s + var(--n,0)*.08s)}
+
+/* Going from page to page by the menu or a plain link: the old page lifts away, the new one comes up into its place, and the top
+   bar stays where it is. Arriving through a picture that grew to fill the window is left alone (the page head sees to that). */
+@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
+::view-transition-old(root){animation:vtout .22s cubic-bezier(.4,0,1,1) both}
+::view-transition-new(root){animation:vtin .55s cubic-bezier(.16,1,.3,1) .12s both}
+@keyframes vtout{to{opacity:0;transform:translateY(-10px)}}
+@keyframes vtin{from{opacity:0;transform:translateY(16px)}}
+::view-transition-group(bar){animation-duration:.3s}
+::selection{background:var(--accent);color:#efece6}
+
+/* top bar */
+.top{display:grid;grid-template-columns:var(--rail) minmax(0,1fr) auto;align-items:center;min-height:48px;padding:env(safe-area-inset-top,0px) var(--gut) 0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;background:var(--bg)}
+.top{transition:transform .35s var(--ease);view-transition-name:bar}
+.top .brand{font-weight:600;font-size:16px;letter-spacing:-.02em;padding-block:12px}
+.top nav{display:flex;flex-wrap:wrap;gap:2px 18px;padding-left:var(--gut)}
+.top nav a{padding-block:12px;color:var(--dim)}
+.top nav a.on,.top nav a:hover{color:var(--fg)}
+.top .tr{display:flex;align-items:center;gap:14px}
+.theme{width:44px;height:44px;margin-right:-12px;display:grid;place-items:center}
+.theme i{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--fg);background:linear-gradient(90deg,var(--fg) 50%,transparent 50%);transition:transform .6s var(--ease)}
+.theme:hover i{transform:rotate(180deg)}
+.top .contact{padding-block:12px;text-decoration:underline;text-underline-offset:4px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 24px;padding:var(--gut) var(--gut) calc(var(--gut) + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);margin-top:auto}
+.foot .acg{--s:clamp(44px,4.6vw,72px);padding-bottom:0;z-index:auto}
+.foot .acg:hover{text-decoration:none}
+.foot .fr{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
+.acgrow{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding-bottom:var(--gut)}
+.acgrow .acg{padding-bottom:0}
+.acgrow .copy{font-size:11px}
+
+/* pointer ring */
+#cur{position:fixed;left:0;top:0;z-index:95;width:14px;height:14px;border-radius:999px;border:1px solid var(--fg);box-shadow:0 0 0 1px rgba(11,11,10,.28);display:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden;contain:layout style;pointer-events:none;font-family:var(--mono);font-size:10px;line-height:1;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);transition:background-color .25s,opacity .3s;transform:translate(-200px,-200px);will-change:transform,width,height}
+#cur.full{background:var(--fg);box-shadow:none}
+#cur.gone{opacity:0}
+#cur span{display:block;white-space:nowrap;opacity:0;transform:translateY(9px);transition:opacity .18s,transform .4s var(--ease)}
+#cur.full span{opacity:1;transform:none}
+#cur .cg{font-family:var(--display);font-size:15px;font-weight:500;letter-spacing:0;transition-delay:.05s}
+#cur .cw:empty{display:none}
+#cur .cw:empty+.cg{font-size:19px}
+@media(hover:hover) and (pointer:fine){#cur{display:flex}}
+/* where the ring is running, the system pointer is put away everywhere, and a small dot stands exactly where the pointer is (the ring
+   trails it a little); over a cover the disc that says Open takes the dot's place */
+html.curon,html.curon *{cursor:none!important}
+.cdot{position:fixed;left:0;top:0;z-index:96;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;transform:translate(-200px,-200px);transition:opacity .2s;will-change:transform}
+#cur.full+.cdot,#cur.gone+.cdot{opacity:0}
+
+/* ---------- home ---------- */
+.home{height:100svh}
+.home .top{position:static}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:var(--rail) minmax(0,1fr);padding-inline:var(--gut)}
+.rail{display:flex;flex-direction:column;border-right:1px solid var(--line);padding-right:var(--gut);min-height:0}
+.rail .who{flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:20px;padding-block:var(--gut)}
+.rail .face{position:relative;width:min(54%,204px);aspect-ratio:1;overflow:hidden;background:var(--line)}
+.rail .face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1);opacity:0}
+.rail .face img.on{opacity:1}
+.facts{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px}
+.facts div{display:flex;flex-direction:column}
+.facts .r{text-align:right;align-items:flex-end}
+.now{border-top:1px solid var(--line);padding-block:var(--gut);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;min-height:clamp(110px,16svh,170px);align-content:start}
+/* every cover's text is laid in the same place, so the block is always as tall as the longest one and the line above it never moves */
+.now .stack{display:grid;min-width:0}
+.now .nw{grid-area:1/1;display:flex;flex-direction:column;gap:12px;visibility:hidden}
+.now .nw.on{visibility:visible}
+.now p{margin:0;display:flex;flex-direction:column}
+#veil{position:fixed;inset:0;z-index:50;background:var(--bg);pointer-events:none;display:flex;align-items:flex-end;justify-content:center;padding-bottom:16svh;animation:veil 0s 4s forwards}
+#veil span{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+@keyframes veil{to{visibility:hidden}}
+.acg{position:relative;z-index:60;display:flex;align-items:flex-end;gap:6px;padding-bottom:var(--gut);--s:clamp(64px,7.4vw,118px)}
+.acg .p,.acg .y,.acg .x{display:block;width:var(--s);height:var(--s)}
+.acg .p{cursor:inherit}
+.acg svg{display:block;width:100%;height:100%;overflow:visible;transform-origin:50% 50%}
+.acg .shape{fill:var(--fg)}
+.acg text{fill:var(--bg);font-family:var(--display);font-weight:600;font-size:40px;text-anchor:middle}
+.stage{display:flex;flex-direction:column;min-width:0;min-height:0;padding-left:var(--gut)}
+#say{flex:1;padding-block:var(--gut);font-size:clamp(28px,4.5vw,132px);letter-spacing:-.04em;text-indent:1.6em;max-width:21em}
+#say .w{display:inline-block;text-indent:0;animation:rise 1.2s var(--ease) both}
+.bar{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.bar div{display:flex;flex-direction:column}
+.strip{display:flex;align-items:stretch;gap:8px;height:clamp(240px,48svh,520px);padding-block:10px var(--gut);overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+/* the row of section covers (see site.js for how they are drawn and how they move), and beside it the two pinned highlights */
+.band{height:clamp(240px,48svh,520px)}
+.band .strip{height:100%}
+.tile{--field:#0c0b0a;--tx:#efece6;position:relative;flex:1;display:block;overflow:hidden;background:var(--field);color:var(--tx);animation:tfade 1.1s var(--ease) both;animation-delay:calc(1.7s + var(--d,0)*.07s)}
+@keyframes tfade{from{opacity:0}to{opacity:1}}
+.tile:hover{text-decoration:none}
+.tile img,.tile canvas{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover}
+.tile .tk{position:absolute;left:5%;right:5%;top:4.4%;display:flex;justify-content:space-between;gap:8px;font-size:calc(var(--H,430px) * .034);text-transform:uppercase;z-index:2;transition:color .5s}
+.tile .tk span{padding:.25em .5em;margin:-.25em -.5em;transition:background-color .5s}
+.tile .tt{position:absolute;left:3%;max-width:90%;bottom:4.2%;padding:.1em .18em .16em;background:var(--field);font-weight:600;font-size:calc(var(--H,430px) * .115);line-height:.9;letter-spacing:-.05em;z-index:2;transition:color .5s,background-color .5s}
+/* the sentence: the words that name a part of the site are underlined faintly and answer the pointer */
+#say{text-wrap:wrap}
+#say .c{transition:font-weight .5s ease-out}
+#say .rot{text-indent:0}
+#say .rot .w{animation:none}
+#say .rot.typing::after{content:"";display:inline-block;width:.06em;height:.8em;margin-left:.04em;background:var(--accent);vertical-align:-.06em}
+#say .kw{text-decoration:underline;text-decoration-color:var(--dim);text-decoration-thickness:2px;text-underline-offset:.12em;outline-offset:4px;background-size:cover;background-position:50% 40%;-webkit-background-clip:text;background-clip:text;transition:color .45s}
+#say .rot.kw{text-decoration:none}#say .rot.kw .w{text-decoration:underline;text-decoration-color:var(--dim);text-decoration-thickness:2px;text-underline-offset:.12em}
+#say .kw.go{cursor:pointer}
+#say .kw.pic,#say .kw.pic .w{color:transparent}
+#say .kw.pic{filter:brightness(var(--pf,1)) saturate(1.12)}
+#say .rot.typing::after{display:none}
+#say .rot.typing .tl::before{content:"";display:inline-block;width:.06em;height:.8em;margin-right:.03em;background:var(--accent);vertical-align:-.06em}
+#say .rot .tl{text-decoration:none;display:inline-block}
+.bar .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:1px;animation:dot 2.4s ease-in-out infinite}
+@keyframes dot{50%{opacity:.25}}
+#cnt{color:var(--accent);font-variant-numeric:tabular-nums}
+#strip.live .pz{animation:none;box-shadow:0 44px 46px -38px rgba(0,0,0,.75)}
+/* a soft light follows the pointer across whichever poster it is on */
+.pz .zz::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;background:radial-gradient(circle at var(--lx,50%) var(--ly,50%),rgba(255,255,255,.26),rgba(255,255,255,0) 46%);mix-blend-mode:soft-light}
+@media(hover:hover){.pz:not(.sel):hover .zz::after{opacity:1}}
+/* a pinned piece of work, opened on the first page */
+#strip.live.anim .pz{transition:transform var(--t-open) var(--e-open),filter .7s,opacity .7s}
+#strip.live.anim.shut .pz{transition:transform var(--t-close) var(--e-close),filter .5s,opacity .5s}
+#strip.live.lift{overflow:visible}
+#strip.live.open .pz:not(.sel){filter:blur(9px);opacity:.26;pointer-events:none}
+#strip.live .pz.out{opacity:0!important}
+#strip.live.open .pz.sel{cursor:default;box-shadow:0 60px 120px -50px rgba(0,0,0,.7)}
+.grid #say,.grid .bar,.grid .rail{transition:opacity .7s,filter .7s}
+.grid.open #say,.grid.open .bar{opacity:.14;filter:blur(5px);pointer-events:none}
+.grid.open .rail{opacity:.35}
+/* the covers on the first page: posters of different shapes in a row without end */
+.band{height:clamp(250px,46svh,500px)}
+#strip .pz{position:relative;left:auto;top:auto;width:auto;flex:none;transform:none;transition:box-shadow .6s;animation:none}
+#strip .pz:hover{text-decoration:none}
+#strip .pz img{-webkit-user-drag:none;user-select:none}
+.strip.live{display:block;position:relative;overflow:hidden;margin-right:calc(var(--gut)*-1);cursor:grab;touch-action:pan-y;user-select:none}
+.strip.live:active{cursor:grabbing}
+#strip.live .pz{position:absolute;left:0;top:0;will-change:transform;backface-visibility:hidden;transform-origin:50% 50%}
+@media(hover:hover){#strip .pz:hover{box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}#strip .pz:hover .zp img{transform:scale(1.06)}}
+.strip:not(.live) .pz[aria-hidden]{display:none}
+.strip:not(.live) .pz-d,.strip:not(.live) .pz-f,.strip:not(.live) .pz-g,.strip:not(.live) .pz-b,.strip:not(.live) .pz.feat{grid-column:1/-1}
+.strip:not(.live) .pz-a:not(.feat){grid-column:1/-1;aspect-ratio:3/2}
+.strip:not(.live) .pz-a:not(.feat) .zp{left:30%;right:30%;top:14%;bottom:24%}
+.strip:not(.live) .pz.feat{order:2}.strip:not(.live) .pz{order:4}
+.tile.long .tt{font-size:calc(var(--H,430px) * .086);line-height:.94;letter-spacing:-.045em;max-width:84%;text-wrap:balance}
+.tile.ghost{visibility:hidden;pointer-events:none;animation:none}
+.grp{display:none}
+.tile.on .tk,.tile.on .tt{color:#efece6}
+.tile.on .tt,.tile.on .tk span{background-color:rgba(11,11,10,.82)}
+.strip.live{display:block;position:relative;overflow:hidden}
+.strip.live .tile{position:absolute;left:0;bottom:var(--gut);width:var(--H,430px);height:var(--H,430px);transform-origin:0 100%;will-change:transform}
+.strip.live .tile img{visibility:hidden}
+/* stacked (phones): plain photographs with their titles */
+/* the two pinned highlights: a short list set low at the far right, so the row keeps open space like the rest of the page */
+
+
+/* ---------- inner pages ---------- */
+.page{padding-inline:var(--gut);padding-bottom:clamp(48px,8vw,120px)}
+.lead{display:flex;flex-direction:column;gap:12px;padding-block:clamp(28px,5vw,72px) clamp(18px,2.4vw,34px)}
+.lead h1,.h1{font-size:clamp(40px,7.4vw,124px);letter-spacing:-.05em;line-height:.9}
+.lead .h1{font-size:clamp(28px,4vw,60px)}
+.lead p{margin:0;max-width:60ch}
+.text{max-width:1100px}
+.prose{max-width:64ch;font-size:17px;line-height:1.6}
+.prose p{margin:0 0 1em}
+.prose h2{font-size:28px;margin:1.6em 0 .5em}
+.prose blockquote{margin:0 0 1.2em;padding:0;font-size:22px;line-height:1.3;letter-spacing:-.02em;color:var(--dim)}
+.prose a{text-decoration:underline;text-underline-offset:3px}
+.prose.big{font-size:clamp(20px,2.1vw,30px);line-height:1.3;letter-spacing:-.02em;max-width:34em}
+.credits{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0 16px;border-bottom:1px solid var(--line);margin-block:clamp(20px,3vw,40px)}
+.credits div{border-top:1px solid var(--line);padding-block:12px;display:flex;flex-direction:column;min-width:0;overflow-wrap:anywhere}
+.empty{border-top:1px solid var(--line);padding-top:16px;max-width:60ch}
+img.hero{width:100%;max-height:78svh;object-fit:cover;margin-bottom:clamp(20px,3vw,40px)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,3vw,48px);align-items:start}
+.two img.hero{aspect-ratio:4/5;max-height:none;object-position:46% 30%;filter:grayscale(1)}
+.posts{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+/* ripples on the covers that lead somewhere: a clear canvas over the picture */
+.rfeat .rw,.card .cv{position:relative}
+.rp{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;pointer-events:none}
+/* the Photography page opens on the photo stories: wide pictures with the title set large beneath, then the galleries */
+.shd{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 24px;padding-block:14px;border-top:1px solid var(--line)}
+.shd h2{margin:0;font-size:11px;letter-spacing:.06em;font-weight:400}
+.shd p{margin:0}
+.posts a{display:flex;justify-content:space-between;gap:20px;padding-block:16px;border-bottom:1px solid var(--line);font-size:clamp(20px,2.2vw,32px);font-weight:600;letter-spacing:-.03em}
+
+/* photography index: one door per kind, each hinting at its own layout */
+/* the Photography page: one picture for each kind, with its name set on it; they rise in one after another, and a click grows the picture into the gallery */
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.door{position:relative;display:block;height:clamp(340px,64svh,680px);overflow:hidden;background:var(--c,var(--panel));color:#efece6;animation:doorin 1.1s var(--ease) both;animation-delay:calc(.15s + var(--d,0)*.11s);transition:opacity .5s}
+@keyframes doorin{from{opacity:0;transform:translateY(46px)}to{opacity:1;transform:none}}
+.door:hover{text-decoration:none}
+.door .dw{position:absolute;inset:0;overflow:hidden}
+.door img{width:100%;height:100%;max-width:none;object-fit:cover;transform:scale(1.07);transition:transform 1.6s var(--ease);animation:doorimg 1.9s var(--ease) backwards;animation-delay:calc(.15s + var(--d,0)*.11s)}
+@keyframes doorimg{from{transform:scale(1.28)}to{transform:scale(1.07)}}
+.door .dw::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72),rgba(0,0,0,0) 46%,rgba(0,0,0,0) 74%,rgba(0,0,0,.4));transition:opacity .6s}
+.door .dn,.door .dc{position:absolute;top:12px;text-transform:uppercase}
+.door .dn{left:13px}.door .dc{right:13px}
+.door .dt{position:absolute;left:13px;right:13px;bottom:14px;font-weight:600;font-size:clamp(30px,3.3vw,58px);line-height:.92;letter-spacing:-.05em;text-wrap:balance;transition:transform .7s var(--ease)}
+.door .de{position:absolute;left:13px;bottom:14px;text-transform:uppercase;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .7s var(--ease)}
+@media(hover:hover){
+  .doors:hover .door:not(:hover){opacity:.5}
+  .door:hover img{transform:scale(1)}
+  .door:hover .dt{transform:translateY(-1.9em)}
+  .door:hover .de{opacity:1;transform:none}
+}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px 10px}
+.card{display:flex;flex-direction:column;gap:10px}
+.card:hover{text-decoration:none}
+.card .cv{aspect-ratio:3/2;overflow:hidden;background:var(--panel)}
+.card .cv img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.card:hover .cv img{transform:scale(1.04)}
+.card .ct{display:flex;flex-direction:column;gap:6px}
+.card .row{display:flex;justify-content:space-between;gap:12px;text-transform:capitalize}
+.card h3{font-size:clamp(22px,2vw,30px)}
+.card p{margin:0;max-width:46ch}
+.card[hidden]{display:none}
+/* Projects: covers laid out loosely on a table, each a small poster. Choosing one sends the others back and out of focus, brings
+   the chosen cover forward to the left, and sets what it is beside it. */
+.lab{position:relative;container-type:inline-size;height:calc(var(--h,66)*1cqw);perspective:1600px;margin-bottom:clamp(30px,5vw,80px)}
+.pz{position:absolute;display:block;padding:0;border:0;text-align:left;overflow:hidden;cursor:pointer;white-space:normal;font:inherit;transform-origin:0 0;
+  left:var(--l);top:calc((var(--row,0)*66 + var(--t))*1cqw);width:var(--w);
+  transform:translate3d(calc(var(--mx,0)*var(--dp)*1px),calc(var(--my,0)*var(--dp)*1px),calc(var(--hv,0)*40px)) scale(var(--sc,1));
+  transition:transform var(--t-open) var(--e-open),filter .7s,opacity .7s,box-shadow .8s;animation:doorin 1.1s var(--ease) backwards;animation-delay:calc(.1s + var(--i,0)*.09s);will-change:transform}
+.pz-a{aspect-ratio:3/4}.pz-g{aspect-ratio:4/5}.pz-b{aspect-ratio:3/2}.pz-c{aspect-ratio:4/5}.pz-d,.pz-f{aspect-ratio:16/10}.pz-e{aspect-ratio:1}
+.pz .zz{position:absolute;inset:0;container-type:inline-size;display:block;color:#11110f;background:#efece6;box-shadow:inset 0 0 0 1px rgba(17,17,15,.09)}
+.pz-d .zz,.pz-e .zz{box-shadow:inset 0 0 0 1px rgba(239,236,230,.11)}
+.lab .pz{box-shadow:0 44px 46px -38px rgba(0,0,0,.6)}
+.pz .zp{position:absolute;display:block;overflow:hidden;background:var(--c,#d9d5cb)}
+.pz .zp img{width:100%;height:100%;max-width:none;object-fit:cover;transition:transform 1.4s var(--ease)}
+/* the smallest sizes on a poster are given in fixed measure. --k is how much a poster that has come forward was magnified: once it is
+   set at its real size, those measures grow with it, so every word stays exactly where the magnified poster had it */
+.pz .zh{position:absolute;left:5cqw;right:5cqw;display:flex;justify-content:space-between;gap:3cqw;font-size:max(calc(8px*var(--k,1)),2.3cqw);text-transform:uppercase;letter-spacing:.04em}
+.pz .qt{position:absolute;font-weight:600;letter-spacing:-.05em;line-height:.9;text-wrap:balance}
+.pz-a .zh{top:4.6cqw}
+.pz-a .zp{left:19%;right:19%;top:13%;bottom:29%}
+.pz-a .zf{position:absolute;left:5cqw;right:5cqw;bottom:5cqw;display:grid;grid-template-columns:1.4fr 1fr;gap:4cqw;font-size:max(calc(8px*var(--k,1)),2.5cqw);text-transform:uppercase;letter-spacing:.03em;line-height:1.25}
+.pz-a .zf i{display:block;font-style:normal;opacity:.5;font-size:.8em;padding-bottom:.5em}
+.pz-a .zn{display:block;font-family:var(--display);font-weight:600;text-transform:none;font-size:2.7em;letter-spacing:-.045em;line-height:.95}   /* a section's name (About me) is read at a glance, not as a label */
+.pz-b .zz{background:#f8f7f3}
+.pz-b .zp{left:41%;width:19%;top:13%;bottom:13%}
+.pz-b .qw{position:absolute;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-style:italic;font-size:8.6cqw;line-height:1;letter-spacing:-.02em;max-width:36%}
+.pz-b .w1{left:5%;top:15%}.pz-b .w2{right:5%;bottom:20%;text-align:right}
+.pz-b .zh{bottom:3cqw;font-size:max(calc(7px*var(--k,1)),1.5cqw)}
+.pz-c .zz{background:var(--tone);color:var(--tx)}
+.pz-c .zh{top:4.6cqw}
+.pz-c .zp{left:20%;width:60%;top:14%;aspect-ratio:1;border-radius:50%}
+.pz-c .zp img{filter:grayscale(1) contrast(1.08)}
+.pz-c .qt{left:5cqw;right:5cqw;bottom:5cqw;font-size:11.5cqw}
+.pz-d .zz{background:#11110f;color:#efece6}
+.pz-d .zp{inset:0}
+.pz-d .zp::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72),rgba(0,0,0,0) 55%,rgba(0,0,0,0) 78%,rgba(0,0,0,.4))}
+.pz-d .zh{top:3.2cqw;left:3.4cqw;right:3.4cqw;font-size:max(calc(8px*var(--k,1)),1.6cqw)}
+.pz-d .qt{left:3.4cqw;right:3.4cqw;bottom:3cqw;font-size:12cqw}
+.pz-e .zz{background:#11110f;color:#efece6}
+.pz-e .qt{left:6cqw;right:6cqw;top:6cqw;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-style:italic;font-weight:400;font-size:12.5cqw;letter-spacing:-.03em;line-height:.95}
+.pz-e .zp{left:6cqw;right:6cqw;bottom:12cqw;height:42%}
+.pz-e .zh{bottom:5cqw;left:6cqw;right:6cqw}
+.pz.lg.pz-c .qt{font-size:8.6cqw}.pz.lg.pz-d .qt{font-size:8cqw}.pz.lg.pz-e .qt{font-size:9cqw}.pz.lg.pz-b .qw{font-size:6.4cqw}
+.pz.off{opacity:.1;pointer-events:none}
+@media(hover:hover){.lab:not(.open) .pz:hover{--hv:1;box-shadow:0 34px 60px -28px rgba(0,0,0,.66)}.lab:not(.open) .pz:hover .zp img{transform:scale(1.06)}}
+/* on their way back the covers do not answer the pointer: a cover that rose to it in passing would begin its way back again */
+.lab.shut:not(.open) .pz:hover{--hv:0}
+.lab.shut .pz{transition:transform var(--t-close) var(--e-close),filter .5s,opacity .5s,box-shadow .6s}
+.lab.open .pz:not(.sel){transform:translate3d(0,0,-460px);filter:blur(9px);opacity:.26;pointer-events:none}
+.labpage .lead,.labpage .filters{transition:opacity .7s,filter .7s}
+.labpage.open .lead,.labpage.open .filters{opacity:.18;filter:blur(5px);pointer-events:none}
+.lab.open .pz.sel{transform:var(--to);z-index:5;cursor:default;box-shadow:0 60px 120px -50px rgba(0,0,0,.7)}
+.pzd{position:fixed;z-index:45;left:54vw;right:var(--gut);top:50%;transform:translateY(-46%);pointer-events:none}
+.pzd[hidden]{display:none}
+.pzd .pzi{display:flex;flex-direction:column;align-items:flex-start;gap:18px;max-width:560px;pointer-events:auto}
+.pzd .pzi>*{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .9s var(--ease)}
+.pzd.in .pzi>*{opacity:1;transform:none}
+.pzd.in .pzi>:nth-child(2){transition-delay:.28s}.pzd.in .pzi>:nth-child(3){transition-delay:.36s}.pzd.in .pzi>:nth-child(4){transition-delay:.46s}.pzd.in .pzi>:nth-child(5){transition-delay:.56s}
+.pzp{display:none}
+.pzm{text-transform:uppercase}
+.pzt{margin:0;font-size:clamp(34px,4.6vw,84px);font-weight:600;letter-spacing:-.05em;line-height:.92;text-wrap:balance}
+.pzt.lg{font-size:clamp(28px,3.2vw,56px)}
+.pzs{margin:0;font-size:clamp(16px,1.3vw,20px);line-height:1.45;max-width:46ch;color:var(--dim)}
+.pzl{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;padding-top:8px}
+.pzv{display:inline-flex;align-items:center;min-height:52px;padding:0 26px;background:var(--fg);color:var(--bg);font-weight:600;letter-spacing:-.01em;transition:transform .5s var(--ease)}
+.pzv:hover{text-decoration:none;transform:translateX(6px)}
+.pzr{text-transform:uppercase}
+.pzc{position:fixed;z-index:72;right:var(--gut);top:calc(var(--toph,49px) + 14px);text-transform:uppercase;padding:10px 0;opacity:0;transition:opacity .6s .3s}
+.pzc[hidden]{display:none}
+.pzc.in{opacity:1}
+@media(max-width:820px){
+  .lab{height:auto;perspective:none;container-type:normal;display:flex;flex-direction:column;gap:14px}
+  .lab .pz{position:relative;left:auto;top:auto;width:100%;transform:none}
+  .pz.off{display:none}
+  .lab.open .pz:not(.sel),.lab.open .pz.sel{transform:none;filter:none;opacity:1;box-shadow:none}
+  .pzd{inset:0;left:0;right:0;top:0;transform:none;background:transparent;transition:background-color .45s;overflow-y:auto;padding:calc(var(--gut) + 44px) var(--gut) var(--gut);pointer-events:auto;z-index:70}
+  .pzd.in{background:var(--bg)}
+  .pzd .pzi{max-width:none}
+  /* the poster that was tapped travels to the head of the sheet and stands there */
+  .pzp{display:block;width:100%}
+  .pzd .pzi>.pzp{opacity:1;transform:none;transition:none}
+  .pzp .pz{position:relative;left:auto;top:auto;transform:none;animation:none;clip-path:none;transition:none;pointer-events:none;box-shadow:0 30px 50px -34px var(--shade)}
+  .pzp .pz-a{width:min(100%,calc(46svh*.75))}.pzp .pz-b{width:min(100%,calc(46svh*1.5))}.pzp .pz-c{width:min(100%,calc(46svh*.8))}.pzp .pz-d,.pzp .pz-f{width:min(100%,calc(46svh*1.6))}.pzp .pz-e{width:min(100%,46svh)}
+  .pzc{top:10px}
+}
+/* on a wide screen the table of covers fills the window and has no end */
+body.lablive{height:100svh;overflow:hidden}
+.lablive .page{flex:1;min-height:0;display:flex;flex-direction:column;padding-bottom:0}
+/* the title of a page of covers is set as the title of every other page is, on a phone too, where the covers are simply stacked */
+.labpage .lead,.lablive .lead{padding-block:14px 8px;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:6px 22px}
+.labpage .lead h1,.lablive .lead h1{font-size:clamp(28px,3.4vw,54px)}
+.lablive .filters{padding-bottom:10px}
+.lablive .foot{padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));transition:opacity .7s,filter .7s}
+.lablive .foot .acg{--s:34px}
+body.labopen .foot{opacity:.3;filter:blur(4px);pointer-events:none}
+.lab.live{height:auto;flex:1;min-height:0;overflow:hidden;margin:0 calc(var(--gut)*-1);perspective:1200px;touch-action:none;cursor:grab}
+.lab.live:active{cursor:grabbing}
+.lab.live,.gal-field.live{user-select:none;-webkit-user-select:none}
+.lab.live .pz,.lab.live img,.gal-field.live img{-webkit-user-drag:none}
+.lab.live .pz{left:0;top:0;animation:none;transition:filter .8s,opacity .8s,box-shadow .8s;backface-visibility:hidden}
+.lab.live.anim .pz{transition:transform var(--t-open) var(--e-open),filter .7s,opacity .7s,box-shadow .8s}
+.lab.live.anim.shut .pz{transition:transform var(--t-close) var(--e-close),filter .5s,opacity .5s,box-shadow .6s}
+.filters{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:22px}
+.filters button{min-height:40px;padding:0 14px;border:1px solid var(--line);text-transform:capitalize}
+.filters button{transition:background-color .3s,border-color .3s,color .3s}
+.filters button.on{background:var(--accent);color:#efece6;border-color:var(--accent)}
+
+/* galleries */
+.ph{margin:0;min-width:0}
+.ph .open{display:block;width:100%;overflow:hidden;background:var(--c,var(--panel));aspect-ratio:var(--ar)}
+.ph img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease),opacity .8s}
+.ph .open:hover img{transform:scale(1.025)}
+.ph figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding-top:8px}
+.js .rv{clip-path:inset(0 0 100% 0);transition:clip-path 1.2s var(--ease)}
+.js .rv.in{clip-path:inset(0)}
+/* landscapes: one frame at a time, as wide as the page */
+.gal-wide{display:flex;flex-direction:column;gap:clamp(40px,7vw,110px)}
+.gal-wide .ph{align-self:center;width:min(100%,calc(86svh*var(--ar)))}
+/* street: an uneven contact sheet */
+.gal-sheet{columns:3 280px;column-gap:6px}
+.gal-sheet .ph{break-inside:avoid;margin-bottom:18px}
+.gal-sheet figcaption .mono{display:none}
+/* portraits: tall frames standing in a row on black */
+.gal-tall{display:flex;gap:clamp(18px,3vw,48px);overflow-x:auto;padding-block:clamp(10px,3vw,40px) 24px;scrollbar-width:none;align-items:flex-start}
+.gal-tall::-webkit-scrollbar{display:none}
+.gal-tall .ph{flex:none;width:calc(min(70svh,560px)*var(--ar))}
+.gal-tall .ph .open{height:min(70svh,560px);aspect-ratio:auto}
+.gal-tall figcaption{flex-direction:column}
+
+/* photo story */
+.cover{position:relative;height:min(72svh,50vw);min-height:300px;overflow:hidden;margin-inline:calc(var(--gut)*-1);animation:abwipe 1.3s cubic-bezier(.7,0,.2,1) backwards .1s}
+.cover h1{--hd:.6s}
+/* the way back stands on the picture, on a small dark ground of its own so that it reads over a pale sky as well as over a dark road */
+.cover .bk{position:absolute;z-index:1;left:var(--gut);top:14px;color:#efece6;background:rgba(11,11,10,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:6px 11px 6px 9px;transition:background-color .3s}
+.cover .bk:hover{background:rgba(11,11,10,.78);text-decoration:none}
+.cover .ttl>p{animation:abup .9s var(--ease) backwards .95s}
+.cover img{width:100%;height:120%;object-fit:cover;margin-top:-6%;will-change:transform}
+.cover .ttl{position:absolute;left:var(--gut);right:var(--gut);bottom:var(--gut);display:flex;flex-direction:column;gap:10px;text-shadow:0 0 30px rgba(0,0,0,.6);color:#efece6}
+.cover h1{font-size:clamp(40px,8.6vw,150px);letter-spacing:-.05em;line-height:.88;max-width:12em}
+.chapnav{position:sticky;top:48px;z-index:20;display:flex;gap:4px 20px;overflow-x:auto;white-space:nowrap;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:calc(var(--gut)*-1);padding:0 var(--gut);scrollbar-width:none}
+.chapnav a{padding-block:12px;color:var(--dim)}
+.chapnav a.on,.chapnav a:hover{color:var(--fg)}
+.chap{display:grid;grid-template-columns:minmax(170px,22%) minmax(0,1fr);gap:var(--gut) clamp(20px,3vw,48px);padding-block:clamp(36px,6vw,96px);border-bottom:1px solid var(--line);scroll-margin-top:90px}
+.chap .stick{position:sticky;top:112px;display:flex;flex-direction:column;gap:10px}
+.chap h2{font-size:clamp(26px,3.1vw,50px);letter-spacing:-.04em}
+.flow{display:flex;flex-direction:column;gap:clamp(22px,4.5vw,72px);min-width:0}
+.flow .prose{font-size:16px}
+.flow .prose blockquote{font-size:clamp(22px,2.6vw,38px);color:var(--fg);max-width:22em;margin-bottom:1em}
+/* a row's pictures share one height; the row itself is narrower than the page and sits left, right or centre */
+.prow{display:flex;gap:6px;width:min(calc(var(--w)*1%),calc(64svh*var(--rar)));will-change:transform}
+.prow.a-r{margin-left:auto}.prow.a-c{margin-inline:auto}
+.prow .ph{flex:var(--ar) 1 0}
+
+.cover .sub{margin:0;font-size:clamp(18px,2.2vw,34px);font-weight:500;letter-spacing:-.02em}
+.chap.open .side{display:none}
+.chap.open{grid-template-columns:minmax(0,1fr)}
+.flow .pull{max-width:none}
+/* words beside pictures; the side swaps each time */
+.beside{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(18px,3vw,52px);align-items:start}
+.beside.flip{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.beside.flip .prose{order:2}
+.beside .prose{position:sticky;top:120px;max-width:none}
+.pics{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.pics .ph{flex:var(--ar) 1 200px}
+
+/* endless wall: frames hang at different sizes; the wall bows away when you scroll down and towards you when you scroll up */
+.gal-field{columns:3 240px;column-gap:10px}
+.gal-field .ph{break-inside:avoid;margin-bottom:10px}
+body.fieldlive{height:100svh;overflow:hidden}
+.fieldlive .page{flex:1;min-height:0;display:flex;flex-direction:column;padding-bottom:0}
+.fieldlive .lead{padding-block:14px 10px;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:6px 22px}
+.fieldlive .lead h1{font-size:clamp(28px,3.4vw,54px)}
+/* the other kinds of photograph, in one line at the right of the title row; on a phone they take a line of their own under it */
+.gnav{display:flex;gap:6px 26px;margin-left:auto;white-space:nowrap;animation:abup .9s var(--ease) backwards .4s}
+/* the intro gives way and wraps before the line of genres would drop under it */
+.lead:has(.gnav)>p.k{flex:1 1 20ch}
+.gnav a{color:var(--dim);transition:color .2s}
+.gnav a:hover{color:var(--fg)}
+@media(max-width:820px){.gnav{width:100%;margin-left:0;gap:20px;overflow-x:auto;scrollbar-width:none;padding-top:2px}.gnav::-webkit-scrollbar{display:none}.gnav a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}}
+.fieldlive .foot{padding-block:10px calc(10px + env(safe-area-inset-bottom,0px))}
+.fieldlive .foot .acg{--s:34px}
+.gal-field.live{columns:auto;position:relative;flex:1;min-height:0;overflow:hidden;perspective:900px;perspective-origin:50% 50%;touch-action:none;cursor:grab;margin-inline:calc(var(--gut)*-1);outline-offset:-3px}
+.gal-field.live:active{cursor:grabbing}
+.gal-field.live .ph{position:absolute;left:0;top:0;margin:0;will-change:transform;backface-visibility:hidden}
+.gal-field.live .ph .open{box-shadow:0 30px 60px -30px var(--shade)}
+
+/* lightbox */
+#lbx{position:fixed;inset:0;z-index:70;color:var(--fg);display:flex;flex-direction:column;visibility:hidden;transition:visibility 0s .64s}
+#lbx.open{visibility:visible;transition:none}
+#lbx::before{content:"";position:absolute;inset:0;background:var(--bg);opacity:0;transition:opacity .5s ease}
+#lbx.open::before{opacity:1}
+#lbx .im{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:var(--gut)}
+#lbx img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 40px 90px -56px var(--shade)}
+#lbx .bar2{position:relative;opacity:0;transition:opacity .3s}
+#lbx.open .bar2{opacity:1;transition:opacity .5s .28s}
+#lbx .im{touch-action:none;user-select:none;-webkit-user-select:none}
+#lbx .im img{-webkit-user-drag:none;will-change:transform}
+#lbx .bar2{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 20px;padding:0 var(--gut) calc(10px + env(safe-area-inset-bottom,0px))}
+#lbx .bar2 div{display:flex;gap:4px;align-items:center}
+#lbx button{min-width:44px;min-height:44px;padding:0 10px}
+#lbx .pzc{position:absolute;z-index:2;top:calc(6px + env(safe-area-inset-top,0px));right:var(--gut);padding:0;opacity:0;transition:opacity .3s}
+#lbx.open .pzc{opacity:1;transition:opacity .5s .28s}
+#lbN{color:var(--accent);font-variant-numeric:tabular-nums;padding-right:6px}
+
+@media(max-width:820px){
+  .top{grid-template-columns:auto 1fr auto}
+  .top nav{order:3;grid-column:1/-1;padding-left:0;gap:0 16px;overflow-x:auto;flex-wrap:nowrap;white-space:nowrap;border-top:1px solid var(--line);scrollbar-width:none}
+  .top .tr{justify-self:end}
+  .home{height:auto}
+  .home .top{position:sticky}
+  body.navhide .top{transform:translateY(-101%)}
+  body.navhide .toc,body.navhide .chapnav{top:0}
+  .toc,.chapnav{transition:top .35s var(--ease)}
+  /* the first page on a phone, in reading order: a short introduction, the pinned work, the sections, then who and where; the mark and the copyright line close the page */
+  .grid{display:flex;flex-direction:column}
+  .rail,.stage{display:contents}
+  #say{order:1;flex:none;font-size:clamp(22px,6.3vw,34px);line-height:1.08;text-indent:0;padding-block:var(--gut) 16px}
+  .bar{order:2}
+  .bar .scr{display:none!important}
+  .band{order:3;height:auto}
+  .rail .who{order:4;flex:none;display:grid;grid-template-columns:92px minmax(0,1fr);gap:16px;align-items:end;border-top:1px solid var(--line)}
+  .rail .face{width:100px}
+  .acgrow{order:5;border-top:1px solid var(--line);padding-top:var(--gut)}
+  .now{display:none}
+  .acg{--s:56px}
+  .strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:8px;height:auto;overflow:visible;padding-block:0 calc(var(--gut) + 8px)}
+  .band .strip{height:auto}
+  .grp{display:block;grid-column:1/-1;text-transform:uppercase;padding-block:20px 6px}
+  .grp.gf{order:1}.tile.feat{order:2;grid-column:1/-1}.grp.gs{order:3}.tile{order:4}
+
+  .two{grid-template-columns:minmax(0,1fr)}
+  .gal-tall{flex-direction:column;overflow:visible;align-items:stretch}
+  .gal-tall .ph{width:100%}
+  .gal-tall .ph .open{height:auto;aspect-ratio:var(--ar)}
+  .gal-sheet{columns:2 150px}
+  .chap{grid-template-columns:minmax(0,1fr)}
+  .beside,.beside.flip{grid-template-columns:minmax(0,1fr)}
+  .beside.flip .prose{order:0}
+  .beside .prose{position:static}
+  .chap .stick{position:static}
+  .prow{width:100%}
+  .cover{height:56svh}
+  .foot .fr{align-items:flex-start;text-align:left}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01s!important;animation-delay:0s!important;transition-duration:.01s!important}}
+
+/* papers: a long text set for reading, with a contents rail, figures on white cards, tables and equations */
+#prog{position:fixed;left:0;right:0;top:0;height:2px;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);z-index:40}
+.up{text-transform:uppercase}
+/* a paper is read in a column of its own in the middle of a wide window; the row above it, with the way back and the way to the
+   code, runs the width of the window, as the first row of every other page does */
+.paper>.phead,.paper>.pgrid,.paper>.next{width:100%;max-width:1676px;margin-inline:auto}
+.paper>.ptop{padding-top:clamp(24px,4vw,56px);margin:0}
+.paper>.ptop .pjr{margin-right:max(0px,(100% - 1676px)/2)}   /* over the right edge of the column, as on a project's page */
+.paper .phead{padding-top:14px;display:flex;flex-direction:column;gap:14px}
+.paper .phead>p,.paper>.ptop{animation:abup .9s var(--ease) backwards .2s}
+.paper .phead h1{--hd:.2s;--hs:.035s}
+.paper .phead>p{margin:0}
+.paper .ptop{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 22px}
+.paper .phead h1{font-size:clamp(32px,5.2vw,84px);letter-spacing:-.045em;line-height:.95;max-width:20ch}
+.paper .credits{margin-block:clamp(14px,2vw,26px) 0}
+.abs{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(24px,4vw,72px);padding-block:clamp(24px,3.4vw,52px);border-bottom:1px solid var(--line)}
+.abst h2{margin:0 0 14px;font-size:11px;letter-spacing:.06em;font-weight:400}
+.abst p{margin:0 0 .9em;font-size:clamp(17px,1.45vw,21px);line-height:1.45;letter-spacing:-.01em;max-width:62ch}
+.abst .kw{font-size:13px;letter-spacing:0;margin-top:1.4em}
+.glance{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-content:start}
+.glance li{border-top:1px solid var(--line);padding-block:14px 22px;display:flex;flex-direction:column;gap:8px}
+.glance .n{font-size:clamp(26px,2.6vw,42px);font-weight:600;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+/* a paper on the Research page: its question first, set large beside its picture, with a few of its numbers */
+/* Research: the heading at the left, what the work is about in the column beside it; every paper below sits on the same two columns */
+.rtop,.rfeat{display:grid;grid-template-columns:minmax(0,38fr) minmax(0,62fr);gap:clamp(18px,3vw,48px)}
+.rtop{align-items:start;padding-bottom:clamp(26px,3.4vw,50px)}
+.rtop .lead{padding-bottom:0}
+.rint{display:flex;flex-direction:column;gap:clamp(18px,2.4vw,34px);padding-top:clamp(28px,5vw,72px);min-width:0}
+.rint>*{animation:abup .9s var(--ease) backwards .34s}
+.rint>*+*{animation-delay:.46s}
+.rint .prose.big{max-width:34em}
+.rint .prose p:last-child{margin-bottom:0}
+.rint .credits{margin-block:0;border-bottom:0}
+.rfeat{align-items:stretch;padding-block:clamp(14px,2vw,26px);border-top:1px solid var(--line);animation:doorin 1.1s var(--ease) backwards;animation-delay:calc(.5s + var(--d,0)*.12s)}
+.shd+.rfeat{border-top:0;padding-top:0}
+.rfeat:hover{text-decoration:none}
+.rfeat .rw{display:block;overflow:hidden;background:var(--c,var(--panel));min-height:clamp(240px,30vw,520px);max-width:760px}
+.rfeat .rw img{width:100%;height:100%;max-width:none;object-fit:cover;transform:scale(1.05);transition:transform 1.6s var(--ease)}
+.rfeat .rx{display:flex;flex-direction:column;gap:14px;min-width:0}
+.rfeat .rq{font-weight:600;font-size:clamp(28px,3.5vw,58px);line-height:.98;letter-spacing:-.045em;text-wrap:balance;max-width:18ch}
+.rfeat .rt{max-width:52ch}
+.rfeat .rn{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 14px;margin-top:auto;padding-top:14px}
+.rfeat .rn>span{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-block:12px 14px}
+.rfeat .rn b{font-size:clamp(20px,2vw,32px);font-weight:600;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.rfeat .se{text-transform:uppercase}
+@media(hover:hover){.rfeat:hover .rw img{transform:scale(1)}.rfeat:hover .se{text-decoration:underline;text-underline-offset:4px}}
+@media(max-width:820px){.rtop,.rfeat{grid-template-columns:minmax(0,1fr)}.rint{padding-top:0}.rfeat .rw{min-height:0;aspect-ratio:3/2}.rfeat .rn{grid-template-columns:minmax(0,1fr)}.rfeat .rn>span{flex-direction:row;align-items:baseline;gap:14px}.rfeat .rn b{flex:0 0 8.2ch}}
+/* the overview that stands before a paper: four numbered panels, the question and the figure above, the finding and its limits below */
+.ov{padding-top:clamp(26px,4vw,60px);scroll-margin-top:60px}
+.ovh{display:flex;justify-content:space-between;gap:16px;padding-bottom:12px}
+.ovh h2{margin:0;font-size:11px;letter-spacing:.06em;font-weight:400}
+.ovh span{font-size:11px;letter-spacing:.06em}
+.ovg{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:0 clamp(16px,2vw,32px)}
+.ovc.q,.ovc.l{grid-column:span 5}.ovc.f,.ovc.r{grid-column:span 7}
+.ovc{margin:0;border-top:1px solid var(--fg);padding-block:14px clamp(26px,3.4vw,52px);display:flex;flex-direction:column;gap:16px;min-width:0}
+.ovn{display:flex;gap:1.2em;font-size:11px;letter-spacing:.06em}
+.ovn b{font-weight:400;color:var(--fg)}
+.ovq{margin:0;font-weight:600;font-size:clamp(26px,3.1vw,50px);line-height:1;letter-spacing:-.045em;text-wrap:balance;max-width:17ch}
+.ovc.r .ovq{max-width:20ch}
+.ovp{margin:0;font-size:clamp(15px,1.15vw,17px);line-height:1.5;max-width:54ch;color:var(--dim)}
+.ov .plot{background:#fff;border:1px solid var(--line);padding:clamp(8px,1.4vw,18px)}
+.ov .plot .zoom{display:block;width:100%;cursor:zoom-in}
+.ov .plot img{display:block;width:100%;height:auto}
+.ov figcaption{font-size:14px;line-height:1.45;color:var(--dim);max-width:74ch;text-wrap:pretty}
+.ov figcaption a{color:var(--fg);white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+.ovl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ovl li{border-top:1px solid var(--line);padding-block:12px;font-size:clamp(15px,1.15vw,17px);line-height:1.45;max-width:70ch}
+.ovl.nums li{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr);gap:16px;align-items:baseline;max-width:none}
+.ovl.nums b{font-size:clamp(19px,1.7vw,27px);font-weight:600;letter-spacing:-.035em;line-height:1.05;font-variant-numeric:tabular-nums}
+.ovl.nums span{color:var(--dim)}
+.ovc.l .ovl li{color:var(--dim)}
+.ovgo{display:inline-block;text-transform:uppercase;padding-block:4px 6px}
+.ovgo:hover{text-decoration:underline;text-underline-offset:4px}
+.ov+.abs{border-top:1px solid var(--line);margin-top:clamp(20px,3vw,44px)}
+@media(max-width:820px){.ovg{grid-template-columns:minmax(0,1fr)}.ovg .ovc{grid-column:auto}.ovl.nums li{grid-template-columns:minmax(0,1fr);gap:6px}.ovq,.ovc.r .ovq{max-width:none}}
+.pgrid{display:grid;grid-template-columns:minmax(200px,270px) minmax(0,1fr);gap:clamp(24px,4vw,72px);align-items:start}
+.toc{align-self:stretch}
+.toc .stick{position:sticky;top:48px;max-height:calc(100svh - 48px);overflow-y:auto;padding-block:26px 40px;scrollbar-width:thin;display:flex;flex-direction:column;gap:12px}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc .stick>ol>li{border-top:1px solid var(--line)}
+.toc a{display:block;padding-block:7px;color:var(--dim)}
+.toc a:hover,.toc a.on,.toc a.in{color:var(--fg);text-decoration:none}
+.toc ol ol{display:none;padding:0 0 10px 14px}
+.toc li.open>ol{display:block}
+.toc ol ol a{padding-block:4px;font-weight:400}
+.thesis h2 .no.c::before{content:'Chapter '}
+.thesis{min-width:0;width:100%;max-width:920px;margin-inline:auto;font-size:17px;line-height:1.62;padding-bottom:40px;overflow-wrap:break-word}
+.thesis .ch{padding-top:clamp(40px,6vw,88px);scroll-margin-top:40px}
+.thesis :is(h3,h4,h5,h6,figure,.eqrow,li){scroll-margin-top:72px}
+.thesis>.ch>:is(p,ul,ol,h2,h3,h4,h5,h6,blockquote,.fnote,.eqrow){max-width:700px;margin-inline:auto}
+.thesis>.ch>h2{max-width:700px}
+.thesis :is(figcaption,.fnote){margin-inline:auto}
+.thesis figure>:is(figcaption,.fnote){max-width:700px}
+.thesis p{margin:0 0 1em;text-wrap:pretty}
+.thesis h2{font-size:clamp(30px,4vw,60px);letter-spacing:-.045em;line-height:.98;margin:0 0 .7em;display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);padding-top:18px}
+.thesis h2 .no{font-family:var(--mono);font-size:11px;letter-spacing:.06em;font-weight:400;color:var(--dim);text-transform:uppercase}
+.thesis .ch:is(.refs,.notes,.ack) h2 .no{font:inherit;letter-spacing:inherit;color:inherit;text-transform:none}
+.thesis h3{font-size:clamp(22px,2.2vw,30px);letter-spacing:-.03em;line-height:1.1;margin:2em 0 .7em}
+.thesis h4{font-size:19px;font-weight:600;letter-spacing:-.02em;line-height:1.2;margin:1.8em 0 .6em}
+.thesis h5,.thesis h6{font-size:15px;font-weight:600;letter-spacing:0;margin:1.6em 0 .5em}
+.thesis h6{color:var(--dim)}
+.thesis :is(h3,h4) .no{color:var(--dim);font-weight:500;margin-right:.35em;font-variant-numeric:tabular-nums}
+.thesis ul,.thesis ol{margin:0 0 1em;padding-left:1.3em}
+.thesis li{margin-bottom:.4em}
+.thesis li>p{margin-bottom:.4em}
+.thesis a{text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:3px;text-decoration-thickness:1px}
+.thesis a:hover{text-decoration-color:var(--fg)}
+.thesis a.cite{text-decoration-style:dotted}
+.thesis abbr{text-decoration:none;cursor:help}
+.thesis sup,.thesis sub{line-height:0;font-size:.72em}
+.thesis a.fnref{text-decoration:none;font-family:var(--mono);padding:0 2px;color:var(--dim)}
+.thesis a.fnref:hover{color:var(--fg)}
+.thesis math{font-family:'STIX Two Math','Cambria Math','Latin Modern Math','STIXGeneral',serif;font-size:1.06em}
+.thesis math[display=block]{display:block;overflow-x:auto;overflow-y:hidden;padding-block:6px;margin-block:1.1em;max-width:100%}
+.thesis .eqrow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;margin-block:1.1em}
+.thesis .eqrow math[display=block]{margin:0}
+.thesis .eqno{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.thesis :target{animation:mark 2.4s ease-out}
+@keyframes mark{from{background:var(--mark)}to{background:transparent}}
+.thesis figure{margin:2.2em 0 2.4em}
+.thesis .plot{background:#fff;border:1px solid var(--line);padding:clamp(8px,1.4vw,18px)}
+.thesis .survey-chart figcaption{color:var(--fg);font-weight:500;padding-bottom:20px}
+.thesis .survey-bars{list-style:none;padding:0;margin:0}
+.thesis .survey-bars li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 18px;margin:0;padding:16px 0;border-top:1px solid var(--line)}
+.thesis .survey-label{font-weight:500;line-height:1.35}
+.thesis .survey-value{font-variant-numeric:tabular-nums;text-align:right;font-weight:600;white-space:nowrap}
+.thesis .survey-value small{display:block;color:var(--dim);font-weight:400;font-size:13px}
+.thesis .survey-track{grid-column:1/-1;display:block;height:14px;background:var(--panel);border:1px solid var(--line);background-image:linear-gradient(to right,transparent calc(100% - 1px),var(--line) 0);background-size:25% 100%}
+.thesis .survey-track>span{display:block;height:100%;background:var(--accent)}
+.thesis .survey-axis{display:flex;justify-content:space-between;font:11px var(--mono);color:var(--dim);margin-bottom:18px}
+@media(max-width:600px){.thesis .survey-bars li{grid-template-columns:minmax(0,1fr)}.thesis .survey-value{text-align:left}.thesis .survey-value small{display:inline;margin-left:8px}.thesis .survey-table table{min-width:520px}}
+
+.thesis .plot .zoom{display:block;width:100%;cursor:zoom-in}
+.thesis .plot img{width:auto;height:auto;max-width:100%;max-height:min(74svh,640px);margin-inline:auto}
+.thesis .plot.multi img{max-height:none;width:100%}
+.thesis .plot.multi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(6px,1vw,14px)}
+.thesis .plot.multi>:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 4px)}
+.thesis .plot .panel{display:flex;flex-direction:column;gap:6px}
+.thesis .plot .sub{color:#33312c;font-size:13px;text-align:center;font-weight:500}
+.thesis figcaption{font-size:14px;line-height:1.45;color:var(--dim);padding-top:10px;max-width:74ch;text-wrap:pretty}
+.thesis .tbl figcaption{padding:0 0 10px;color:var(--fg);font-weight:500}
+.thesis .lab{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg);margin-right:8px}
+.thesis .tbl .lab{color:var(--dim)}
+.thesis .fnote{font-size:13.5px;line-height:1.5;color:var(--dim);padding-top:10px;max-width:74ch}
+.thesis .fnote p{margin:0}
+.thesis .tw{overflow:auto;border-block:1px solid var(--fg);max-width:100%}
+.thesis .tbl.long .tw{max-height:min(72svh,640px)}
+.thesis table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.35;font-variant-numeric:tabular-nums}
+.thesis th,.thesis td{padding:7px 14px 7px 0;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.thesis :is(th,td):last-child{padding-right:2px}
+.thesis :is(th,td).r{text-align:right;white-space:nowrap}
+.thesis thead th{font-weight:600;border-bottom:1px solid var(--dim);vertical-align:bottom;position:sticky;top:0;background:var(--bg);z-index:1}
+.thesis tbody tr:last-child td{border-bottom:0}
+.thesis table.num td:first-child{white-space:nowrap}
+.thesis tr.grp td{border-top:1px solid var(--dim)}
+.thesis td strong,.thesis th strong{font-weight:600}
+.thesis .refs ol{list-style:none;padding:0;font-size:14.5px;line-height:1.5;max-width:86ch}
+.thesis .refs li{padding:8px 0 8px 2em;text-indent:-2em;margin:0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.thesis .notes ol{font-size:14.5px;line-height:1.5;max-width:80ch;color:var(--dim)}
+.thesis .notes li::marker{font-family:var(--mono);font-size:12px}
+.thesis .notes p{margin:0}
+.thesis .fnback{text-decoration:none;margin-left:4px}
+.thesis .ack{color:var(--dim)}
+.thesis .ack p{max-width:68ch;font-size:16px}
+@media(max-width:980px){
+  .abs{grid-template-columns:minmax(0,1fr)}
+  .pgrid{grid-template-columns:minmax(0,1fr);gap:0}
+  .toc{position:sticky;top:48px;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:calc(var(--gut)*-1);min-width:0}
+  .toc .stick{position:static;max-height:none;padding:0;overflow:visible}
+  .toc .stick>.mono{display:none}
+  .toc .stick>ol{display:flex;gap:0 20px;overflow-x:auto;white-space:nowrap;padding-inline:var(--gut);scrollbar-width:none}
+  .toc .stick>ol>li{border:0;flex:none}
+  .toc a{padding-block:12px}
+  .toc ol ol,.toc li.open>ol{display:none}
+  .thesis{font-size:16.5px}
+  .thesis .ch{scroll-margin-top:92px}
+  .thesis :is(h3,h4,h5,h6,figure,.eqrow,li){scroll-margin-top:110px}
+  .thesis .plot.multi{grid-template-columns:minmax(0,1fr)}
+  .thesis .plot.multi>:last-child:nth-child(odd){width:100%}
+}
+@media(max-width:820px){.toc{top:var(--toph,89px)}}
+
+@media(min-width:1500px){.pgrid{grid-template-columns:270px minmax(0,1fr) 270px}}
+
+/* curriculum vitae on the About page */
+
+/* The CV is a sheet of paper lying a little askew in the text; it straightens under the pointer. Pressed, it comes forward and stands
+   at the left, as a project's cover does, with the CV itself set out beside it and the file to take away beneath. */
+.cvc{--tilt:0deg;display:block;width:min(300px,62%);aspect-ratio:4/5;padding:0;border:0;text-align:left;cursor:pointer;white-space:normal;font:inherit;transform:rotate(var(--tilt));transition:transform .8s cubic-bezier(.2,.7,.2,1),box-shadow .8s;box-shadow:0 30px 60px -34px var(--shade);margin:10px 0 14px 6px}
+.cvc:hover,.cvc:focus-visible{transform:rotate(0deg) translateY(-6px);box-shadow:0 46px 80px -36px var(--shade)}
+.cvr{position:fixed;inset:0;z-index:75;overflow-y:auto;overscroll-behavior:contain;background:transparent;transition:background-color .5s}
+.cvr[hidden]{display:none}
+.cvr.in{background:var(--bg);background:color-mix(in srgb,var(--bg) 96%,transparent)}
+.cvb{display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,2.2fr);gap:clamp(24px,5vw,90px);max-width:1280px;margin:0 auto;padding:clamp(70px,10vh,120px) var(--gut) 80px;min-height:100%}
+.cvl{position:sticky;top:clamp(70px,10vh,120px);align-self:start;display:flex;flex-direction:column;align-items:flex-start;gap:26px;min-width:0}
+.cvk{display:block;width:min(100%,340px,calc((100svh - 310px)*.8));aspect-ratio:4/5;box-shadow:0 50px 90px -46px var(--shade)}
+.cvd{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.cvd,.cvr .cv{transform:translateY(30px);opacity:0;transition:transform .5s var(--ease),opacity .32s}
+.cvr .cv{margin-top:0;outline:0}
+.cvr.in .cvd{transform:none;opacity:1;transition:transform .9s var(--ease) .3s,opacity .7s .3s}
+.cvr.in .cv{transform:none;opacity:1;transition:transform 1s var(--ease) .2s,opacity .8s .2s}
+.cvr .pzc{transition:opacity .3s}
+.cvr.in .pzc{opacity:1;transition:opacity .6s .3s}
+@media(max-width:820px){.cvb{grid-template-columns:minmax(0,1fr)}.cvl{position:static}.cvc{width:min(260px,70%)}.cvk{width:min(240px,64%)}}
+.cv{margin-top:clamp(36px,5vw,72px);border-top:1px solid var(--fg);padding-top:16px}
+.cvh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 20px;margin-bottom:clamp(14px,2vw,28px)}
+.cvh h2{font-size:clamp(28px,3.4vw,52px);letter-spacing:-.045em}
+.cvs{border-top:1px solid var(--line);padding-block:16px clamp(18px,2.4vw,32px)}
+.cvs h3{font-size:11px;letter-spacing:.06em;font-weight:400;margin:0 0 14px}
+.cvt{margin:0;font-size:17px;line-height:1.5;max-width:60ch}
+.cvi{display:grid;grid-template-columns:minmax(110px,150px) minmax(0,1fr);gap:4px 20px;padding-block:10px}
+.cvi+.cvi{border-top:1px solid var(--line)}
+.cvi p{margin:0}
+.cvi .t{font-size:18px;font-weight:600;letter-spacing:-.02em;line-height:1.25}
+.cvi ul{margin:8px 0 0;padding-left:1.1em;font-size:15px;line-height:1.5;color:var(--dim);max-width:64ch}
+.cvi li{margin-bottom:4px}
+.cvi a{text-decoration:underline;text-underline-offset:3px;color:var(--fg)}
+@media(max-width:560px){.cvi{grid-template-columns:minmax(0,1fr)}}
+
+/* a cover growing into its page (first page), and the page receiving it */
+.zoomer{position:fixed;z-index:90;background:#0b0b0a;overflow:hidden;pointer-events:none}
+.zoomer .zb,#enter .eb{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat}
+.zoomer .zs,#enter .es{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),rgba(0,0,0,0) 60%)}
+.zt,#enter .et{position:absolute;left:var(--gut);bottom:calc(clamp(20px,5vh,56px) + 14px + 4.5 * clamp(12px,1.05vw,15px));width:calc(100vw - 2*var(--gut));color:#efece6;font-family:var(--display);font-weight:600;font-size:clamp(40px,7.4vw,136px);line-height:.92;letter-spacing:-.05em;text-wrap:balance}
+.zt .zw{display:inline-block;white-space:nowrap}
+.zt .zl{display:inline-block}
+#enter{position:fixed;inset:0;z-index:90;background-color:#0b0b0a;color:#efece6;overflow:hidden}
+#enter .eb{inset:auto;left:0;top:0;width:100%;height:100%}
+#enter .ed{position:absolute;left:var(--gut);bottom:clamp(20px,5vh,56px);margin:0;font-family:var(--mono);font-size:clamp(12px,1.05vw,15px);line-height:1.5;letter-spacing:.02em;max-width:min(62ch,calc(100vw - 2*var(--gut)));height:4.5em;overflow:hidden}
+#enter .ed::after{content:"";display:inline-block;width:.55em;height:1em;margin-left:2px;background:#efece6;vertical-align:-.15em;animation:blink .7s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+html.entering.nobar body{overflow:hidden}
+html.entering main{transform:translateY(80px);opacity:0}
+html.entering.entered main{transform:none;opacity:1;transition:transform 1.2s cubic-bezier(.16,1,.3,1) .3s,opacity .9s .3s}
+html.entering.morph main{transform:none;transition:opacity .9s .25s}
+html.entering.morph .top{opacity:0}
+html.entering.morph.entered .top{opacity:1;transition:opacity .9s .25s,transform .35s var(--ease)}
+/* the cover picture at the head of a paper */
+.pcover{width:100%;aspect-ratio:21/9;max-height:62svh;object-fit:cover;margin-top:clamp(10px,1.6vw,22px);animation:abwipe 1.3s cubic-bezier(.7,0,.2,1) backwards .35s}
+.pcover.contain{object-fit:contain;background:var(--panel)}
+.phead .pcredit{text-align:right;margin:8px 0 0;font-size:12px}.pcredit a{text-decoration:underline;text-underline-offset:3px}
+
+
+/* a cover brought forward is drawn fresh at its new size */
+.pz.sel{will-change:auto!important}
+
+/* the phrase that is rewritten: under the pointer its letters are drawn in outline only */
+#say .rot .c{transition:font-weight .5s ease-out,color .35s,-webkit-text-stroke-color .35s;-webkit-text-stroke:.022em transparent;paint-order:stroke fill}
+#say .rot.hol .c{color:var(--bg);-webkit-text-stroke-color:var(--fg)}
+
+/* letters of the rewritten phrase not yet typed keep their place but are not shown; the caret stands after the last one typed */
+#say .rot .c.h{visibility:hidden}
+#say .rot.kw .w{text-decoration:none}
+#say .rot .c{text-decoration:underline;text-decoration-color:var(--dim);text-decoration-thickness:2px;text-underline-offset:.12em;position:relative}
+#say .rot .tl{text-decoration:none}
+#say .rot.typing .tl::before{display:none}
+#say .rot.typing .c.cur::after{content:"";position:absolute;left:100%;top:.14em;width:.06em;height:.8em;margin-left:.03em;background:var(--accent)}
+
+.rail .nm{font-weight:600;letter-spacing:-.01em}
+
+/* A project's own page: its name stays at the left while the text is read; the first paragraph is set large as a way in, the
+   picture follows it whole, then the rest. The two columns are the ones the Research page uses. */
+.proj{display:grid;grid-template-columns:minmax(0,38fr) minmax(0,62fr);gap:clamp(18px,3vw,48px);align-items:start;padding-top:clamp(28px,5vw,72px)}
+.pjs{align-self:stretch;min-width:0}
+.pjs .stick{position:sticky;top:calc(48px + clamp(28px,5vw,72px));display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.pjs p{margin:0}
+.pjs h1{font-size:clamp(40px,6vw,104px);letter-spacing:-.05em;line-height:.9;padding-block:4px 8px}
+.pjs .stick>:not(h1){animation:abup .9s var(--ease) backwards .24s}
+.pjr{padding-block:6px}
+.pjr:hover{text-decoration:underline;text-underline-offset:4px}
+.pjc{display:flex;flex-direction:column;gap:clamp(24px,3.2vw,48px);min-width:0}
+.pjc>*{animation:abup .9s var(--ease) backwards .34s}
+.pjc>*+*{animation-delay:.48s}
+.pjc>*+*+*{animation-delay:.6s}
+.pjc .prose.big{max-width:34em}
+.pjc .prose.big p{margin:0}
+.pjf{margin:0;max-width:980px;background:var(--panel);overflow:hidden}
+.pjf img{width:100%;height:auto}
+.pjf:not(.flat) img{aspect-ratio:3/2;object-fit:cover}
+html.came :is(.lead>p,.filters,.shd,.hl,.rint>*,.pjs .stick>*,.pjc>*,.paper .phead>p,.paper>.ptop,.pcover,.cover,.cover .ttl>p){animation:none}
+@media(max-width:820px){
+  .proj{grid-template-columns:minmax(0,1fr)}
+  .pjs .stick{position:static}
+  /* the galleries stand two by two, so that all of them are seen without a long scroll */
+  .doors{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .door{height:auto;aspect-ratio:3/4}
+  .door:last-child:nth-child(odd){grid-column:1/-1;aspect-ratio:3/2}
+  .door .dt{font-size:clamp(20px,6.4vw,34px);left:10px;right:10px;bottom:11px}
+  .door .dn{left:10px;top:10px}.door .dc{right:10px;top:10px}
+  .door .de{display:none}
+}
+
+/* ---------- Photography: one window divided down the middle, nothing drawn between the halves. The stories lie at the left as
+   posters, the genres stand at the right as photographs. Below 960px the two follow each other. ---------- */
+.photo .page{flex:1;display:flex;flex-direction:column;padding-bottom:var(--gut);width:100%;max-width:2600px;margin-inline:auto}
+.photo .lead{padding-block:14px 4px;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:6px 22px}
+.photo .lead h1{font-size:clamp(28px,3.4vw,54px)}
+.halves{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(22px,3.4vw,64px);align-items:start;min-height:0}
+.halves.one{grid-template-columns:minmax(0,1fr)}
+.half{display:flex;flex-direction:column;min-width:0}
+.hl{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin:0;padding-block:12px 14px;animation:abup .9s var(--ease) backwards .3s}
+.photo .lab{height:auto;aspect-ratio:100/var(--h,72);width:100%;max-width:calc((100svh - 300px)*100/var(--h,72));margin:0}
+.genres{position:sticky;top:48px}
+/* when the stories all lie still beside the genres, they stand in the middle of the height the genres take, with as much room above as below */
+@media(min-width:960px){.photo .halves:has(.lab[data-still]){align-content:start}.photo .stories:has(.lab[data-still]){align-self:stretch}.photo .stories .lab[data-still]{margin-block:auto}}
+/* more stories than are seen at once: on a wide, tall enough window they lie on a table that fills the left half and moves, as the
+   table of Projects does, and the page itself stays still. Its edges cut the covers off above and below only; when one is chosen the
+   edges open, so that it can come forward over the rest of the page. Without that (a narrow or low window, motion turned off, no
+   script) the covers keep their size, the page grows as long as they need, and it is the page that scrolls past the genres. */
+.photo .lab[data-loose]{max-width:none}
+.photo.lablive .halves{grid-template-rows:minmax(0,1fr);align-items:stretch}
+.photo.lablive .stories{min-height:0}
+.photo.lablive .genres{position:static}
+.photo.lablive .door{height:clamp(120px,calc((100svh - 258px)/2),520px)}
+.photo .lab.live{aspect-ratio:auto;margin:0;overflow:visible;clip-path:inset(0 -120px)}
+.photo .lab.live.anim{clip-path:inset(-120vh -120vw);transition:clip-path 0s .16s}
+.photo .lab.live.anim .pz.edge{opacity:0;transition:opacity .16s,transform var(--t-open) var(--e-open),filter .7s}
+.photo .doors{grid-template-columns:repeat(2,minmax(0,1fr))}
+.photo .door{height:clamp(190px,calc((100svh - 258px)/2),520px)}
+.photo .door .dt{font-size:clamp(26px,2.9vw,50px)}
+.labpage .genres,.labpage .hl{transition:opacity .7s,filter .7s,transform var(--t-open) var(--e-open)}
+.labpage.open .genres{opacity:.14;filter:blur(7px);transform:scale(.965);pointer-events:none}
+.labpage.open .hl{opacity:.18;filter:blur(5px)}
+@media(min-width:960px){.photo .foot{padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));transition:opacity .7s,filter .7s}.photo .foot .acg{--s:34px}}
+@media(max-width:959px){
+  .halves{grid-template-columns:minmax(0,1fr);gap:clamp(26px,5vw,44px)}
+  .genres{position:static}
+  .photo .lab{max-width:none}
+  .photo .doors{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .photo .door{height:clamp(220px,40svh,420px)}
+}
+@media(max-width:820px){
+  .photo .lab{aspect-ratio:auto}
+  .photo .doors{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .photo .door{height:auto}
+  .photo .door .dt{font-size:clamp(20px,6.4vw,34px)}
+}
+
+/* ---------- posters: a sixth layout, one small detail each, and each its own answer to the pointer ---------- */
+/* f, a book jacket: the picture at the left, a spine in the accent colour, the title on the paper flap at the right */
+/* layout f, for a wide photograph: the picture runs the whole width of the card, uncut, with the title on a strip beneath it */
+.pz-f .zz{background:#efece6;color:#11110f}
+/* g, the viewfinder: the picture to the edges with the frame lines of a camera over it, a focus point resting on what the eye goes to,
+   the title set as on every other card, and under the frame the exposure the picture was taken with */
+.pz-g .zz{background:#11110f;color:#efece6}
+.pz-g .zp{inset:0}
+.pz-g .zz::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(11,11,10,.62),rgba(11,11,10,0) 42%),linear-gradient(to bottom,rgba(11,11,10,.34),rgba(11,11,10,0) 22%);pointer-events:none}
+.pz-g .vf{position:absolute;inset:4.6cqw 4.6cqw 10.4cqw;z-index:1;border:1px solid rgba(239,236,230,.3);pointer-events:none}
+.pz-g .vf::before,.pz-g .vf::after{content:"";position:absolute;width:6cqw;height:6cqw;border:0 solid #efece6}
+.pz-g .vf::before{left:-1px;top:-1px;border-width:max(calc(2px*var(--k,1)),.45cqw) 0 0 max(calc(2px*var(--k,1)),.45cqw)}
+.pz-g .vf::after{right:-1px;bottom:-1px;border-width:0 max(calc(2px*var(--k,1)),.45cqw) max(calc(2px*var(--k,1)),.45cqw) 0}
+.pz-g .af{position:absolute;z-index:1;left:var(--fx);top:var(--fy);width:24%;height:10%;transform:translate(-50%,-50%);border:max(1px,.32cqw) solid rgba(239,236,230,.9);transition:transform .7s var(--ease),border-color .4s}
+.pz-g .zh{top:8cqw;left:8cqw;right:8cqw;z-index:2}
+.pz-g .qt{z-index:2;left:8cqw;right:8cqw;bottom:14.6cqw;font-size:12.6cqw}
+.pz-g .gw{display:none}
+/* the exposure stands under the frame, as in a camera's finder */
+.pz-g .vx{position:absolute;z-index:2;left:4.6cqw;right:4.6cqw;bottom:4cqw;text-align:center;font-size:max(calc(8px*var(--k,1)),2.15cqw);letter-spacing:.06em;text-transform:uppercase;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* on wide screens a card with a wide picture shows that one instead (Photography: Evening sky): the card turns landscape and the
+   title stands in the clouds */
+@media(min-width:821px){
+  .pz-g.wd{aspect-ratio:3/2}
+  .pz-g.wd .gt{display:none}.pz-g.wd .gw{display:block}.pz-g.wd .vx.gw{display:block}
+  .pz-g.wd .zz::before{background:linear-gradient(to top,rgba(11,11,10,.5),rgba(11,11,10,0) 26%),linear-gradient(to bottom,rgba(11,11,10,.3),rgba(11,11,10,0) 40%)}
+  .pz-g.wd .zh{top:7cqw;left:7.4cqw;right:7.4cqw}
+  .pz-g.wd .qt{top:11.4cqw;bottom:auto;left:7.4cqw;font-size:10.4cqw}
+  .pz-g.wd .af.gw{display:block;width:9%;height:13%}
+}
+.pz-f .zp{left:0;right:0;top:0;height:68.6%}
+.pz-f .zz::before{content:"";position:absolute;left:0;right:0;top:68.6%;height:max(calc(2px*var(--k,1)),.55cqw);background:var(--accent);transform-origin:50% 0;transition:transform .8s var(--ease);z-index:1}
+.pz-f .zh{left:auto;right:3.4cqw;bottom:3.8cqw;flex-direction:column;align-items:flex-end;gap:.5em;font-size:max(calc(7px*var(--k,1)),1.5cqw)}
+.pz-f .qt{left:3.4cqw;right:34%;bottom:3.2cqw;font-size:9.4cqw;line-height:.92}
+.pz.lg.pz-f .qt{font-size:5.6cqw}
+/* a: crop marks at the corners of the picture, as on a printer's sheet */
+.pz-a .zz::before{content:"";position:absolute;left:calc(19% - 3cqw);right:calc(19% - 3cqw);top:calc(13% - 3cqw);bottom:calc(29% - 3cqw);pointer-events:none;--m:rgba(17,17,15,.46);transition:transform .9s var(--ease);
+  background:linear-gradient(var(--m),var(--m)) left 0 top 3cqw/2cqw 1px no-repeat,linear-gradient(var(--m),var(--m)) right 0 top 3cqw/2cqw 1px no-repeat,linear-gradient(var(--m),var(--m)) left 0 bottom 3cqw/2cqw 1px no-repeat,linear-gradient(var(--m),var(--m)) right 0 bottom 3cqw/2cqw 1px no-repeat,linear-gradient(var(--m),var(--m)) left 3cqw top 0/1px 2cqw no-repeat,linear-gradient(var(--m),var(--m)) right 3cqw top 0/1px 2cqw no-repeat,linear-gradient(var(--m),var(--m)) left 3cqw bottom 0/1px 2cqw no-repeat,linear-gradient(var(--m),var(--m)) right 3cqw bottom 0/1px 2cqw no-repeat}
+/* b: the strip between the two words can open like a door */
+.pz-b .zp{transition:left .9s var(--ease),width .9s var(--ease)}
+.pz-b .qw{transition:transform .9s var(--ease)}
+/* c: a fine ring round the window; the picture in it is grey until the pointer comes */
+.pz-c .zz::before{content:"";position:absolute;left:20%;width:60%;top:14%;aspect-ratio:1;border-radius:50%;border:1px solid currentColor;opacity:.42;transform:scale(1.09);transition:transform 1.1s var(--ease),opacity .9s;pointer-events:none}
+.pz-c .zp img{transition:transform 1.4s var(--ease),filter .9s}
+/* e: a short rule in the accent colour between the title and the picture */
+.pz-e .zz::before{content:"";position:absolute;left:6cqw;bottom:calc(12cqw + 42% + 3.4cqw);width:11cqw;height:max(calc(2px*var(--k,1)),.6cqw);background:var(--accent);transform-origin:0 50%;transition:transform .9s var(--ease)}
+.pz-e .zp{transition:transform .9s var(--ease)}
+@media(hover:hover){
+  .pz-a:not(.sel):hover .zz::before{transform:scale(1.045)}
+  .pz-b:not(.sel):hover .zp{left:37%;width:27%}
+  .pz-b:not(.sel):hover .w1{transform:translateX(-1.6cqw)}.pz-b:not(.sel):hover .w2{transform:translateX(1.6cqw)}
+  .pz-c:not(.sel):hover .zp img{filter:grayscale(0) contrast(1)}
+  .pz-c:not(.sel):hover .zz::before{transform:scale(1.24);opacity:0}
+  .pz-e:not(.sel):hover .zz::before{transform:scaleX(2.6)}
+  .pz-e:not(.sel):hover .zp{transform:translateY(-1.4cqw)}
+  .pz-f:not(.sel):hover .zz::before{transform:scaleY(2.4)}
+  .pz-g:not(.sel):hover .af{transform:translate(-50%,-50%) scale(.82);border-color:var(--accent)}
+  .pz-g:not(.sel):hover .zp img{transform:scale(1.04)}
+}
+
+/* ---------- the end of a page: the next piece of work, as its poster ---------- */
+.next{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(22px,5vw,96px);align-items:center;border-top:1px solid var(--line);margin-top:clamp(40px,6vw,96px);padding-top:clamp(30px,4.4vw,72px)}
+.next:hover{text-decoration:none}
+.chap+.next{border-top:0;margin-top:0}
+.nxt{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0}
+.nxh{font-weight:600;font-size:clamp(34px,5.2vw,88px);letter-spacing:-.05em;line-height:.92;text-wrap:balance;padding-block:4px}
+.nxs{color:var(--dim);font-size:clamp(15px,1.25vw,19px);line-height:1.45;max-width:54ch}
+.nxg{padding-top:6px}
+.next .pz{position:relative;left:auto;top:auto;width:clamp(170px,24vw,360px);transform-origin:50% 50%;transform:rotate(-3deg);animation:none;transition:transform .8s var(--e-open),box-shadow .8s;box-shadow:0 30px 60px -34px var(--shade);margin:6px clamp(6px,2vw,34px) 6px 0}
+.next .pz-a,.next .pz-c{width:clamp(150px,19vw,290px)}
+@media(hover:hover){.next:hover .pz{transform:rotate(0deg) translateY(-6px);box-shadow:0 46px 80px -36px var(--shade)}.next:hover .nxg{text-decoration:underline;text-underline-offset:4px}.next:hover .zp img{transform:scale(1.06)}}
+.proj .next{grid-column:1/-1}
+@media(max-width:820px){.next{grid-template-columns:minmax(0,1fr)}.next .pz{width:min(74%,300px);margin:8px 0 0 4px}}
+
+/* ---------- "Currently" on the first page: a sentence, with the two places it names as links ---------- */
+.bar .cs{font-size:15px;line-height:1.35;font-weight:500;letter-spacing:-.005em;padding-top:2px}
+.bar .cs a{text-decoration:underline;text-decoration-color:var(--dim);text-decoration-thickness:1px;text-underline-offset:3px;transition:text-decoration-color .3s}
+.bar .cs a:hover{text-decoration-color:var(--accent)}
+
+/* ---------- photographs arrive out of their own average colour ---------- */
+.js img.fi{opacity:0}
+.js img.fi.ok{opacity:1;animation:fin .7s ease}
+.js .door img.fi{transition:transform 1.6s var(--ease),opacity .7s ease}
+.js .door img.fi.ok{animation:doorimg 1.9s var(--ease) backwards;animation-delay:calc(.15s + var(--d,0)*.11s)}
+@keyframes fin{from{opacity:0}}
+
+/* ---------- about ---------- */
+/* One wide page on the grid of the project pages, a narrow column beside a wide one. At the top the contents, a small portrait and
+   where else to find me; then one sentence set very large; then the life in pieces, each title standing at the left while its text
+   is read; then the last word, and how to reach me. */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.about .awrap{--gg:clamp(18px,3vw,48px);display:flex;flex-direction:column;width:100%;max-width:1880px;margin-inline:auto;padding-top:clamp(14px,1.6vw,24px);transition:filter .7s,opacity .7s,transform .9s cubic-bezier(.2,.7,.2,1);transform-origin:50% 30vh}
+.about.open .awrap{filter:blur(8px);opacity:.3;transform:scale(.96);pointer-events:none}
+.about .g2{display:grid;grid-template-columns:minmax(0,38fr) minmax(0,62fr);gap:0 var(--gg)}
+.atop{align-items:start;font-size:13px;line-height:1.38;font-weight:500}
+.atop>*{animation:abup .9s var(--ease) backwards .15s}
+.atop>*+*{animation-delay:.28s}
+.acon p{margin:0 0 8px}
+.acon ol{list-style:none;margin:0;padding:0;max-width:460px}
+.acon ol.two{columns:2;column-gap:22px}
+.acon a{display:flex;width:fit-content;max-width:100%;gap:9px;align-items:baseline;break-inside:avoid;padding-block:2.5px;color:var(--dim);transition:color .3s}
+.acon a .mono{font-size:10.5px;flex:none;transition:color .3s}
+.acon a:hover,.acon a.on{color:var(--fg);text-decoration:none}
+.acon a.on .mono{color:var(--accent)}
+.aright{display:flex;gap:clamp(18px,3vw,48px);align-items:flex-start;justify-content:space-between;min-width:0}
+/* the name and where I am from stand on the lower edge of the photograph; what I am doing now runs on beneath it, from its left edge */
+.aid{--fw:clamp(84px,6.4vw,132px);display:grid;grid-template-columns:var(--fw) minmax(0,1fr);gap:11px 14px;align-items:end;min-width:0}
+.aid .face{position:relative;width:var(--fw);aspect-ratio:1;overflow:hidden;background:var(--line)}
+.aid .face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1);opacity:0}
+.aid .face img.on{opacity:1}
+.aidt{display:flex;flex-direction:column;gap:5px;max-width:37ch;min-width:0;margin-bottom:-.25em}
+.aid p{margin:0}
+.aidt .nm{font-weight:600}
+.aid .aidc{grid-column:1/-1;max-width:46ch}
+.aid p a{text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:3px;transition:text-decoration-color .3s}
+.aid p a:hover{text-decoration-color:var(--accent)}
+.alinks{display:flex;flex-direction:column;align-items:flex-end;gap:2.5px;text-align:right;flex:none}
+.alinks button{font:inherit;color:inherit;padding:0;background:none;border:0;cursor:pointer}
+/* the opening sentence, very large, its first line starting where the wide column starts; it arrives word by word, in the order it is read */
+.lw{display:inline-block;text-indent:0;animation:lwup .9s var(--ease) backwards;animation-delay:calc(var(--ld,.55s) + var(--n,0)*var(--ls,.022s))}
+@keyframes lwup{from{opacity:0;transform:translateY(.6em)}}
+.asay{padding-block:clamp(56px,13vh,170px) clamp(28px,4.4vw,72px);font-size:clamp(27px,3.55vw,66px);font-weight:600;letter-spacing:-.045em;line-height:1.02;--ld:.5s}
+.asay p{margin:0;text-indent:calc((100% - var(--gg))*.38 + var(--gg))}
+.asay p+p{margin-top:.5em}
+/* its underlined words lead to their pieces further down, as the underlined words of the first page lead to their sections */
+.asay a{text-decoration:none}
+.asay a .lw{text-decoration:underline;text-decoration-color:var(--dim);text-decoration-thickness:2px;text-underline-offset:.12em;transition:text-decoration-color .3s}
+.asay a:hover .lw,.asay a:focus-visible .lw{text-decoration-color:var(--accent)}
+.ahint{padding-bottom:clamp(18px,2.2vw,32px)}
+.ahint p{margin:0;font-size:15px;line-height:1.5;color:var(--dim);max-width:58ch;animation:abup 1s var(--ease) backwards 1.5s}
+.ahint a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+/* a piece: its number, then its title at the left, set large, and its text at the right */
+.frags{border-bottom:1px solid var(--line)}
+.frag{--ts:clamp(30px,3.6vw,62px);position:relative;display:grid;grid-template-columns:minmax(0,38fr) minmax(0,62fr);gap:0 var(--gg);align-items:start;border-top:1px solid var(--line);padding-block:clamp(12px,1.2vw,18px) clamp(44px,6.5vw,104px);scroll-margin-top:56px}
+.frag .fno{grid-column:1/-1;color:var(--dim);margin-bottom:clamp(12px,1.5vw,24px);transition:color .5s}
+.frag.cur .fno{color:var(--accent)}
+.frag h2{grid-column:1;position:sticky;top:calc(48px + 18px);margin:0;font-size:var(--ts);font-weight:600;letter-spacing:-.048em;line-height:.98;transition:color .6s}
+.frag h2 .hr{display:block;text-wrap:balance;max-width:11.5em}
+.frag.hit h2{color:var(--accent)}
+.frag .prose{grid-column:2;max-width:64ch;font-size:clamp(16px,1.25vw,19px);padding-top:calc(var(--ts)*.07)}
+.frag .prose p{margin:0 0 .85em}.frag .prose>:last-child{margin-bottom:0}
+/* a piece arrives when it is reached: its line is drawn, its title comes up through its window, its text follows */
+.frags.live .frag{border-top-color:transparent}
+.frags.live .frag::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--line);transform:scaleX(0);transform-origin:0 50%}
+.frags.live .frag.in::before{transform:none;transition:transform 1.2s var(--ease)}
+.frags.live .frag .hw{animation:none;clip-path:inset(0)}
+.frags.live .frag .hi{animation:none;transform:translateY(130%) rotate(var(--hrot,5deg))}
+.frags.live .frag.in .hi{transform:none;transition:transform 1s cubic-bezier(.2,.8,.2,1);transition-delay:calc(.08s + var(--n,0)*.028s)}
+.frags.live .frag.done .hw{clip-path:none}
+.frags.live .frag .fno,.frags.live .frag .prose{opacity:0;transform:translateY(16px)}
+.frags.live .frag.in .fno,.frags.live .frag.in .prose{opacity:1;transform:none;transition:opacity .8s ease .14s,transform 1s var(--ease) .14s,color .5s}
+/* an aside, muttered in the other typeface; it types itself when it is reached, as the lines under an arriving picture do */
+.as{font-family:var(--mono);font-size:.8em;letter-spacing:0;color:var(--dim)}
+.as .t2{color:transparent}
+.as.typing .t1::after{content:"";border-right:2px solid var(--accent);margin-right:-2px}
+/* something crossed off, in the one accent */
+s.x{text-decoration:none;position:relative;display:inline-block;white-space:nowrap;color:var(--dim)}
+s.x::after{content:"";position:absolute;left:-.12em;right:-.12em;top:56%;height:2px;background:var(--accent)}
+.frags.live s.x{color:inherit}
+.frags.live s.x::after{transform:scaleX(0);transform-origin:0 50%}
+.frags.live .xgo s.x{color:var(--dim);transition:color .5s;transition-delay:calc(.2s + var(--k,0)*.34s)}
+.frags.live .xgo s.x::after{transform:none;transition:transform .45s var(--ease);transition-delay:calc(var(--k,0)*.34s)}
+/* choices in a sentence: an underline passes from one to the next and comes to rest */
+.op{background:linear-gradient(var(--accent),var(--accent)) no-repeat 0 100%/0 2px;padding-bottom:2px;transition:background-size .45s var(--ease)}
+.op.on{background-size:100% 2px}
+/* figures, set as the numbers of a paper are */
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0 16px;margin:1.15em 0 .7em;max-width:560px}
+.figs .fg{display:flex;flex-direction:column;gap:7px;border-top:1px solid var(--line);padding-block:12px 4px}
+.figs b{font-size:clamp(24px,2.4vw,40px);font-weight:600;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.figs span{font-size:13px;line-height:1.35;font-weight:500;color:var(--dim)}
+.frags.live .figs .num{opacity:0;transition:opacity .5s}
+.frags.live .figs .num.go{opacity:1}
+.frag .prose p.fnote{font-size:13px;line-height:1.5;color:var(--dim);margin-bottom:1.3em}
+.fnote .as{font-size:.92em}
+/* a link that carries a note: the note stands by it while the pointer is there */
+a.nt{text-decoration-style:dotted}
+.ntb{position:fixed;left:0;top:0;z-index:80;width:max-content;max-width:min(300px,calc(100vw - 24px));background:var(--fg);color:var(--bg);font-size:13px;line-height:1.4;padding:9px 11px;opacity:0;pointer-events:none;transition:opacity .25s}
+.ntb.on{opacity:1}
+.ntb.tap::after{content:"Tap again to open ↗";display:block;margin-top:7px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.66}
+/* the last word */
+.aq{margin:0;align-items:start;padding-block:clamp(44px,7vw,116px) clamp(34px,5vw,84px);--ld:.15s;--ls:.045s}
+.aq p{margin:0}
+.aq .aql p{max-width:26ch}
+.aq blockquote{margin:0;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-style:italic;font-size:clamp(26px,3.4vw,60px);line-height:1.07;letter-spacing:-.015em;max-width:19em;text-wrap:balance;border-left:2px solid var(--accent);padding-left:clamp(14px,1.7vw,28px)}
+.aq figcaption{margin-top:clamp(12px,1.4vw,22px);padding-left:calc(clamp(14px,1.7vw,28px) + 2px)}
+.aq.live:not(.in) .lw{animation-play-state:paused}
+.aq .sign{margin-top:clamp(24px,3.2vw,50px);font-weight:600;font-size:clamp(20px,2vw,32px);letter-spacing:-.03em}
+.endrow{align-items:center;border-top:1px solid var(--line);padding-block:clamp(28px,4vw,64px) clamp(20px,3vw,48px)}
+.endrow .cvc{width:clamp(190px,19vw,280px);margin:6px 0 10px 8px}
+.reach{display:flex;flex-direction:column;align-items:flex-start;gap:22px;min-width:0}
+.reach p{margin:0;font-size:clamp(20px,2.3vw,40px);font-weight:600;letter-spacing:-.035em;line-height:1.08;max-width:21em;text-wrap:balance}
+.reach p a{text-decoration:underline;text-underline-offset:3px}
+/* "write to me", the one loud thing on the page: a ground of the site's four colours drifting under cream letters, which now and then
+   flick through the site's faces (site.js). The plain word keeps the place in the line, so the sentence never moves. */
+.reach p a.wtm{position:relative;display:inline-block;white-space:nowrap;text-decoration:none;color:#efece6;isolation:isolate;padding:0 .13em;margin:0 .02em 0 .07em}
+.wtm::before{content:"";position:absolute;inset:.06em 0 -.02em;z-index:-1;border-radius:3px;background:radial-gradient(closest-side,#e0492c,rgba(224,73,44,0)) 0 0/95% 230% no-repeat,radial-gradient(closest-side,#2b4bd6,rgba(43,75,214,0)) 0 0/100% 240% no-repeat,radial-gradient(closest-side,#e8b73a,rgba(232,183,58,0)) 0 0/70% 200% no-repeat,radial-gradient(closest-side,#1c5f4b,rgba(28,95,75,0)) 0 0/95% 240% no-repeat,#2a1d3a;animation:wtmflow 7s ease-in-out infinite alternate;transition:transform .5s var(--ease)}
+@keyframes wtmflow{0%{background-position:-10% 20%,110% 80%,40% -40%,60% 140%,0 0}33%{background-position:50% 120%,10% -10%,105% 60%,-15% 30%,0 0}66%{background-position:115% 0%,60% 110%,-10% 90%,90% -30%,0 0}100%{background-position:30% 60%,-20% 30%,70% 130%,120% 70%,0 0}}
+.wtm::before{transition:filter .35s,transform .35s var(--ease)}
+.wtm .wf{transition:color .25s}
+/* while the pointer is on it the ground turns to its negative and the word is only drawn in outline */
+.wtm:is(:hover,:focus-visible)::before{animation-duration:4s;transform:scale(1.06,1.12);filter:invert(1)}
+.wtm:is(:hover,:focus-visible) .wf{color:transparent;-webkit-text-stroke:max(1px,.04em) #11110f}
+.wtm .wb{visibility:hidden}
+.wtm .wf{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);white-space:nowrap;line-height:1}
+.wtm .f0{font-family:var(--display);font-weight:600;font-style:normal;letter-spacing:-.035em}
+.wtm .f1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:400;font-style:italic;letter-spacing:-.02em}
+.wtm .f2{font-family:var(--mono);font-weight:500;font-style:normal;letter-spacing:0;text-transform:uppercase}
+.wtm .f3{font-family:var(--display);font-weight:200;font-style:normal;letter-spacing:-.04em}
+.wtm .f4{font-family:var(--display);font-weight:800;font-style:normal;letter-spacing:-.06em}
+.wtm .f5{font-family:var(--mono);font-weight:400;font-style:normal;letter-spacing:-.02em}
+@media(prefers-reduced-motion:reduce){.wtm::before{animation:none;background-position:10% 30%,90% 70%,50% 0%,40% 100%,0 0}}
+@media(max-width:820px){
+  .about .g2,.frag{grid-template-columns:minmax(0,1fr)}
+  .about .atop{gap:24px 0}
+  .acon{padding-top:4px}
+  .aright{order:-1;flex-direction:column;gap:14px}
+  .alinks{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:4px 16px;text-align:left}
+  .acon ol{max-width:none}
+  .asay{padding-block:clamp(40px,9vh,80px) 28px}
+  .asay p{text-indent:1.6em}
+  .ahint span{display:none}
+  .frag{padding-block:14px 44px}
+  .frag .fno{margin-bottom:10px}
+  .frag h2{position:static;margin-bottom:.5em}
+  .frag .prose{grid-column:1;padding-top:0}
+  .aq{padding-block:40px 34px}
+  .aq .aql{margin-bottom:14px}
+  .endrow{gap:26px 0}
+  .endrow .cvc{width:min(240px,66%)}
+}
+
+
+/* the CV's cover: a poster in the manner of the first page, a flat ground, a line of small type, a disc and a title */
+.cvz{position:relative;display:block;width:100%;height:100%;container-type:inline-size;background:#2b4bd6;color:#efece6;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(239,236,230,.11)}
+.cvz>span{position:absolute;left:5cqw;right:5cqw}
+.cvz .c1{top:4.6cqw;display:flex;justify-content:space-between;gap:3cqw;font-size:max(8px,2.6cqw);text-transform:uppercase;letter-spacing:.04em}
+.cvz .c3{left:20%;right:auto;width:60%;top:14%;aspect-ratio:1;border-radius:50%;background:#efece6;color:#11110f;display:grid;place-items:center;transition:transform 1.2s var(--ease)}
+.cvz .c3 i{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-style:italic;font-size:25cqw;letter-spacing:-.04em;line-height:1}
+.cvz .c2{bottom:5cqw;font-weight:600;font-size:11.5cqw;line-height:.9;letter-spacing:-.05em}
+.cvz .c4{bottom:27cqw;font-size:max(8px,2.6cqw);text-transform:uppercase;letter-spacing:.04em;opacity:.7}
+@media(hover:hover){.cvc:hover .c3{transform:scale(1.05)}}
+@media(max-width:820px){.endrow .cvc{margin-bottom:24px}}
+
+/* the Research page: after the one large sentence, the longer account in ordinary type */
+
+/* the Research page opens as About does: a band of small facts, one sentence set very large across the page, and then the longer
+   account in two columns that reach over into the left half of the page */
+.rhead{--gg:clamp(18px,3vw,48px);display:flex;flex-direction:column;width:100%;max-width:1880px;margin-inline:auto;padding-top:clamp(14px,1.6vw,24px);padding-bottom:clamp(40px,5.5vw,90px)}
+.rband{display:block}
+.rband .credits{margin-block:0;border-bottom:0;animation:abup .9s var(--ease) backwards .28s}
+.rband .credits div{border-top:0;padding-block:0 10px}
+/* what follows the text on these pages keeps to the same column: the academic work on Research, the next piece of work after a project */
+.rpage>.shd,.rpage>.rfeat,.staged>.next{width:100%;max-width:1880px;margin-inline:auto}
+.rhead .rmore,.pmore .rmore{max-width:none;margin-left:calc((100% - var(--gg))*.19);columns:2;column-gap:var(--gg);font-size:clamp(16px,1.25vw,19px)}
+.rhead .rmore{animation:abup 1s var(--ease) backwards 1.3s}
+.rhead .rmore p,.pmore .rmore p{margin:0 0 .85em;break-inside:avoid}
+.rhead .rmore p:last-child,.pmore .rmore p:last-child{margin-bottom:0}
+html.came .rhead :is(.rband .credits,.rmore){animation:none}
+@media(max-width:1100px){.rhead .rmore,.pmore .rmore{columns:1;margin-left:calc((100% - var(--gg))*.38 + var(--gg));max-width:62ch}}
+@media(max-width:820px){.rhead .rmore,.pmore .rmore{margin-left:0}}
+
+/* the title of a page set in a row with a line about it, as on Photography and Projects; Research and About me begin the same way */
+.lead.row{padding-block:14px 4px;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:6px 22px}
+.lead.row h1{font-size:clamp(28px,3.4vw,54px)}
+.about .lead.row{transition:filter .7s,opacity .7s}
+.about.open .lead.row{filter:blur(8px);opacity:.3}
+.about .awrap,.rhead{padding-top:clamp(10px,1.2vw,18px)}
+
+/* ---------- a project shown at work ---------- */
+/* The page of a piece of software. It begins as Research does: the title in a row, a band of small facts, then one sentence set
+   large. Here the sentence tells how the software is used, and it stands in the narrow column beside a screen of the software in
+   the wide one. The words of the sentence that name a step are underlined; the step being shown is underlined in the accent, and
+   when the screens follow one another on their own that line grows for as long as its screen stays. Each new screen is uncovered
+   from below, as pictures are on this site. Under the screen stand its number, its name and a line about it; pressed, the screen
+   opens large, as the photographs do. */
+.proj.staged{display:block;padding-top:0}
+.pw{--gg:clamp(18px,3vw,48px);width:100%;max-width:1880px;margin-inline:auto}
+/* the title row runs the width of the window, as on Projects; the link at its end stays over the right edge of what lies below */
+.staged .lead.row .pjr{margin-left:auto;margin-right:max(0px,(100% - 1880px)/2);animation:abup .9s var(--ease) backwards .36s}
+.staged .rband{padding-top:clamp(10px,1.2vw,18px)}
+.pstage{display:grid;grid-template-columns:minmax(0,38fr) minmax(0,62fr);grid-template-areas:"walk scr" ". cap";gap:0 var(--gg);padding-top:clamp(16px,2vw,34px)}
+.pwalk{grid-area:walk;align-self:start;display:flex;flex-direction:column;gap:14px;--ld:.35s;--ls:.016s}
+.pwalk p{margin:0}
+.pwt{--ul:max(2px,.05em);--uo:.1em;font-size:clamp(24px,2.25vw,40px);font-weight:600;letter-spacing:-.04em;line-height:1.1;text-indent:1.6em}
+.pwt a.kw{--p:0;color:inherit;text-decoration:none;outline-offset:3px;
+  background:linear-gradient(var(--accent),var(--accent)) no-repeat 0 calc(100% - var(--uo))/calc(var(--p)*100%) var(--ul),linear-gradient(var(--dim),var(--dim)) no-repeat 0 calc(100% - var(--uo))/100% var(--ul);
+  transition:background-size .5s cubic-bezier(.2,.7,.2,1);animation:kwin .7s var(--ease) backwards 1.35s}
+.pwt a.kw:hover{text-decoration:none}
+@keyframes kwin{from{background-size:0 var(--ul),0 var(--ul)}}
+.pstage.still .pwt a.kw.on{--p:1!important}
+.pscr{grid-area:scr;align-self:start;position:relative;display:block;width:100%;aspect-ratio:var(--ar,16/10);border:1px solid var(--line);background:var(--panel);overflow:hidden;cursor:zoom-in;animation:abwipe 1.2s cubic-bezier(.7,0,.2,1) both .15s}
+.sf{position:absolute;inset:0;display:block;overflow:hidden;visibility:hidden;background:var(--cd,#141412)}
+.sf.on{visibility:visible;z-index:2}
+.sf.under{visibility:visible;z-index:1}
+.sf img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:0 0;pointer-events:none;-webkit-user-drag:none}
+.sf:first-child img{animation:szoom 1.7s cubic-bezier(.2,.7,.2,1) both .15s}
+@keyframes szoom{from{transform:scale(1.04)}}
+.sf img.lt{display:none}
+@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .sf{background:var(--cl,#f4f2ec)}:root:not([data-theme=dark]) .sf img.lt{display:block}:root:not([data-theme=dark]) .sf img.dk{display:none}}
+:root[data-theme=light] .sf{background:var(--cl,#f4f2ec)}:root[data-theme=light] .sf img.lt{display:block}:root[data-theme=light] .sf img.dk{display:none}
+.pcap{grid-area:cap;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 24px;align-items:start;padding-top:13px;animation:abup 1s var(--ease) backwards .9s}
+.pcl{list-style:none;margin:0;padding:0;display:grid}
+.pcl li{grid-area:1/1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 20px;align-items:baseline;visibility:hidden;opacity:0;transform:translateY(8px)}
+.pcl li.on{visibility:visible;opacity:1;transform:none;transition:opacity .7s ease .25s,transform .9s var(--ease) .25s}
+.pcl li .mono b{font-weight:400;color:var(--accent)}
+.pcl li p{margin:0;max-width:66ch;font-size:15px;line-height:1.45;color:var(--dim)}
+.pcl li p b{font-weight:600;color:var(--fg)}
+.pctl{display:flex;align-items:center;gap:4px}
+.pctl button{padding:2px 0;border:0;background:none;color:var(--dim);cursor:pointer;transition:color .3s;text-transform:inherit;letter-spacing:inherit;font:inherit}
+.pctl button:hover,.pctl button:focus-visible{color:var(--fg)}
+.pctl .pstep{min-width:30px;min-height:30px;font-size:15px;line-height:1;color:var(--fg)}
+.pctl .ppz{margin-left:14px;min-width:4.2em;text-align:right}
+/* the title row of a project stays under the bar at the top while the page is read, as the titles of Projects and Photography stay */
+@media(min-width:821px){
+  .staged .lead.row,.about .lead.row,.rpage .lead.row{position:sticky;top:48px;z-index:30;background:var(--bg)}
+  /* on About me what stays under the title, and where a piece comes to rest when it is called, make room for the title row */
+  .about .frag{scroll-margin-top:calc(54px + var(--leadh,70px))}
+  .about .frag h2{top:calc(48px + var(--leadh,70px) + 12px)}
+}
+.pmore{margin-top:clamp(34px,4.6vw,76px);border-top:1px solid var(--line);padding-top:clamp(26px,3.4vw,56px)}
+html.came :is(.pscr,.sf:first-child img,.pcap,.staged .lead.row .pjr,.staged .rband .credits,.pwt a.kw){animation:none}
+@media(max-width:980px){
+  .pstage{grid-template-columns:minmax(0,1fr);grid-template-areas:"scr" "cap" "walk"}
+  .pwalk{padding-top:clamp(30px,6vw,48px)}
+  .pwt{font-size:clamp(26px,5vw,44px)}
+}
+@media(max-width:820px){.staged .lead.row .pjr{margin-left:0}}
+@media(max-width:560px){
+  .pcap{position:relative;grid-template-columns:minmax(0,1fr)}
+  .pcl li{display:block}
+  .pcl li .mono{display:block;margin-bottom:7px}
+  .pctl{position:absolute;right:0;top:5px}
+}
+/* where scripts do not run, the first screen stands and every line about the screens is set out */
+@media(scripting:none){.pcl{display:block}.pcl li{visibility:visible;opacity:1;transform:none;margin-bottom:10px}.pctl{display:none}}
+/* the resting portrait is drawn closer in, about its face */
+.face img.rest{transform:scale(1.5);transform-origin:47% 33%}

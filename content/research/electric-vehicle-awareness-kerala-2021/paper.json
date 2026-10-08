@@ -1,0 +1,120 @@
+{
+  "title": "Electric Vehicle Awareness and Perceived Adoption Barriers in Kerala",
+  "short": "Electric Vehicle Awareness in Kerala",
+  "kind": "Bachelor's thesis",
+  "year": "2021",
+  "date": "2021 survey · revised October 2026",
+  "types": [
+    "research"
+  ],
+  "poster": "c",
+  "summary": "In 2021 we asked 400 students and working people in Kerala what they knew about electric vehicles. Almost all of them knew the cars were on sale; fewer than four in ten knew the government would help pay for one. And asked what was holding electric cars back, they gave one answer more than any other: nowhere to charge.",
+  "cover": "stories/to-meet-the-ends/img/03.jpg",
+  "facts": [
+    [
+      "Authors",
+      "Abhaya Gifty Thomas, Adhit Chandy George, Aiswarya K. S."
+    ],
+    [
+      "Degree",
+      "BA Economics"
+    ],
+    [
+      "College",
+      "Union Christian College, Aluva"
+    ],
+    [
+      "University",
+      "Mahatma Gandhi University, Kottayam"
+    ],
+    [
+      "Supervisor",
+      "Dr Sunil Abraham Thomas"
+    ],
+    [
+      "Original project",
+      "2018–2021"
+    ],
+    [
+      "Revision",
+      "October 2026 · aggregate tables; no new fieldwork"
+    ]
+  ],
+  "abstract": [
+    "This thesis examines awareness of electric vehicles, perceived barriers to adoption, and conditional purchase consideration among respondents to an online survey undertaken for a bachelor project in Kerala in 2021. The analysis uses the recoverable frequency tables for 400 respondents, comprising 299 students and 101 respondents classified as professionals. Its purpose is to establish what these observations imply for consumer information and charging policy while distinguishing sample descriptions from population estimates and stated intentions from realised demand.",
+    "Awareness of electric vehicle availability was reported by 370 respondents, or 92.50%, whereas 151 respondents, or 37.75%, reported awareness of government incentives. In a multiple-response question, unavailable charging stations were selected by 269 respondents, or 67.25%; limited model choice by 48.25%; high purchase prices by 45.50%; long charging times by 31.00%; and range anxiety by 26.75%. These percentages use respondents as the denominator and therefore need not sum to 100%. Among professionals, baseline willingness to consider an electric car was 38.61%. Consideration was higher under hypothetical conditions involving a price of INR 600,000, a range of 600 kilometres, or combined public and home charging provision. These comparisons describe aggregate response patterns and do not identify causal effects or individual changes in preference.",
+    "The results are interpreted through consumer choice, total ownership costs, information frictions, and the complementarity between vehicles and charging infrastructure. They support investigating clearer incentive information and targeted charging provision, but do not establish the optimal subsidy, charger density, or regional allocation of public investment. The absence of documented probability sampling, respondent records, and validated knowledge measures limits inference. The contribution is a transparent account of the available survey evidence and its implications for further policy evaluation."
+  ],
+  "keywords": [
+    "Electric vehicles",
+    "Kerala",
+    "Consumer awareness",
+    "Charging infrastructure",
+    "Descriptive survey",
+    "Adoption barriers"
+  ],
+  "glance": [
+    [
+      "400",
+      "respondents in 2021: 299 students and 101 professionals"
+    ],
+    [
+      "92.50%",
+      "reported knowing that electric vehicles were available"
+    ],
+    [
+      "37.75%",
+      "reported knowing about government incentives"
+    ],
+    [
+      "67.25%",
+      "selected unavailable charging stations as a barrier; several answers were allowed"
+    ]
+  ],
+  "overview": {
+    "note": "The short version · 2021 respondents",
+    "question": {
+      "lead": "What did surveyed students and professionals in Kerala know about electric vehicles, and what held them back?",
+      "text": "Our bachelor project surveyed 400 respondents in 2021: 299 students and 101 professionals. This 2026 revision reanalyses the original aggregate tables; it contains no new fieldwork."
+    },
+    "figure": {
+      "src": "fig/awareness-overview.png",
+      "caption": "In the 2021 survey, 370 of 400 respondents (92.50%) reported awareness of EV availability; 151 (37.75%) reported awareness of government incentives. Source: original report, Table 4.2.1 (p. 48). Self-reported awareness, not a knowledge test or a population estimate.",
+      "ref": "figure-awareness",
+      "refLabel": "Figure 4.1 in the text"
+    },
+    "finding": {
+      "lead": "Among these respondents, availability awareness was widespread. Incentive awareness was much lower, and charging access was the leading reported barrier.",
+      "points": [
+        [
+          "92.50%",
+          "370 of 400 surveyed respondents in 2021. Respondents reporting awareness that electric vehicles were available."
+        ],
+        [
+          "37.75%",
+          "151 of 400 surveyed respondents in 2021. Respondents reporting awareness of government incentives."
+        ],
+        [
+          "67.25%",
+          "269 of 400 surveyed respondents in 2021. Respondents selecting unavailable charging stations; multiple responses were permitted."
+        ],
+        [
+          "38.61%",
+          "39 of 101 surveyed respondents in 2021. Professionals answering yes to baseline electric-car consideration; this is not a purchase rate."
+        ]
+      ]
+    },
+    "limits": {
+      "lead": "An exploratory survey, read within its limits.",
+      "points": [
+        "This exploratory survey is dominated by students and lacks sufficient documentation to establish representativeness. Only aggregate tables are recoverable. The analysis cannot estimate Kerala-wide prevalence, track individual response changes, or identify causal effects.",
+        "The barrier question allowed multiple answers; its percentages need not sum to 100%.",
+        "Professional purchase consideration describes answers to separate hypothetical questions. It is neither actual purchasing nor a causal effect.",
+        "The results motivate testing clearer incentive information and targeted charging-access pilots. Investment and subsidy choices require evidence on actual use, costs, distribution and additionality; this survey alone cannot determine an optimal policy."
+      ]
+    }
+  },
+  "coverAlt": "Passengers seen from behind in a shared vehicle on a road under power lines, South India, December 2020.",
+  "coverPosition": "center 65%",
+  "tone": "green"
+}

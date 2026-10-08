@@ -1,0 +1,768 @@
+{
+  "metadata": {
+    "research_title": "Electric vehicle awareness and perceived adoption barriers in Kerala",
+    "subtitle": "An exploratory analysis of a 2021 survey",
+    "original_authors": [
+      "Abhaya Gifty Thomas",
+      "Adhit Chandy George",
+      "Aiswarya K. S."
+    ],
+    "institution": "Department of Economics, Union Christian College Aluva; affiliated to Mahatma Gandhi University Kottayam",
+    "original_project_period": "2018–2021",
+    "source_report_year": 2021,
+    "revision_year": 2026,
+    "source_pdf_filename": "AWARENESS OF ELECTRIC VEHICLES AND THEIR POPULARITY IN KERALA.pdf",
+    "revised_document_filename": "Electric_Vehicle_Awareness_Kerala_Revised_Thesis.docx",
+    "provenance": "Rewritten and reanalysed from the published aggregate tables of the original BA project. No raw survey responses were available. Reported counts were retained; percentages and interpretations were corrected.",
+    "copyright_or_reuse_license": "No public reuse license has been specified. Do not invent a Creative Commons license."
+  },
+  "tables": [
+    {
+      "caption": "Table 4.1 Composition of the sample",
+      "headers": [
+        "Characteristic",
+        "Category",
+        "Count",
+        "Share of 400"
+      ],
+      "rows": [
+        [
+          "Respondent category",
+          "Student",
+          299,
+          "74.75%"
+        ],
+        [
+          "",
+          "Professional",
+          101,
+          "25.25%"
+        ],
+        [
+          "Reported gender",
+          "Female",
+          171,
+          "42.75%"
+        ],
+        [
+          "",
+          "Male",
+          229,
+          "57.25%"
+        ],
+        [
+          "Residence",
+          "Rural",
+          190,
+          "47.50%"
+        ],
+        [
+          "",
+          "Suburban",
+          100,
+          "25.00%"
+        ],
+        [
+          "",
+          "Urban",
+          110,
+          "27.50%"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Tables 4.1.1-4.1.3, pp. 44-45. Counts retained; percentages recalculated.",
+      "id": "composition"
+    },
+    {
+      "caption": "Table 4.2 Age and vehicle ownership among professionals",
+      "headers": [
+        "Characteristic",
+        "Category",
+        "Count",
+        "Share of 101"
+      ],
+      "rows": [
+        [
+          "Age",
+          "18-24",
+          11,
+          "10.89%"
+        ],
+        [
+          "",
+          "25-34",
+          42,
+          "41.58%"
+        ],
+        [
+          "",
+          "35-44",
+          20,
+          "19.80%"
+        ],
+        [
+          "",
+          "45-54",
+          23,
+          "22.77%"
+        ],
+        [
+          "",
+          "55-64",
+          4,
+          "3.96%"
+        ],
+        [
+          "",
+          "65 and above",
+          1,
+          "0.99%"
+        ],
+        [
+          "Vehicles owned",
+          "None",
+          6,
+          "5.94%"
+        ],
+        [
+          "",
+          "One",
+          38,
+          "37.62%"
+        ],
+        [
+          "",
+          "Two",
+          36,
+          "35.64%"
+        ],
+        [
+          "",
+          "Three or more",
+          21,
+          "20.79%"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Tables 4.4.2-4.4.3, pp. 67-68. Counts retained; percentages recalculated.",
+      "id": "professional_profile"
+    },
+    {
+      "caption": "Table 4.3 Reported awareness",
+      "headers": [
+        "Group",
+        "Group size",
+        "Availability yes",
+        "Incentives yes"
+      ],
+      "rows": [
+        [
+          "Students",
+          299,
+          "279 (93.31%)",
+          "109 (36.45%)"
+        ],
+        [
+          "Professionals",
+          101,
+          "91 (90.10%)",
+          "42 (41.58%)"
+        ],
+        [
+          "Combined sample",
+          400,
+          "370 (92.50%)",
+          "151 (37.75%)"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Tables 4.2.1, 4.3.2 and 4.4.4, pp. 48, 55 and 69. Counts retained; percentages recalculated.",
+      "id": "awareness"
+    },
+    {
+      "caption": "Table 4.4 Awareness by reported gender",
+      "headers": [
+        "Gender",
+        "Group size",
+        "Availability yes",
+        "Incentives yes"
+      ],
+      "rows": [
+        [
+          "Female",
+          171,
+          "151 (88.30%)",
+          "47 (27.49%)"
+        ],
+        [
+          "Male",
+          229,
+          "219 (95.63%)",
+          "104 (45.41%)"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Table 4.2.2, pp. 49-50. Counts retained; percentages recalculated.",
+      "id": "gender"
+    },
+    {
+      "caption": "Table 4.5 Awareness by gender within respondent category",
+      "headers": [
+        "Category",
+        "Gender",
+        "Size",
+        "Availability yes",
+        "Incentives yes"
+      ],
+      "rows": [
+        [
+          "Students",
+          "Female",
+          145,
+          "129 (88.97%)",
+          "39 (26.90%)"
+        ],
+        [
+          "",
+          "Male",
+          154,
+          "150 (97.40%)",
+          "70 (45.45%)"
+        ],
+        [
+          "Professionals",
+          "Female",
+          26,
+          "22 (84.62%)",
+          "8 (30.77%)"
+        ],
+        [
+          "",
+          "Male",
+          75,
+          "69 (92.00%)",
+          "34 (45.33%)"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Tables 4.1.2, 4.2.2 and 4.3.3, pp. 45, 49 and 56. Counts retained; percentages recalculated. Professional counts are reconstructed by subtraction; see Appendix A2.",
+      "id": "gender_strata"
+    },
+    {
+      "caption": "Table 4.6 Student awareness by residence",
+      "headers": [
+        "Residence",
+        "Group size",
+        "Availability yes",
+        "Incentives yes"
+      ],
+      "rows": [
+        [
+          "Rural",
+          154,
+          "149 (96.75%)",
+          "58 (37.66%)"
+        ],
+        [
+          "Suburban",
+          68,
+          "62 (91.18%)",
+          "23 (33.82%)"
+        ],
+        [
+          "Urban",
+          77,
+          "68 (88.31%)",
+          "28 (36.36%)"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Table 4.3.4, pp. 57. Counts retained; percentages recalculated.",
+      "id": "residence"
+    },
+    {
+      "caption": "Table 4.7 Respondents selecting each perceived barrier",
+      "headers": [
+        "Barrier",
+        "Combined n 400",
+        "Students n 299",
+        "Professionals n 101"
+      ],
+      "rows": [
+        [
+          "Unavailable charging stations",
+          "269 (67.25%)",
+          "203 (67.89%)",
+          "66 (65.35%)"
+        ],
+        [
+          "Range anxiety",
+          "107 (26.75%)",
+          "80 (26.76%)",
+          "27 (26.73%)"
+        ],
+        [
+          "High price",
+          "182 (45.50%)",
+          "128 (42.81%)",
+          "54 (53.47%)"
+        ],
+        [
+          "Limited models or brands",
+          "193 (48.25%)",
+          "148 (49.50%)",
+          "45 (44.55%)"
+        ],
+        [
+          "Long charging time",
+          "124 (31.00%)",
+          "92 (30.77%)",
+          "32 (31.68%)"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Tables 4.2.4, 4.3.11 and 4.4.7, pp. 52, 63-64 and 74. Counts retained; percentages recalculated. Multiple responses permitted. Percentages are shares of respondents and need not sum to 100%. The unreported other category is excluded.",
+      "id": "barriers"
+    },
+    {
+      "caption": "Table 4.8 Student opinions",
+      "headers": [
+        "Statement or question",
+        "Yes",
+        "No",
+        "Maybe"
+      ],
+      "rows": [
+        [
+          "EV introduction could reduce global warming",
+          "224 (74.92%)",
+          "12 (4.01%)",
+          "63 (21.07%)"
+        ],
+        [
+          "Electric cars are better than conventional cars",
+          "168 (56.19%)",
+          "26 (8.70%)",
+          "105 (35.12%)"
+        ],
+        [
+          "Infrastructure adaptation is timely",
+          "217 (72.58%)",
+          "13 (4.35%)",
+          "69 (23.08%)"
+        ],
+        [
+          "More effort should go into promotion",
+          "227 (75.92%)",
+          "22 (7.36%)",
+          "50 (16.72%)"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Tables 4.3.6-4.3.9, pp. 60-62. Counts retained; percentages recalculated. Denominator 299 for every row. Statements are abbreviated for display; original wording appears in Appendix C.",
+      "id": "student_opinions"
+    },
+    {
+      "caption": "Table 4.9 Future vehicle preference among students",
+      "headers": [
+        "Response",
+        "Count",
+        "Share of 299"
+      ],
+      "rows": [
+        [
+          "Electric",
+          104,
+          "34.78%"
+        ],
+        [
+          "Conventional",
+          60,
+          "20.07%"
+        ],
+        [
+          "Bicycle",
+          15,
+          "5.02%"
+        ],
+        [
+          "Do not know",
+          108,
+          "36.12%"
+        ],
+        [
+          "Not applicable",
+          12,
+          "4.01%"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Table 4.3.10, pp. 63. Counts retained; percentages recalculated.",
+      "id": "student_preference"
+    },
+    {
+      "caption": "Table 4.10 Professional consideration under hypothetical conditions",
+      "headers": [
+        "Condition",
+        "Yes",
+        "No",
+        "Maybe"
+      ],
+      "rows": [
+        [
+          "Baseline consideration",
+          "39 (38.61%)",
+          "16 (15.84%)",
+          "46 (45.54%)"
+        ],
+        [
+          "Price about INR 600,000",
+          "52 (51.49%)",
+          "12 (11.88%)",
+          "37 (36.63%)"
+        ],
+        [
+          "Range about 600 km",
+          "76 (75.25%)",
+          "3 (2.97%)",
+          "22 (21.78%)"
+        ],
+        [
+          "Rapid charging nearby and home charging",
+          "79 (78.22%)",
+          "6 (5.94%)",
+          "16 (15.84%)"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Table 4.4.5, pp. 71-72. Counts retained; percentages recalculated. Denominator 101 for each question. Nearby means within a five-kilometre radius in the questionnaire. The scenarios are separate questions, not randomised treatments.",
+      "id": "scenarios"
+    },
+    {
+      "caption": "Table A1 Source map for the empirical analysis",
+      "headers": [
+        "Revised table or result",
+        "Original table",
+        "Original pages",
+        "Denominator"
+      ],
+      "rows": [
+        [
+          "4.1",
+          "4.1.1-4.1.3",
+          "44-45",
+          "400"
+        ],
+        [
+          "4.2",
+          "4.4.2-4.4.3",
+          "67-68",
+          "101"
+        ],
+        [
+          "4.3",
+          "4.2.1, 4.3.2, 4.4.4",
+          "48, 55, 69",
+          "400, 299, 101"
+        ],
+        [
+          "4.4",
+          "4.2.2",
+          "49",
+          "171, 229"
+        ],
+        [
+          "4.5",
+          "4.2.2, 4.3.3 and group margins",
+          "45, 49, 56",
+          "145, 154, 26, 75"
+        ],
+        [
+          "4.6",
+          "4.3.4",
+          "57",
+          "154, 68, 77"
+        ],
+        [
+          "4.7",
+          "4.2.4, 4.3.11, 4.4.7",
+          "52, 63-64, 74",
+          "400, 299, 101"
+        ],
+        [
+          "4.8",
+          "4.3.6-4.3.9",
+          "60-62",
+          "299"
+        ],
+        [
+          "4.9",
+          "4.3.10",
+          "63",
+          "299"
+        ],
+        [
+          "4.10",
+          "4.4.5",
+          "71-72",
+          "101"
+        ],
+        [
+          "Advertising paragraph",
+          "4.3.5",
+          "59",
+          "299"
+        ],
+        [
+          "Infrastructure paragraph",
+          "4.2.3, 4.3.8, 4.4.6",
+          "51, 61, 73",
+          "400, 299, 101"
+        ]
+      ],
+      "source": "Page numbers refer to the printed page numbers of the original PDF. Figures 4.1-4.3 are generated from the counts in revised Tables 4.3, 4.7 and 4.10.",
+      "id": "source_map"
+    },
+    {
+      "caption": "Table A2 Two denominators for the combined barrier item",
+      "headers": [
+        "Barrier",
+        "Selections",
+        "Share of 400 respondents",
+        "Share of 875 selections"
+      ],
+      "rows": [
+        [
+          "Unavailable charging stations",
+          269,
+          "67.25%",
+          "30.74%"
+        ],
+        [
+          "Range anxiety",
+          107,
+          "26.75%",
+          "12.23%"
+        ],
+        [
+          "High price",
+          182,
+          "45.50%",
+          "20.80%"
+        ],
+        [
+          "Limited models or brands",
+          193,
+          "48.25%",
+          "22.06%"
+        ],
+        [
+          "Long charging time",
+          124,
+          "31.00%",
+          "14.17%"
+        ]
+      ],
+      "source": "Source: Original survey report (2021), Table 4.2.4, pp. 52. Counts retained; percentages recalculated. Multiple responses permitted. Selection shares refer only to the five reported categories.",
+      "id": "selection_shares"
+    }
+  ],
+  "charts": [
+    {
+      "id": "awareness",
+      "title": "Reported awareness in the survey sample",
+      "type": "horizontal_bar",
+      "unit": "percent",
+      "axis_min": 0,
+      "axis_max": 100,
+      "data": [
+        {
+          "label": "Combined sample — availability awareness",
+          "count": 370,
+          "denominator": 400,
+          "percent": 92.5,
+          "group": "Combined sample",
+          "measure": "availability_awareness"
+        },
+        {
+          "label": "Combined sample — incentive awareness",
+          "count": 151,
+          "denominator": 400,
+          "percent": 37.75,
+          "group": "Combined sample",
+          "measure": "incentive_awareness"
+        },
+        {
+          "label": "Students — availability awareness",
+          "count": 279,
+          "denominator": 299,
+          "percent": 93.31,
+          "group": "Students",
+          "measure": "availability_awareness"
+        },
+        {
+          "label": "Students — incentive awareness",
+          "count": 109,
+          "denominator": 299,
+          "percent": 36.45,
+          "group": "Students",
+          "measure": "incentive_awareness"
+        },
+        {
+          "label": "Professionals — availability awareness",
+          "count": 91,
+          "denominator": 101,
+          "percent": 90.1,
+          "group": "Professionals",
+          "measure": "availability_awareness"
+        },
+        {
+          "label": "Professionals — incentive awareness",
+          "count": 42,
+          "denominator": 101,
+          "percent": 41.58,
+          "group": "Professionals",
+          "measure": "incentive_awareness"
+        }
+      ],
+      "table_id": "awareness",
+      "source": "Source: Original survey report (2021), Tables 4.2.1, 4.3.2 and 4.4.4, pp. 48, 55 and 69. Counts retained; percentages recalculated.",
+      "note": "Self-reported awareness, not a validated knowledge score. Each percentage uses its stated group denominator."
+    },
+    {
+      "id": "barriers",
+      "title": "Perceived barriers among respondents",
+      "type": "horizontal_bar",
+      "unit": "percent",
+      "axis_min": 0,
+      "axis_max": 100,
+      "data": [
+        {
+          "label": "Unavailable charging stations",
+          "count": 269,
+          "denominator": 400,
+          "percent": 67.25,
+          "student_count": 203,
+          "professional_count": 66
+        },
+        {
+          "label": "Range anxiety",
+          "count": 107,
+          "denominator": 400,
+          "percent": 26.75,
+          "student_count": 80,
+          "professional_count": 27
+        },
+        {
+          "label": "High price",
+          "count": 182,
+          "denominator": 400,
+          "percent": 45.5,
+          "student_count": 128,
+          "professional_count": 54
+        },
+        {
+          "label": "Limited models or brands",
+          "count": 193,
+          "denominator": 400,
+          "percent": 48.25,
+          "student_count": 148,
+          "professional_count": 45
+        },
+        {
+          "label": "Long charging time",
+          "count": 124,
+          "denominator": 400,
+          "percent": 31.0,
+          "student_count": 92,
+          "professional_count": 32
+        }
+      ],
+      "table_id": "barriers",
+      "source": "Source: Original survey report (2021), Tables 4.2.4, 4.3.11 and 4.4.7, pp. 52, 63-64 and 74. Counts retained; percentages recalculated. Multiple responses permitted. Percentages are shares of respondents and need not sum to 100%. The unreported other category is excluded.",
+      "note": "Multiple answers permitted; percentages use 400 respondents, not 875 reported selections. Percentages need not sum to 100. The other category was offered but not tabulated."
+    },
+    {
+      "id": "scenarios",
+      "title": "Professionals answering yes to purchase consideration",
+      "type": "horizontal_bar",
+      "unit": "percent",
+      "axis_min": 0,
+      "axis_max": 100,
+      "data": [
+        {
+          "label": "Baseline consideration",
+          "count": 39,
+          "denominator": 101,
+          "percent": 38.61,
+          "no": 16,
+          "maybe": 46
+        },
+        {
+          "label": "Price about INR 600,000",
+          "count": 52,
+          "denominator": 101,
+          "percent": 51.49,
+          "no": 12,
+          "maybe": 37
+        },
+        {
+          "label": "Range about 600 kilometres",
+          "count": 76,
+          "denominator": 101,
+          "percent": 75.25,
+          "no": 3,
+          "maybe": 22
+        },
+        {
+          "label": "Rapid public charging within five kilometres plus home charging",
+          "count": 79,
+          "denominator": 101,
+          "percent": 78.22,
+          "no": 6,
+          "maybe": 16
+        }
+      ],
+      "table_id": "scenarios",
+      "source": "Source: Original survey report (2021), Table 4.4.5, pp. 71-72. Counts retained; percentages recalculated. Denominator 101 for each question. Nearby means within a five-kilometre radius in the questionnaire. The scenarios are separate questions, not randomised treatments.",
+      "note": "Separate hypothetical questions to 101 professionals. Aggregate margins cannot show individual changes. These are not causal effects, actual sales or estimates of willingness to pay."
+    }
+  ],
+  "references": [
+    {
+      "id": "ref-1",
+      "citation": "AAPOR. (2013). Report of the AAPOR Task Force on Non-Probability Sampling. American Association for Public Opinion Research.",
+      "url": "https://aapor.org/wp-content/uploads/2022/11/NPS_TF_Report_Final_7_revised_FNL_6_22_13.pdf"
+    },
+    {
+      "id": "ref-2",
+      "citation": "Hawkins, T. R., Singh, B., Majeau-Bettez, G., and Stromman, A. H. (2013a). Comparative environmental life cycle assessment of conventional and electric vehicles. Journal of Industrial Ecology, 17(1), 53-64.",
+      "url": "https://doi.org/10.1111/j.1530-9290.2012.00532.x"
+    },
+    {
+      "id": "ref-3",
+      "citation": "Hawkins, T. R., Singh, B., Majeau-Bettez, G., and Stromman, A. H. (2013b). Corrigendum to Comparative environmental life cycle assessment of conventional and electric vehicles. Journal of Industrial Ecology.",
+      "url": "https://doi.org/10.1111/jiec.12011"
+    },
+    {
+      "id": "ref-4",
+      "citation": "Hidrue, M. K., Parsons, G. R., Kempton, W., and Gardner, M. P. (2011). Willingness to pay for electric vehicles and their attributes. Resource and Energy Economics, 33(3), 686-705.",
+      "url": "https://doi.org/10.1016/j.reseneeco.2011.02.002"
+    },
+    {
+      "id": "ref-5",
+      "citation": "International Energy Agency. (2021). Global EV Outlook 2021. IEA, Paris.",
+      "url": "https://www.iea.org/reports/global-ev-outlook-2021"
+    },
+    {
+      "id": "ref-6",
+      "citation": "Khurana, A., Ravi Kumar, V. V., and Sidhpuria, M. (2020). A study on the adoption of electric vehicles in India: The mediating role of attitude. Vision, 24(1), 23-34. First published online in 2019.",
+      "url": "https://doi.org/10.1177/0972262919875548"
+    },
+    {
+      "id": "ref-7",
+      "citation": "Li, S., Tong, L., Xing, J., and Zhou, Y. (2017). The market for electric vehicles: Indirect network effects and policy design. Journal of the Association of Environmental and Resource Economists, 4(1), 89-133.",
+      "url": "https://doi.org/10.1086/689702"
+    },
+    {
+      "id": "ref-8",
+      "citation": "Original survey report. (2021). Awareness and popularity of electric vehicles in Kerala. Bachelor of Arts in Economics project by Abhaya Gifty Thomas, Adhit Chandy George, and Aiswarya K. S. Union Christian College, Aluva, affiliated to Mahatma Gandhi University.",
+      "url": null
+    },
+    {
+      "id": "ref-9",
+      "citation": "Press Information Bureau. (2019, February 28). Cabinet approves Scheme for FAME India Phase II. Government of India, Ministry of Heavy Industries.",
+      "url": "https://www.pib.gov.in/Pressreleaseshare.aspx?PRID=1566758&lang=2&reg=3"
+    }
+  ]
+}

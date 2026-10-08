@@ -1,0 +1,359 @@
+{
+  "name": "Adhit Chandy",
+  "fullName": "Adhit Chandy George",
+  "url": "https://adhitchandy.com",
+  "description": "Adhit Chandy George is an economist and photographer from Kerala, India: a PhD researcher in the Collective Decision-Making Graduate Program at Universität Hamburg, working on environmental policy.",
+  "photoRoot": "~/Photography",
+  "statement": "Economist and photographer from Kerala, now in Hamburg, working on environmental policy.",
+  "currently": "PhD researcher in the [Collective Decision-Making](https://www.wiso.uni-hamburg.de/en/forschung/verbundprojekte/rtg-collective-decision-making/about.html) graduate program at [Universität Hamburg](https://www.uni-hamburg.de/en.html)",
+  "facts": [
+    [
+      "From",
+      "Kerala, India"
+    ],
+    [
+      "Working on",
+      "Environmental policy evaluation"
+    ]
+  ],
+  "links": [
+    {
+      "label": "Instagram",
+      "url": "https://www.instagram.com/adhit_chandy/"
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/adhitchandy"
+    },
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/adhit-chandy-george-6013641b5/"
+    }
+  ],
+  "portrait": "portrait-about.jpg",
+  "tiles": {
+    "photography": {
+      "src": "2026/exports/Adhit x Allison/editing project w Allison/040.jpg",
+      "pos": "50% 100%",
+      "focus": "47% 68%",
+      "wide": {
+        "src": "2026/exports/Adhit x Allison/editing project w Allison/067.jpg",
+        "pos": "50% 50%",
+        "focus": "35.6% 54.6%"
+      }
+    },
+    "research": "Exports/For IG/DSCF5444.jpg",
+    "projects": "2026/exports/Adhit x Allison/editing project w Allison/039.jpg",
+    "writing": "Exports/fotoapp_uploads/August 2024/_DSC0263.jpg"
+  },
+  "photography": {
+    "intro": "Longer photo stories, and single photographs sorted by kind."
+  },
+  "research": {
+    "topic": "Environmental policy evaluation",
+    "statement": "I'm a PhD researcher in the Collective Decision-Making graduate program at Universität Hamburg. I study why environmental policies that look fine on paper so often fail in practice, starting with India.",
+    "facts": [
+      [
+        "Field",
+        "Economics"
+      ],
+      [
+        "Topic",
+        "Environmental policy evaluation"
+      ],
+      [
+        "Programme",
+        "Collective Decision-Making Graduate Program"
+      ],
+      [
+        "University",
+        "Universität Hamburg"
+      ]
+    ],
+    "text": [
+      "It started with my master's thesis. I evaluated India's [National Clean Air Programme](/research/ncap-thesis/), a big national plan to clean up the air in its cities, and found that it made no significant difference overall. In some regions the air even got worse. Not the result anyone hopes for, but working it out was the most rewarding stretch of my studies, and it is the reason I stayed in research.",
+      "It also left me with a nagging question. If the plan was sensible, what went wrong? My guess is that the technical fix matters less than who gets to enforce it. A regulator that depends on the politicians and industries it is supposed to watch will not watch very hard.",
+      "So that is the PhD. I want to know how political influence over environmental regulators shapes enforcement, which features of an institution protect it from that, and whether more independent regulators actually deliver cleaner air. The plan is to put satellite pollution data next to electoral and institutional data for India, and look at what happens to the air when the institutions change.",
+      "I like the econometrics more than I expected to, but I don't think this is only a numbers problem. Who breathes the dirty air, and who gets a say in fixing it, are questions of fairness too. That is why I'm glad to be in a program that puts economists in a room with philosophers and political scientists."
+    ]
+  },
+  "about": {
+    "short": "From Erumeli in Kerala. Economist, photographer, badminton player, in Hamburg.",
+    "text": [
+      "I'm Adhit. I come from a small town in [Kerala](#from), I study why [environmental policies](#work) work or don't, and I [photograph](#camera) more or less everything that will hold still. In between I play [badminton](#badminton), whether I feel like it or not."
+    ],
+    "sections": [
+      {
+        "id": "from",
+        "title": "Where I'm from",
+        "text": [
+          "I come from a small place in Kerala called Erumeli. It is not a village in its purest sense, nor a city in its wildest. It is something in between, and that something in between is a town.",
+          {
+            "figures": [
+              [
+                "92.67 km²",
+                "Total area"
+              ],
+              [
+                "43,273",
+                "Population"
+              ]
+            ],
+            "note": "The Erumely grama panchayat, according to Wikipedia. ((A random fact for you.))"
+          },
+          "And of course I miss it. The people more than the things, then the nature, then the whole long list of regional delicacies."
+        ]
+      },
+      {
+        "id": "economics",
+        "title": "How economics happened",
+        "text": [
+          "Growing up I wanted to be many things at different points: ~~truck driver~~, ~~soldier~~, ~~ethical hacker~~, ~~monk~~. There were also dreams in which I was a photographer, a designer, a video creator and a restaurant owner.",
+          "Funnily enough, economist never made the list. The starting point was my dad, a political scientist, and my uncle, an economist, preaching the wonderful avenue of possibilities. You can work {in a corporation}, {=in academia}, {in politics}, {as a bureaucrat}, {as a consultant}, or as {“the finance guy”}.",
+          "As the owner of a truly indecisive mind, I was hooked by a path that refused to close any doors. People say mathematics or physics does the same, but my brain is slightly incapacitated when it comes to those. So economics it was.",
+          "I'm glad it happened, and glad it leaves me time to dabble in the creative things I enjoy."
+        ]
+      },
+      {
+        "id": "work",
+        "title": "What I work on",
+        "text": [
+          "Now that I'm here, there are things in this field I really love. Otherwise I wouldn't be doing a PhD, I guess. ((There is no pressure from an academic family. I promise.))",
+          "It was during my bachelor's that I got interested in environmental issues and climate change. The interest lasted, and was probably amplified by my time with the [Student Christian Movement of India](https://scmindia.org \"A student movement that works on environmental issues, human rights and gender justice, among other things.\") and [Anjappam](https://www.anjappam.com \"A social restaurant in Kerala run by a charitable trust: you eat, and afterwards you give what you can, if you can.\"). There I learned about ecological issues, took part in conservation work on the ground, and spent time helping people who needed it.",
+          "After my bachelor's I wanted a master's with a specialisation in environmental economics, and Universität Hamburg, known for its climate excellence cluster, had electives in environmental and climate economics by the handful. Somewhere along the way I also started liking the econometrics, which nobody had warned me about, and took electives in that too.",
+          "The two met in my master's thesis, an evaluation of [India's National Clean Air Programme](/research/ncap-thesis/). The answer was not a happy one: no real improvement overall, and in some places the air got worse. Finishing it left me wanting to know what institutions need to be in place for an environmental policy to actually work, and what happens when the people enforcing the rules depend on the people bending them. That is where my PhD is headed. I think it could help explain why so many environmental policies in developing countries like India fall short. The longer version is on [the Research page](/research/)."
+        ]
+      },
+      {
+        "id": "camera",
+        "title": "Behind the camera",
+        "text": [
+          "I picked up a camera when I was thirteen: a Sony Cyber-shot point-and-shoot. I remember nothing specific, except that it came on every family trip and I shot random pictures left and right. My first DSLR was a gift from my dad on my eighteenth birthday. That is when I really began to learn the art of it.",
+          "I've heard the argument that painting is superior to photography, and I somewhat agree. I wish I could paint. With some substantial time I might, one day. {{Not yet.}}",
+          "Until then, photography is the door through which I get to make things. I love doing more or less all of it and haven't found a niche. For now my favourites are landscapes and documentary work.",
+          "Any creative pursuit widens the patterns your brain thinks in, and photography does that for me. Perspective matters in a photograph and it matters in a problem. Stand somewhere else, and the solution changes."
+        ]
+      },
+      {
+        "id": "badminton",
+        "title": "On the court",
+        "text": [
+          "Photography is a conscious process for me and needs motivation. Badminton needs neither: I turn up regardless of mood. It has been a constant since 2023, which is funny, because I was never much into sports before Germany.",
+          "I play at [ETV Hamburg](https://www.etv-hamburg.de/de/sportangebot/sportangebote-und-abteilungen/badminton/), one of the city's biggest sports clubs, and I'm on one of its teams in the Bezirksliga, the middle of the five leagues that Hamburg's badminton association runs. From September to April that means a match day against another club every couple of weekends."
+        ]
+      }
+    ],
+    "quote": {
+      "text": "To see the world, things dangerous to come to, to see behind walls, draw closer, to find each other, and to feel. That is the purpose of life.",
+      "by": "The Secret Life of Walter Mitty",
+      "lead": "I'll end my rants with a line that has inspired me a lot.",
+      "sign": "Peace out, Adhit."
+    },
+    "contact": "If you'd like to do a collaboration or a project together, or you simply find the research or the pictures interesting, write to me.",
+    "hint": "The longer version follows in pieces. Read one, read all, or skip straight to [the photographs](/photography/), [research](/research/), [other projects](/projects/) or check out my [CV](#cv).",
+    "facts": [
+      [
+        "From",
+        "Erumeli, Kerala, India"
+      ],
+      [
+        "Based at",
+        "Universität Hamburg"
+      ],
+      [
+        "Instagram",
+        "https://www.instagram.com/adhit_chandy/"
+      ],
+      [
+        "GitHub",
+        "https://github.com/adhitchandy"
+      ],
+      [
+        "LinkedIn",
+        "https://www.linkedin.com/in/adhit-chandy-george-6013641b5/"
+      ],
+      [
+        "Email",
+        "mail@adhitchandy.com"
+      ]
+    ]
+  },
+  "email": "mail@adhitchandy.com",
+  "home": {
+    "highlights": [
+      "two-readings",
+      "ncap-thesis"
+    ],
+    "words": [
+      [
+        "Economist",
+        "About me",
+        "export feb/DSCF1576.jpg",
+        "export feb/_DSC6788.jpg"
+      ],
+      [
+        "photographer",
+        "Photography"
+      ],
+      [
+        "Kerala",
+        "",
+        "stories/to-meet-the-ends/img/08.jpg"
+      ]
+    ],
+    "rotate": {
+      "find": "environmental policy",
+      "phrases": [
+        [
+          "environmental policy",
+          "Research"
+        ],
+        [
+          "clean air in Indian cities",
+          "Clean air in India, evaluated"
+        ],
+        [
+          "photo stories",
+          "Photography"
+        ],
+        [
+          "small software tools",
+          "Projects"
+        ],
+        [
+          "a better badminton backhand",
+          ""
+        ]
+      ]
+    }
+  },
+  "cv": {
+    "asOf": "February 2026",
+    "sections": [
+      {
+        "title": "Research interests",
+        "text": "Development economics, environmental economics, policy evaluation, causal inference, machine learning in public policy."
+      },
+      {
+        "title": "Education",
+        "items": [
+          {
+            "when": "Oct 2022 – Jan 2026",
+            "title": "M.Sc. Economics",
+            "org": "University of Hamburg · GPA 1.8",
+            "points": [
+              "Master's thesis: [City-Level Effectiveness of the National Clean Air Programme (NCAP) in India](/research/ncap-thesis/), using synthetic difference-in-differences. Grade: 1.0",
+              "Coursework: Dynamic Optimization (1.0), Advanced Environmental Economics (1.0), Time Series Econometrics (1.3), Public Choice (1.3), Political Economics (1.3)"
+            ]
+          },
+          {
+            "when": "2018 – 2021",
+            "title": "B.A. Economics",
+            "org": "Union Christian College (Mahatma Gandhi University), Kerala · GPA 9.03/10 (A+)",
+            "points": [
+              "Project: “Popularity and Awareness about Electric Vehicles in Kerala”. Designed and conducted a primary survey of consumer perception and adoption barriers, and analysed the economic and behavioural determinants of EV adoption in the region.",
+              "Member of “Walk With a Scholar” (Govt. of Kerala), a mentoring programme for top-performing students."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Professional experience",
+        "items": [
+          {
+            "when": "Mar 2023 – present",
+            "title": "Student Assistant, Consumer Market Insights",
+            "org": "Statista GmbH · Hamburg, Germany",
+            "points": [
+              "Engineered and maintained data sourcing pipelines in Python, with custom web scrapers and automated cleaning workflows.",
+              "Carried out extensive data research and applied market forecasting methods to generate consumer market insights.",
+              "Produced client-focused reports, turning complex datasets into clear infographics together with data analysts."
+            ]
+          },
+          {
+            "when": "Nov 2020 – Mar 2022",
+            "title": "Media Manager & Content Creator",
+            "org": "Centenary Celebrations, UC College · Aluva, India",
+            "points": [
+              "Led digital media strategy and content creation for a major institutional milestone.",
+              "Significantly increased engagement across multiple platforms through targeted campaigns."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Skills",
+        "items": [
+          {
+            "when": "Competencies",
+            "title": "Econometrics and data science: Python, R, EViews, Matlab",
+            "points": [
+              "Causal inference (synthetic DiD) and policy evaluation",
+              "Survey implementation",
+              "Tools: Git, LaTeX, SQL, Markdown, Antigravity"
+            ]
+          },
+          {
+            "when": "Languages",
+            "title": "English (IELTS: C1), Malayalam (native)",
+            "points": [
+              "Tamil (conversational)",
+              "German (A2)"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Certifications & courses",
+        "items": [
+          {
+            "when": "Data science",
+            "title": "The Data Scientist’s Toolbox",
+            "org": "Johns Hopkins University, Coursera · 100%"
+          },
+          {
+            "when": "Programming",
+            "title": "R Programming",
+            "org": "Johns Hopkins University, Coursera · 97%"
+          },
+          {
+            "when": "Policy",
+            "title": "Moral Foundations of Politics",
+            "org": "Yale University · 88%"
+          },
+          {
+            "when": "Learning",
+            "title": "Learning How to Learn",
+            "org": "Deep Teaching Solutions · 99%"
+          }
+        ]
+      },
+      {
+        "title": "Volunteer experience",
+        "items": [
+          {
+            "when": "Oct 2019 – Mar 2022",
+            "title": "Vice Chairperson & Media Coordinator",
+            "org": "Student Christian Movement of India (SCMI) · Kerala, India",
+            "points": [
+              "Spearheaded regional student initiatives and managed public relations strategies.",
+              "Coordinated cross-cultural student activities and events."
+            ]
+          },
+          {
+            "when": "Apr 2019 – Mar 2021",
+            "title": "Editorial Board Member",
+            "org": "Department Magazine, Dept. of Economics · Aluva, India",
+            "points": [
+              "Contributed to the design and publication of the department magazine.",
+              "Worked with the team to plan themes and edit submissions."
+            ]
+          }
+        ]
+      }
+    ],
+    "file": "cv.pdf"
+  },
+  "statementLong": "Adhit Chandy is an economist from Kerala, India, researching environmental policy at Universität Hamburg, and a photographer, badminton player and avid reader.",
+  "tagline": "economist and photographer"
+}
