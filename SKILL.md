@@ -21,6 +21,7 @@ Keep this file current: when a session settles a new rule or changes how things 
 - `content/`: `site.json`, `projects/*.md`, `stories/<slug>/story.md`, `research/<slug>/{paper.json,body.html,fig/}`, `photography/*.json`, `faces/`, `cv.pdf`, portraits.
 - `dist/`: the built site. `.cache/`: image metadata. `unused-images.txt`: written by the build.
 - `wrangler.jsonc`: Cloudflare Workers static assets, domains `adhitchandy.com` and `www`.
+- Domains (since 8 October 2026): `acg.pictures` and `www.acg.pictures` forward permanently (301, path kept) to `adhitchandy.com/photography/`; Two Readings lives at `two-readings.acg.pictures`, and its old address `two-readings.adhitchandy.com` forwards there. The forwarding is the small Worker in `~/Personal/sites/redirects` (`worker.js`, `MOVES`; published with `npx wrangler deploy` there). The project page for Two Readings links the new address (`content/projects/two-readings.md`). A custom domain belongs to one Worker only, so an address moved between Workers asks to be taken over on deploy.
 - A git repository (branch `main`), pushed to the private GitHub repository `adhitchandy/adhitchandy` (remote `origin`). `.gitignore` leaves out `node_modules`, `dist`, `.cache`, `.wrangler`, `unused-images.txt`, `.DS_Store`. Commit as `Adhit Chandy George <mail@adhitchandy.com>` (set in the repository's own config). `photos/` is not in git.
 
 ## Build and publish
