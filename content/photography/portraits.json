@@ -5,44 +5,44 @@
   "intro": "Faces in available light.",
   "photos": [
     {
-      "src": "Exports/For IG/DSCF4848.jpg",
+      "src": "genres/portraits/edited/DSCF4848.jpg",
       "title": "A moment in music"
     },
     {
-      "src": "Exports/Web/_DSF4713.jpg",
+      "src": "genres/portraits/edited/_DSF4713.jpg",
       "title": "Toward the light"
     },
     {
-      "src": "Exports/Web/DSCF4320.jpg",
+      "src": "genres/portraits/edited/DSCF4320.jpg",
       "title": "In the garden"
     },
     {
-      "src": "Exports/2024/August/w:Camila/_DSC9699.jpg",
+      "src": "genres/portraits/edited/_DSC9699.jpg",
       "title": "Summer, softly"
     },
     {
-      "src": "Exports/Web/_DSF4700.jpg",
+      "src": "genres/portraits/edited/_DSF4700.jpg",
       "title": "Out of the dark"
     },
     {
-      "src": "Exports/2023/linusdolores home/DSCF5861.jpg",
+      "src": "genres/portraits/edited/DSCF5861.jpg",
       "title": "At home"
     },
     {
-      "src": "Exports/Web/_DSF4689.jpg",
+      "src": "genres/portraits/edited/_DSF4689.jpg",
       "title": "In warm light"
     },
     {
-      "src": "export feb/DSCF1746.jpg",
+      "src": "genres/portraits/edited/DSCF1746.jpg",
       "title": "",
       "alt": "Black-and-white portrait of a person in a knitted hat, laughing, hand at the chin"
     },
     {
-      "src": "export feb/DSCF1709.jpg",
+      "src": "genres/portraits/edited/DSCF1709.jpg",
       "title": "",
       "alt": "Close portrait: eyes and a grey knitted hat in warm side light"
     }
   ],
   "cols": 3,
-  "cover": "Exports/Web/DSCF4320.jpg"
+  "cover": "genres/portraits/edited/DSCF4320.jpg"
 }

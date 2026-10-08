@@ -6,3 +6,5 @@ dist/
 unused-images.txt
 # Made by macOS.
 .DS_Store
+# The photographs, kept in Google Drive instead (see photos/README.txt).
+photos/

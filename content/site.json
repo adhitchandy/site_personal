@@ -3,7 +3,7 @@
   "fullName": "Adhit Chandy George",
   "url": "https://adhitchandy.com",
   "description": "Adhit Chandy George is an economist and photographer from Kerala, India: a PhD researcher in the Collective Decision-Making Graduate Program at Universität Hamburg, working on environmental policy.",
-  "photoRoot": "~/Photography",
+  "photoRoot": "photos",
   "statement": "Economist and photographer from Kerala, now in Hamburg, working on environmental policy.",
   "currently": "PhD researcher in the [Collective Decision-Making](https://www.wiso.uni-hamburg.de/en/forschung/verbundprojekte/rtg-collective-decision-making/about.html) graduate program at [Universität Hamburg](https://www.uni-hamburg.de/en.html)",
   "facts": [
@@ -33,18 +33,18 @@
   "portrait": "portrait-about.jpg",
   "tiles": {
     "photography": {
-      "src": "2026/exports/Adhit x Allison/editing project w Allison/040.jpg",
+      "src": "cards/edited/040.jpg",
       "pos": "50% 100%",
       "focus": "47% 68%",
       "wide": {
-        "src": "2026/exports/Adhit x Allison/editing project w Allison/067.jpg",
+        "src": "cards/edited/067.jpg",
         "pos": "50% 50%",
         "focus": "35.6% 54.6%"
       }
     },
-    "research": "Exports/For IG/DSCF5444.jpg",
-    "projects": "2026/exports/Adhit x Allison/editing project w Allison/039.jpg",
-    "writing": "Exports/fotoapp_uploads/August 2024/_DSC0263.jpg"
+    "research": "cards/edited/DSCF5444.jpg",
+    "projects": "cards/edited/039.jpg",
+    "writing": "cards/edited/_DSC0263.jpg"
   },
   "photography": {
     "intro": "Longer photo stories, and single photographs sorted by kind."
@@ -188,8 +188,8 @@
       [
         "Economist",
         "About me",
-        "export feb/DSCF1576.jpg",
-        "export feb/_DSC6788.jpg"
+        "cards/edited/DSCF1576.jpg",
+        "cards/edited/_DSC6788.jpg"
       ],
       [
         "photographer",
@@ -198,7 +198,7 @@
       [
         "Kerala",
         "",
-        "stories/to-meet-the-ends/img/08.jpg"
+        "cards/edited/08.jpg"
       ]
     ],
     "rotate": {

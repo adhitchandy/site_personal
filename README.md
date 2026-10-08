@@ -6,15 +6,15 @@ An AI agent working on the site reads `AGENTS.md` first.
 
 ## Where things are
 
-The site folder is `~/Personal/adhitchandy-site`. The photographs it shows stay in `~/Photography`; `photoRoot` in `content/site.json` says where (`~` means your home folder), so the site folder can be moved anywhere without breaking them. If a picture cannot be found, the build lists it and stops, and `npm run deploy` publishes nothing.
+The site folder is `~/Personal/adhitchandy-site`. Every photograph the site shows is in its `photos/` folder: `cards/` (the first page), `genres/<kind>/` and `projects/<project>/`, each with `edited/` (the finished picture the site uses) and `raw/` (the camera file it came from, where one was found). `photos/sources.csv` says where each came from in `~/Photography`. `photoRoot` in `content/site.json` is `photos`, so picture paths in `content/` start at that folder, for example `genres/landscapes/edited/_DSC1881.jpg`. If a picture cannot be found, the build lists it and stops, and `npm run deploy` publishes nothing.
 
-The code and text are kept on GitHub (a private repository). The photographs are not; they are covered by your photo backup.
+The code and text are kept on GitHub (a private repository). `photos/` is left out of git (it is several gigabytes) and kept in Google Drive instead. Screenshots, charts and the small face pictures stay in `content/`, in git.
 
 ## First time (also on a new computer)
 
 1. Install Node.js and GitHub Desktop, and sign in to GitHub Desktop.
 2. In GitHub Desktop: File → Clone Repository → `adhitchandy-site`, into your `Personal` folder.
-3. Put your Photography folder back at `~/Photography` (from the backup), or change `photoRoot` to where it is.
+3. Download the `photos` folder from Google Drive and put it inside the site folder, as `adhitchandy-site/photos`.
 4. In Terminal, inside the site folder:
 
     npm install
@@ -36,9 +36,9 @@ That rebuilds the site and publishes it. To look at it first without publishing:
 
 **Photographs.** Open `content/photography/landscapes.json` (or `street.json`, `portraits.json`) and add a line to `photos`:
 
-    { "src": "Exports/2025/some-folder/_DSC1234.jpg", "title": "Optional title" }
+    { "src": "genres/landscapes/edited/_DSC1234.jpg", "title": "Optional title" }
 
-`src` is the path inside your Photography folder. A folder path adds every image in that folder. To start a new kind of photography, copy one of the files, rename it, and set `"style"` to `wide` (one large frame at a time), `sheet` (contact-sheet grid) or `tall` (upright frames in a row).
+First copy the finished picture into `photos/genres/landscapes/edited/` (and its raw file into `photos/genres/landscapes/raw/`). `src` is the path inside `photos/`. A folder path adds every image in that folder. To start a new kind of photography, copy one of the files, rename it, and set `"style"` to `wide` (one large frame at a time), `sheet` (contact-sheet grid) or `tall` (upright frames in a row).
 
 **A photo story.** Make a folder in `content/stories/` with a `story.md` in it. Start a chapter with `## Chapter name`, write the text, and add `@images: path/to/folder` (or a list of files separated by commas) where the pictures go.
 
