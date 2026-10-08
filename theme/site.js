@@ -562,7 +562,7 @@
       fraf = requestAnimationFrame(flowStep); const dt = Math.min(50, now - (flt || now)); flt = now;
       if (selH || leaving || !fits.length) return;
       /* held or thrown it goes as the finger sends it; left alone a while, it takes up its own slow drift again, gently */
-      if (fdrag !== null || gh.coast) { fy += gh.step(dt); fidle = now; fa = 0; }
+      if (fdrag !== null || gh.coast) { const s = gh.step(dt); fy += s; if (fdrag === null) lean(s); fidle = now; fa = 0; }
       else if (now > fidle + 1600 && !document.hidden) { fa = Math.min(1, fa + dt / 1200); fy += dt * .022 * fa; }
       fk += (Math.max(-1, Math.min(1, fdrag !== null || gh.coast ? gh.v * .3 : 0)) - fk) * .1;
       const VH = fH, mid = VH / 2; let at = null;
@@ -578,16 +578,19 @@
       }
       if (at) name(at);   /* between two covers the line keeps the name it had */
     };
+    /* the sentence above goes up out of the way while the covers are sent onward, and comes back down as soon as they are drawn back;
+       the covers' own slow drift leaves it where it is */
+    let fdir = 0; const lean = d => { if (!d) return; if (d > 0 !== fdir > 0) fdir = 0; fdir += d; if (Math.abs(fdir) > 28) document.body.classList.toggle('sayoff', fdir > 0); };
     band.addEventListener('pointerdown', e => { if (!flowOn || selH || e.target.closest('.fcap a')) return; fdrag = e.clientY; fmoved = 0; if (gh.down(-e.clientY)) fmoved = 99; });
-    addEventListener('pointermove', e => { if (fdrag === null) return; const d = fdrag - e.clientY; fdrag = e.clientY; fmoved += Math.abs(d); fy += d; gh.move(-e.clientY); });
+    addEventListener('pointermove', e => { if (fdrag === null) return; const d = fdrag - e.clientY; fdrag = e.clientY; fmoved += Math.abs(d); fy += d; lean(d); gh.move(-e.clientY); });
     const fdrop = () => { if (fdrag === null) return; gh.up(); fdrag = null; fidle = performance.now(); };
     addEventListener('pointerup', fdrop); addEventListener('pointercancel', fdrop);
-    band.addEventListener('wheel', e => { if (!flowOn) return; e.preventDefault(); fy += e.deltaY * (e.deltaMode === 1 ? 32 : 1); fidle = performance.now(); fa = 0; }, { passive: false });
+    band.addEventListener('wheel', e => { if (!flowOn) return; e.preventDefault(); const d = e.deltaY * (e.deltaMode === 1 ? 32 : 1); fy += d; lean(d); fidle = performance.now(); fa = 0; }, { passive: false });
     fgo.addEventListener('click', e => { e.preventDefault(); fmoved = 0; if (fat && fat.isConnected) fat.click(); });
     const setFlow = () => {
       const on = fq.matches && !reduce; if (on === flowOn) return; flowOn = on; document.body.classList.toggle('flow', on); strip.classList.toggle('flow', on); cancelAnimationFrame(fraf); fraf = 0;
       if (on) { band.append(cap); flowLay(); fborn = performance.now() + (seen ? 250 : 1750); fidle = fborn + 1400; fraf = requestAnimationFrame(flowStep); }
-      else { cap.remove(); fits = []; if (!live) all().forEach(el => { el.style.transform = ''; el.style.width = ''; el.style.visibility = ''; el.style.opacity = ''; }); }
+      else { cap.remove(); fits = []; document.body.classList.remove('sayoff'); if (!live) all().forEach(el => { el.style.transform = ''; el.style.width = ''; el.style.visibility = ''; el.style.opacity = ''; }); }
     };
     /* laid out again whenever the room changes: the sentence above settles its height as its type arrives */
     const refit = () => { if (flowOn && (band.clientWidth !== fW || band.clientHeight !== fH)) flowLay(); };
@@ -674,7 +677,7 @@
     const rnd = (i, s) => { const x = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return x - Math.floor(x); };
     const base = $$('.ph', field), root = document.documentElement, fh = hand(); let its = [], W = 0, VH = 0, H = 1, y = 0, target = 0, k = 0, maxH = 0, intro = !root.classList.contains('came'), born = 0, lt = 0;
     function layout() {
-      W = field.clientWidth; VH = field.clientHeight;
+      W = field.clientWidth; VH = field.clientHeight; const was = new Map(its.map(o => [o.el, o.a]));   /* laid out again, a frame keeps how far it has come up */
       const want = +field.dataset.cols || 3, cols = W < 620 ? 2 : W < 1000 ? Math.min(3, want) : want, pad = W * .035, cw = (W - pad * 2) / cols;
       const build = n => {           /* n copies of the set, hung column by column */
         while ($$('.ph', field).length < base.length * n) base.forEach(b => { const c = b.cloneNode(true); c.setAttribute('aria-hidden', 'true'); $('.open', c).tabIndex = -1; field.append(c); });
@@ -682,13 +685,16 @@
         $$('.ph', field).slice(0, base.length * n).forEach((el, i) => {
           const ar = parseFloat(el.style.getPropertyValue('--ar')) || 1.5, c = hs.indexOf(Math.min(...hs));
           const w = cw * (ar > 1.2 ? .74 + rnd(i, 1) * .2 : .54 + rnd(i, 1) * .2), h = w / ar, x = pad + c * cw + (cw - w) * rnd(i, 2), top = hs[c] + cw * (.1 + rnd(i, 3) * .22);
-          el.style.width = w.toFixed(1) + 'px'; hs[c] = top + h; maxH = Math.max(maxH, h); its.push({ el, x, y: top, w, h, a: intro ? 0 : 1 });
+          el.style.width = w.toFixed(1) + 'px'; hs[c] = top + h; maxH = Math.max(maxH, h); its.push({ el, x, y: top, w, h, a: intro ? 0 : was.has(el) ? was.get(el) : 1, off: el.style.visibility === 'hidden' });   /* a frame set aside while it was out of sight is known to be so, or it would never be shown again */
         });
         H = Math.max(...hs) + cw * .14;
       };
       let n = 1; build(n); while (H < VH * 1.5 + maxH + 80 && n < 8) build(++n);
     }
     layout(); intro = false; addEventListener('resize', layout);
+    /* The wall is measured again whenever its own room changes, not only the window's: on a phone the heading above it settles its height
+       as its type arrives, and the height measured before that left the frames on the first screen waiting, unseen, for a swipe. */
+    if (window.ResizeObserver) new ResizeObserver(() => { if (field.clientWidth !== W || field.clientHeight !== VH) layout(); }).observe(field);
     /* every photograph of the wall is fetched once the page stands, so that none is still arriving while the wall is thrown past it */
     addEventListener('load', () => setTimeout(() => $$('img[loading=lazy]', field).forEach(im => { im.loading = 'eager'; }), 400), { once: true });
     /* the wall opens on its first frame, close under the heading */
@@ -715,7 +721,7 @@
         if (py + it.h < -60 || py > VH + 60) { if (!it.off) { it.el.style.visibility = 'hidden'; it.off = true; } if (it.a < 1) { it.a = 1; it.el.style.opacity = ''; } continue; }
         if (it.off) { it.el.style.visibility = ''; it.off = false; }
         /* arriving: the frames come up onto the wall one after another, from the top */
-        let up = 0; if (it.a < 1) { if (now > born + Math.max(0, py) / VH * 460 + it.x / W * 200) it.a = Math.min(1, it.a + (1 - it.a) * .07 + .004); const e = 1 - Math.pow(1 - it.a, 2); up = (1 - e) * 64; it.el.style.opacity = it.a >= 1 ? '' : e.toFixed(3); }
+        let up = 0; if (it.a < 1) { if (now > born + Math.min(1, Math.max(0, py) / Math.max(1, VH)) * 460 + it.x / Math.max(1, W) * 200) it.a = Math.min(1, it.a + (1 - it.a) * .07 + .004); const e = 1 - Math.pow(1 - it.a, 2); up = (1 - e) * 64; it.el.style.opacity = it.a >= 1 ? '' : e.toFixed(3); }
         const cx = (it.x + it.w / 2) / W * 2 - 1, cy = (py + it.h / 2) / VH * 2 - 1, r2 = cx * cx + cy * cy;
         it.el.style.transform = 'translate3d(' + it.x.toFixed(1) + 'px,' + (py + up).toFixed(1) + 'px,' + (-k * r2 * 300).toFixed(1) + 'px) rotateX(' + (k * cy * 34).toFixed(2) + 'deg) rotateY(' + (-k * cx * 30).toFixed(2) + 'deg)';
       }
@@ -1069,6 +1075,68 @@
       cvr.addEventListener('click', e => { if (e.target === cvr || e.target.classList.contains('cvb')) shut(); });
       addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
       if (location.hash === '#cv') open(false);
+    }
+
+    /* "write to me" opens the letter: a form in the CV's room, sent by the site's own script (worker.js) through Resend to the site's address.
+       Without this script the words stay what they are in the page, a mail link; a click with a key held still opens the mail program.
+       The spam check (Turnstile) is fetched only when the letter is first opened, and only shows itself if it has a question. */
+    const wtr = $('#wtr'), wtm = $('.wtm');
+    if (wtr && wtm) {
+      const form = $('#wtf'), msg = $('#wts'), done = $('#wtd'), btn = $('.pzv', form), card = $('.wtb', wtr); let tok = '', wid = null, sent = false, back = null, tw = 0, from = null, ca = null;
+      /* on a wide screen the card opens out of the ink plate: it is shown only within the plate's outline, in the plate's ink, and the outline
+         widens to the whole card while the ink gives way to the page's colour. Nothing is scaled, so the type stays sharp all the way. */
+      const pop = () => !reduce && !!card.animate && matchMedia('(min-width:821px)').matches;
+      const inset = c => 'inset(' + [from.top - c.top, c.right - from.right, c.bottom - from.bottom, from.left - c.left].map(v => Math.max(0, v).toFixed(1) + 'px').join(' ') + ' round 2px)';
+      const ink = () => { const cs = getComputedStyle(document.documentElement); return [cs.getPropertyValue('--fg').trim(), cs.getPropertyValue('--bg').trim()]; };
+      const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('bad', !!bad); };
+      const check = () => {
+        if (wid !== null || !wtr.dataset.key) return;
+        const go = () => { if (wid !== null) return; wid = turnstile.render('#wtt', { sitekey: wtr.dataset.key, appearance: 'interaction-only', theme: getComputedStyle(document.documentElement).colorScheme === 'light' ? 'light' : 'dark', callback: t => { tok = t; }, 'expired-callback': () => { tok = ''; }, 'error-callback': () => { tok = ''; } }); };
+        if (window.turnstile) go(); else if (!$('#wtts')) { window.wtrReady = go; const s = document.createElement('script'); s.id = 'wtts'; s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=wtrReady'; s.async = true; document.head.append(s); }
+      };
+      const open = () => {
+        if (!wtr.hidden && wtr.classList.contains('in')) return;
+        clearTimeout(tw); if (ca) { ca.cancel(); ca = null; } back = document.activeElement; from = wtm.getBoundingClientRect();
+        wtr.hidden = false; wtr.scrollTop = 0; hush(1); ab.classList.add('open');
+        if (pop()) { const [fg, bg] = ink(); ca = card.animate([{ clipPath: inset(card.getBoundingClientRect()), backgroundColor: fg }, { backgroundColor: fg, offset: .3 }, { backgroundColor: bg, offset: .55 }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', backgroundColor: bg }], { duration: T_OPEN, easing: E_OPEN }); ca.onfinish = () => { ca = null; }; }
+        requestAnimationFrame(() => requestAnimationFrame(() => wtr.classList.add('in'))); check();
+        setTimeout(() => { (sent ? done : form.elements.name).focus({ preventScroll: true }); }, 80);
+      };
+      const shut = () => {
+        if (wtr.hidden || !wtr.classList.contains('in')) return;
+        wtr.classList.remove('in'); ab.classList.remove('open'); hush(0);
+        const end = () => { if (ca) { ca.cancel(); ca = null; } wtr.hidden = true; (back && back.isConnected ? back : wtm).focus({ preventScroll: true }); };
+        if (ca) { ca.cancel(); ca = null; }
+        if (pop() && from) { const [fg, bg] = ink(); ca = card.animate([{ clipPath: 'inset(0px 0px 0px 0px round 0px)', backgroundColor: bg }, { backgroundColor: bg, offset: .45 }, { backgroundColor: fg, offset: .75 }, { clipPath: inset(card.getBoundingClientRect()), backgroundColor: fg }], { duration: T_CLOSE, easing: E_CLOSE, fill: 'forwards' }); ca.onfinish = end; }
+        else tw = setTimeout(end, 420);
+      };
+      wtm.addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; e.preventDefault(); open(); });
+      $('#wtx').addEventListener('click', shut);
+      wtr.addEventListener('click', e => { if (e.target === wtr) shut(); });
+      addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
+      form.addEventListener('input', e => { const l = e.target.closest('.wfi'); if (l) l.classList.remove('bad'); });
+      const NEED = { name: 'Your name, please.', email: 'An address I can write back to, please.', message: 'The message is empty.' };
+      form.addEventListener('submit', async e => {
+        e.preventDefault(); if (btn.disabled) return;
+        const f = new FormData(form), ok = { name: v => v.trim().length > 0, email: v => /^[^\s@<>"(),;:\\]+@[^\s@<>"(),;:\\]+\.[^\s@<>"(),;:\\]+$/.test(v.trim()), message: v => v.trim().length > 0 };
+        let first = null;
+        for (const k in ok) { const good = ok[k](String(f.get(k) || '')); form.elements[k].closest('.wfi').classList.toggle('bad', !good); if (!good && !first) first = k; }
+        if (first) { say(NEED[first], 1); form.elements[first].focus(); return; }
+        btn.disabled = true; say('Sending…'); check();
+        /* the spam check usually has its answer before the message is written; if not, it is given a few seconds */
+        for (let i = 0; !tok && i < 40; i++) await new Promise(r => setTimeout(r, 250));
+        if (!tok) { say('The spam check has not finished. Try again in a moment.', 1); btn.disabled = false; return; }
+        f.set('cf-turnstile-response', tok);
+        try {
+          const r = await fetch(form.action, { method: 'POST', body: f }), j = await r.json().catch(() => ({}));
+          if (!r.ok || !j.ok) throw j.error || r.status;
+          sent = true; $('#wte').textContent = String(f.get('email')).trim(); form.hidden = true; done.hidden = false; say(''); done.focus({ preventScroll: true });
+        } catch (err) {
+          say(err === 'check' ? 'The spam check said no. Try once more.' : 'It did not go through. Try again, or write to ' + wtr.dataset.mail + '.', 1);
+          tok = ''; if (window.turnstile && wid !== null) turnstile.reset(wid);
+        }
+        btn.disabled = false;
+      });
     }
   }
 

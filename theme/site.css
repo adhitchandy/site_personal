@@ -457,7 +457,13 @@ body.fieldlive{height:100svh;overflow:hidden}
 #lbx .im{touch-action:none;user-select:none;-webkit-user-select:none}
 #lbx .im img{-webkit-user-drag:none;will-change:transform}
 #lbx .im .pk{position:absolute;left:50%;top:50%;visibility:hidden;pointer-events:none}
-#lbx .bar2{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 20px;padding:0 var(--gut) calc(10px + env(safe-area-inset-bottom,0px))}
+/* the viewer's line under the picture is the same for every photograph at every width: the title at the left and the counter with its
+   arrows at the right on one row, the exposure on its own row beneath. Each keeps its room when it is empty, so neither the counter nor
+   the picture moves from one photograph to the next. (Laid out as a wrapping row, the counter went to the right whenever a line was short.) */
+#lbx .bar2{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t n" "e e";align-items:center;gap:0 20px;padding:0 var(--gut) calc(10px + env(safe-area-inset-bottom,0px))}
+#lbT{grid-area:t;min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+#lbE{grid-area:e;min-height:1.5em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lbx .bar2 div{grid-area:n;justify-self:end}
 #lbx .bar2 div{display:flex;gap:4px;align-items:center}
 #lbx button{min-width:44px;min-height:44px;padding:0 10px}
 #lbx .pzc{position:absolute;z-index:2;top:calc(6px + env(safe-area-inset-top,0px));right:var(--gut);padding:0;opacity:0;transition:opacity .3s}
@@ -495,7 +501,12 @@ body.fieldlive{height:100svh;overflow:hidden}
   .flow .grid{flex:1;min-height:0}
   .flow #say{padding-block:14px 12px}
   .flow .bar,.flow .rail .who,.flow .acgrow,.flow .grp{display:none}
-  .flow .band{order:3;flex:1;min-height:0;position:relative;overflow:hidden;margin-inline:calc(var(--gut)*-1);padding-inline:var(--gut);border-top:1px solid var(--line);touch-action:none;user-select:none;-webkit-user-select:none}
+  /* the column fills the whole screen under the bar; the sentence lies over its top on the page's own ground, so it reads cleanly whatever
+     passes beneath, and slides up out of sight while the covers are sent onward (site.js sets .sayoff) and back down when they are drawn back */
+  .flow .grid{position:relative;overflow:hidden}
+  .flow #say{flex:none;position:relative;z-index:6;margin-inline:calc(var(--gut)*-1);padding-inline:var(--gut);background:var(--bg);border-bottom:1px solid var(--line);transition:transform .5s var(--ease)}
+  body.flow.sayoff #say{transform:translate3d(0,calc(-100% - 2px),0)}
+  .flow .band{position:absolute;inset:0;overflow:hidden;padding-inline:var(--gut);touch-action:none;user-select:none;-webkit-user-select:none}
   #strip.flow{display:block;position:absolute;inset:0;height:auto;padding:0;overflow:visible;perspective:900px}
   #strip.flow .pz{position:absolute;left:0;top:0;margin:0;grid-column:auto;will-change:transform;backface-visibility:hidden;box-shadow:0 30px 40px -34px rgba(0,0,0,.7)}
   #strip.flow .pz[aria-hidden]{display:block}
@@ -726,6 +737,35 @@ body.fieldlive{height:100svh;overflow:hidden}
 .cvr .pzc{transition:opacity .3s}
 .cvr.in .pzc{opacity:1;transition:opacity .6s .3s}
 @media(max-width:820px){.cvb{grid-template-columns:minmax(0,1fr)}.cvl{position:static}.cvc{width:min(260px,70%)}.cvk{width:min(240px,64%)}}
+/* the letter: "write to me" opened. On a wide screen it is a card that opens out of the ink plate over the blurred page, as the CV
+   comes forward out of its sheet; on a phone it takes the whole screen, as the CV does. Inside, the form is ruled lines that take the
+   page's own type, the button of a project's page, and a spam check that only shows itself when it has a question. */
+.wtr{display:flex;padding:var(--gut)}
+.wtr.in{background:color-mix(in srgb,var(--bg) 35%,transparent)}
+.wtb{position:relative;width:min(640px,100%);margin:auto;padding:clamp(26px,2.6vw,40px);background:var(--bg);border:1px solid var(--line);box-shadow:0 50px 90px -46px var(--shade)}
+.wtr .pzc{position:absolute;z-index:1;top:clamp(24px,2.4vw,38px);right:clamp(26px,2.6vw,40px);padding:0}
+.wtl{display:flex;flex-direction:column;gap:8px;min-width:0;margin-bottom:clamp(18px,2vw,26px);padding-right:90px}
+.wtl h2{margin:0;font-size:clamp(28px,2.6vw,40px);font-weight:600;letter-spacing:-.045em;line-height:1}
+.wtl p{margin:0;font-size:13px;max-width:30em}
+.wtw{border-top:1px solid var(--fg);min-width:0;transform:translateY(16px);opacity:0;transition:transform .5s var(--ease),opacity .25s}
+.wtr.in .wtw{transform:none;opacity:1;transition:transform .9s var(--ease) .25s,opacity .6s .25s}
+.wtl{opacity:0;transition:opacity .25s}.wtr.in .wtl{opacity:1;transition:opacity .6s .2s}
+.wfi{display:block;border-bottom:1px solid var(--line);padding:16px 0 12px;transition:border-color .25s}
+.wfi span{display:block;margin-bottom:8px;transition:color .25s}
+.wfi input,.wfi textarea{all:unset;display:block;box-sizing:border-box;width:100%;font-family:var(--display);font-size:clamp(18px,1.4vw,22px);font-weight:500;letter-spacing:-.025em;line-height:1.35;color:var(--fg);caret-color:var(--accent)}
+.wfi textarea{min-height:6em;white-space:pre-wrap;overflow-wrap:anywhere}
+.wfi:focus-within{border-color:var(--fg)}.wfi:focus-within span{color:var(--fg)}
+.wfi.bad{border-color:var(--accent)}.wfi.bad span{color:var(--accent)}
+.wfh{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.wft:not(:empty){margin-top:18px}
+.wfs{display:flex;align-items:center;flex-wrap:wrap;gap:14px 24px;margin-top:26px}
+.wfs .pzv{border:0;cursor:pointer;font:inherit;font-weight:600;font-size:15px}
+.wfs .pzv[disabled]{opacity:.45;cursor:progress;transform:none}
+.wfm{margin:0}.wfm.bad{color:var(--accent)}
+.wtd{padding-top:20px;outline:0}
+.wtdh{margin:0 0 12px;font-size:clamp(28px,2.6vw,40px);font-weight:600;letter-spacing:-.045em;line-height:1.02}
+.wtd .k{margin:0;font-size:17px}
+@media(max-width:820px){.wtr{display:block;padding:0}.wtr.in{background:var(--bg);background:color-mix(in srgb,var(--bg) 96%,transparent)}.wtb{width:auto;min-height:100%;margin:0;padding:clamp(70px,10vh,120px) var(--gut) 80px;background:none;border:0;box-shadow:none}.wtr .pzc{position:fixed;top:10px;right:var(--gut)}.wtl{padding-right:0}}
 .cv{margin-top:clamp(36px,5vw,72px);border-top:1px solid var(--fg);padding-top:16px}
 .cvh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 20px;margin-bottom:clamp(14px,2vw,28px)}
 .cvh h2{font-size:clamp(28px,3.4vw,52px);letter-spacing:-.045em}

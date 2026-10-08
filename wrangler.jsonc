@@ -2,7 +2,10 @@
   // Publishes the built site in dist/ to adhitchandy.com
   "name": "adhitchandy",
   "compatibility_date": "2026-10-01",
-  "assets": { "directory": "./dist", "not_found_handling": "404-page" },
+  // worker.js answers only the letter on About me (/api/contact); every other address is a file from dist/.
+  // Its two secrets are set with `npx wrangler secret put RESEND_API_KEY` and `npx wrangler secret put TURNSTILE_SECRET`.
+  "main": "worker.js",
+  "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "404-page", "run_worker_first": ["/api/*"] },
   "routes": [
     { "pattern": "adhitchandy.com", "custom_domain": true },
     { "pattern": "www.adhitchandy.com", "custom_domain": true }
