@@ -1,6 +1,6 @@
 ---
 name: adhitchandy-site
-description: Working notes for adhitchandy.com, Adhit Chandy George's personal site (economist, photographer). Read before changing, building, testing or advising on anything in the adhitchandy-site folder.
+description: Working notes for adhitchandy.com, Adhit Chandy George's personal site (economist, photographer). Read before changing, building, testing or advising on anything in the adhitchandy site folder.
 ---
 
 # adhitchandy.com
@@ -11,7 +11,7 @@ Keep this file current: when a session settles a new rule or changes how things 
 
 ## Where things are
 
-- Site folder on the Mac: `/Users/adhitchandy/Personal/adhitchandy-site` (in the Mac shell: `$HOME/mnt/Personal/adhitchandy-site`). It was moved there from `~/Photography` on 8 October 2026. Only this folder needs to be connected to a session.
+- Site folder on the Mac: `/Users/adhitchandy/Personal/sites/adhitchandy` (in the Mac shell, with `~/Personal` connected: `$HOME/mnt/Personal/sites/adhitchandy`). It was moved there from `~/Photography/adhitchandy-site` on 8 October 2026. Beside it is `sites/two-readings`, the Two Readings site (its own README), and `sites/push.sh`, which commits and pushes both.
 - Every photograph the site shows is in `photos/` inside the site folder: `cards/` (first-page cards and the pictures behind the home sentence), `genres/<slug>/`, `projects/<slug>/` (stories, project and paper covers), each with `edited/` (what the site uses) and `raw/` (the camera's raw file, found by file name and capture time, or capture time and camera for renamed exports; merged HDRs keep their run of frames). `photos/sources.csv` lists for every file where it came from in `~/Photography` and which raw belongs to it; `photos/README.txt` explains the folder to Adhit. A picture used in two sections is copied into both. 79 of 189 have no raw on the Mac (older Fuji and Nikon street and documentary work, To Meet the Ends, the Two Readings screenshot).
 - `photoRoot` in `content/site.json` is `photos`, so picture paths in content start there (`genres/landscapes/edited/_DSC1881.jpg`). `~` at its start would mean the home folder; `PHOTO_ROOT` in the environment overrides it. A new picture is first copied into the right `edited/` (and `raw/`), with a line in `sources.csv`, then named in content. Screenshots, charts, faces and portraits stay in `content/`.
 - `photos/` is in `.gitignore` (about 5 GB) and Adhit keeps it in Google Drive; the rest of `~/Photography` he backs up to a hard disk himself.
@@ -21,14 +21,14 @@ Keep this file current: when a session settles a new rule or changes how things 
 - `content/`: `site.json`, `projects/*.md`, `stories/<slug>/story.md`, `research/<slug>/{paper.json,body.html,fig/}`, `photography/*.json`, `faces/`, `cv.pdf`, portraits.
 - `dist/`: the built site. `.cache/`: image metadata. `unused-images.txt`: written by the build.
 - `wrangler.jsonc`: Cloudflare Workers static assets, domains `adhitchandy.com` and `www`.
-- A git repository (branch `main`), meant to be published as a private repository `adhitchandy/adhitchandy-site` on GitHub. `.gitignore` leaves out `node_modules`, `dist`, `.cache`, `.wrangler`, `unused-images.txt`, `.DS_Store`. Commit as `Adhit Chandy George <mail@adhitchandy.com>` (set in the repository's own config). `photos/` is not in git.
+- A git repository (branch `main`), pushed to the private GitHub repository `adhitchandy/adhitchandy` (remote `origin`). `.gitignore` leaves out `node_modules`, `dist`, `.cache`, `.wrangler`, `unused-images.txt`, `.DS_Store`. Commit as `Adhit Chandy George <mail@adhitchandy.com>` (set in the repository's own config). `photos/` is not in git.
 
 ## Build and publish
 
 The site folder has no `node_modules`. Build from a scratch folder on the Mac:
 
 ```bash
-S="$HOME/mnt/Personal/adhitchandy-site"
+S="$HOME/mnt/Personal/sites/adhitchandy"
 mkdir -p /tmp/t && cd /tmp/t && { [ -d node_modules ] || (cp "$S/package.json" . && npm install --no-audit --no-fund >/dev/null 2>&1); }
 cp "$S/build.mjs" . && SITE_ROOT="$S" node build.mjs 2>&1 | tail -2
 ```
@@ -140,7 +140,7 @@ Links and contact
 
 ## Open items
 
-- The repository is made locally; Adhit still has to publish it to GitHub (GitHub Desktop: Add Local Repository, then Publish, private). Photo backup advised: Time Machine on an external drive plus Backblaze Personal Backup; not yet confirmed as set up.
+- Both repositories are made locally; Adhit has to create `adhitchandy` and `two-readings` (private, empty) on github.com and run `push.sh` once. Photo backup advised: Time Machine on an external drive plus Backblaze Personal Backup; not yet confirmed as set up.
 - The CV PDF shows the old email address.
 - About me says he plays for "one of its teams" at ETV Hamburg; the exact team is not named.
 - Recent changes are tested in Chromium only. Safari and the dark theme have not been re-checked since the title, column and transition fixes.

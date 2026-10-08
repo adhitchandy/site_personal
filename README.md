@@ -6,15 +6,15 @@ An AI agent working on the site reads `AGENTS.md` first.
 
 ## Where things are
 
-The site folder is `~/Personal/adhitchandy-site`. Every photograph the site shows is in its `photos/` folder: `cards/` (the first page), `genres/<kind>/` and `projects/<project>/`, each with `edited/` (the finished picture the site uses) and `raw/` (the camera file it came from, where one was found). `photos/sources.csv` says where each came from in `~/Photography`. `photoRoot` in `content/site.json` is `photos`, so picture paths in `content/` start at that folder, for example `genres/landscapes/edited/_DSC1881.jpg`. If a picture cannot be found, the build lists it and stops, and `npm run deploy` publishes nothing.
+The site folder is `~/Personal/sites/adhitchandy` (beside it, `two-readings` is the Two Readings site). Every photograph the site shows is in its `photos/` folder: `cards/` (the first page), `genres/<kind>/` and `projects/<project>/`, each with `edited/` (the finished picture the site uses) and `raw/` (the camera file it came from, where one was found). `photos/sources.csv` says where each came from in `~/Photography`. `photoRoot` in `content/site.json` is `photos`, so picture paths in `content/` start at that folder, for example `genres/landscapes/edited/_DSC1881.jpg`. If a picture cannot be found, the build lists it and stops, and `npm run deploy` publishes nothing.
 
 The code and text are kept on GitHub (a private repository). `photos/` is left out of git (it is several gigabytes) and kept in Google Drive instead. Screenshots, charts and the small face pictures stay in `content/`, in git.
 
 ## First time (also on a new computer)
 
-1. Install Node.js and GitHub Desktop, and sign in to GitHub Desktop.
-2. In GitHub Desktop: File → Clone Repository → `adhitchandy-site`, into your `Personal` folder.
-3. Download the `photos` folder from Google Drive and put it inside the site folder, as `adhitchandy-site/photos`.
+1. Install Node.js, and the GitHub command line with `brew install gh`, then `gh auth login` once.
+2. In Terminal: `mkdir -p ~/Personal/sites && cd ~/Personal/sites && git clone https://github.com/adhitchandy/adhitchandy.git`
+3. Download the `photos` folder from Google Drive and put it inside the site folder, as `adhitchandy/photos`.
 4. In Terminal, inside the site folder:
 
     npm install
@@ -24,7 +24,7 @@ The code and text are kept on GitHub (a private repository). `photos/` is left o
 
 ## Saving a change to GitHub
 
-In GitHub Desktop: write a few words about the change, Commit to main, then Push origin.
+In Terminal: `~/Personal/sites/push.sh "what changed"`. It saves the change in both sites (this one and Two Readings) and sends it to GitHub.
 
 ## Every time you change something
 
