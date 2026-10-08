@@ -4,9 +4,27 @@ Everything on the site comes from the `content/` folder. `build.mjs` turns it in
 
 An AI agent working on the site reads `AGENTS.md` first.
 
-## First time
+## Where things are
+
+The site folder is `~/Personal/adhitchandy-site`. The photographs it shows stay in `~/Photography`; `photoRoot` in `content/site.json` says where (`~` means your home folder), so the site folder can be moved anywhere without breaking them. If a picture cannot be found, the build lists it and stops, and `npm run deploy` publishes nothing.
+
+The code and text are kept on GitHub (a private repository). The photographs are not; they are covered by your photo backup.
+
+## First time (also on a new computer)
+
+1. Install Node.js and GitHub Desktop, and sign in to GitHub Desktop.
+2. In GitHub Desktop: File → Clone Repository → `adhitchandy-site`, into your `Personal` folder.
+3. Put your Photography folder back at `~/Photography` (from the backup), or change `photoRoot` to where it is.
+4. In Terminal, inside the site folder:
 
     npm install
+    npm run build
+
+`npx wrangler deploy` asks you to log in to Cloudflare once on a new computer.
+
+## Saving a change to GitHub
+
+In GitHub Desktop: write a few words about the change, Commit to main, then Push origin.
 
 ## Every time you change something
 

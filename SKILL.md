@@ -11,23 +11,24 @@ Keep this file current: when a session settles a new rule or changes how things 
 
 ## Where things are
 
-- Site folder on the Mac: `/Users/adhitchandy/Photography/adhitchandy-site` (in the Mac shell: `$HOME/mnt/Photography/adhitchandy-site`).
-- Photographs live outside it. `photoRoot` in `content/site.json` is `..`, so picture paths in content are relative to `/Users/adhitchandy/Photography`.
+- Site folder on the Mac: `/Users/adhitchandy/Personal/adhitchandy-site` (in the Mac shell: `$HOME/mnt/Personal/adhitchandy-site`). It was moved there from `~/Photography` on 8 October 2026. To work on the site, both `~/Personal` (or the site folder) and `~/Photography` must be connected to the session: the first holds the code, the second the pictures.
+- Photographs live outside it. `photoRoot` in `content/site.json` is `~/Photography` (`~` is read as the home folder), so picture paths in content are relative to `/Users/adhitchandy/Photography`, wherever the site folder sits. `PHOTO_ROOT` in the environment overrides it; the Mac shell needs it, because its home is not `/Users/adhitchandy`.
+- A picture that cannot be found makes the build end with an error (exit code 1) after listing it, so `npm run deploy` stops before publishing. `ALLOW_MISSING=1` builds anyway (the stand-in test copy needs it).
 - `build.mjs` (about 730 lines): the whole generator. Node ESM, uses `sharp` and `exif-reader`.
 - `theme/site.css`, `theme/site.js`, `theme/fonts/`: copied into `dist/` as they are.
 - `content/`: `site.json`, `projects/*.md`, `stories/<slug>/story.md`, `research/<slug>/{paper.json,body.html,fig/}`, `photography/*.json`, `faces/`, `cv.pdf`, portraits.
 - `dist/`: the built site. `.cache/`: image metadata. `unused-images.txt`: written by the build.
 - `wrangler.jsonc`: Cloudflare Workers static assets, domains `adhitchandy.com` and `www`.
-- Not a git repository. There is no backup yet (see Open items).
+- A git repository (branch `main`), meant to be published as a private repository `adhitchandy/adhitchandy-site` on GitHub. `.gitignore` leaves out `node_modules`, `dist`, `.cache`, `.wrangler`, `unused-images.txt`, `.DS_Store`. Commit as `Adhit Chandy George <mail@adhitchandy.com>` (set in the repository's own config). The photographs are not in git; they are backed up with the rest of `~/Photography`.
 
 ## Build and publish
 
 The site folder has no `node_modules`. Build from a scratch folder on the Mac:
 
 ```bash
-S="$HOME/mnt/Photography/adhitchandy-site"
+S="$HOME/mnt/Personal/adhitchandy-site"
 mkdir -p /tmp/t && cd /tmp/t && { [ -d node_modules ] || (cp "$S/package.json" . && npm install --no-audit --no-fund >/dev/null 2>&1); }
-cp "$S/build.mjs" . && SITE_ROOT="$S" node build.mjs 2>&1 | tail -2
+cp "$S/build.mjs" . && SITE_ROOT="$S" PHOTO_ROOT="$HOME/mnt/Photography" node build.mjs 2>&1 | tail -2
 ```
 
 - Expect a last line like `Built 13 pages, 208 images → dist/`. `/tmp/t` can vanish between calls, which is why the line recreates it.
@@ -137,7 +138,7 @@ Links and contact
 
 ## Open items
 
-- No backup. An offer to set up a GitHub repository and a copy of the original photographs was made and not yet answered.
+- The repository is made locally; Adhit still has to publish it to GitHub (GitHub Desktop: Add Local Repository, then Publish, private). Photo backup advised: Time Machine on an external drive plus Backblaze Personal Backup; not yet confirmed as set up.
 - The CV PDF shows the old email address.
 - About me says he plays for "one of its teams" at ETV Hamburg; the exact team is not named.
 - Recent changes are tested in Chromium only. Safari and the dark theme have not been re-checked since the title, column and transition fixes.
