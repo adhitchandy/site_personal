@@ -22,7 +22,7 @@
 @media(prefers-color-scheme:light){:root:not([data-theme=dark]){color-scheme:light;--bg:#f4f2ec;--fg:#11110f;--dim:#6a665e;--line:#d8d4ca;--panel:#e8e5dc;--tfield:#11110f;--tink:#f4f2ec;--mark:#f3e3a0;--pan:#0c0c0b;--vein:#1b1b19;--shade:rgba(52,44,28,.55)}}
 :root[data-theme=light]{color-scheme:light;--bg:#f4f2ec;--fg:#11110f;--dim:#6a665e;--line:#d8d4ca;--panel:#e8e5dc;--tfield:#11110f;--tink:#f4f2ec;--mark:#f3e3a0;--pan:#0c0c0b;--vein:#1b1b19;--shade:rgba(52,44,28,.55)}
 *{box-sizing:border-box}
-html{background:var(--bg)}
+html{background:var(--bg);-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--display);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:clip;min-height:100svh;display:flex;flex-direction:column}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
@@ -253,7 +253,7 @@ img.hero{width:100%;max-height:78svh;object-fit:cover;margin-bottom:clamp(20px,3
 .card:hover{text-decoration:none}
 .card .cv{aspect-ratio:3/2;overflow:hidden;background:var(--panel)}
 .card .cv img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
-.card:hover .cv img{transform:scale(1.04)}
+@media(hover:hover){.card:hover .cv img{transform:scale(1.04)}}
 .card .ct{display:flex;flex-direction:column;gap:6px}
 .card .row{display:flex;justify-content:space-between;gap:12px;text-transform:capitalize}
 .card h3{font-size:clamp(22px,2vw,30px)}
@@ -369,7 +369,7 @@ body.labopen .foot{opacity:.3;filter:blur(4px);pointer-events:none}
 .ph{margin:0;min-width:0}
 .ph .open{display:block;width:100%;overflow:hidden;background:var(--c,var(--panel));aspect-ratio:var(--ar)}
 .ph img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease),opacity .8s}
-.ph .open:hover img{transform:scale(1.025)}
+@media(hover:hover){.ph .open:hover img{transform:scale(1.025)}}
 .ph figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding-top:8px}
 .js .rv{clip-path:inset(0 0 100% 0);transition:clip-path 1.2s var(--ease)}
 .js .rv.in{clip-path:inset(0)}
@@ -448,13 +448,15 @@ body.fieldlive{height:100svh;overflow:hidden}
 #lbx{position:fixed;inset:0;z-index:70;color:var(--fg);display:flex;flex-direction:column;visibility:hidden;transition:visibility 0s .64s}
 #lbx.open{visibility:visible;transition:none}
 #lbx::before{content:"";position:absolute;inset:0;background:var(--bg);opacity:0;transition:opacity .5s ease}
-#lbx.open::before{opacity:1}
+#lbx.open::before{opacity:var(--lbo,1)}
+#lbx.drag::before{transition:none}
 #lbx .im{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:var(--gut)}
 #lbx img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 40px 90px -56px var(--shade)}
 #lbx .bar2{position:relative;opacity:0;transition:opacity .3s}
 #lbx.open .bar2{opacity:1;transition:opacity .5s .28s}
 #lbx .im{touch-action:none;user-select:none;-webkit-user-select:none}
 #lbx .im img{-webkit-user-drag:none;will-change:transform}
+#lbx .im .pk{position:absolute;left:50%;top:50%;visibility:hidden;pointer-events:none}
 #lbx .bar2{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 20px;padding:0 var(--gut) calc(10px + env(safe-area-inset-bottom,0px))}
 #lbx .bar2 div{display:flex;gap:4px;align-items:center}
 #lbx button{min-width:44px;min-height:44px;padding:0 10px}
@@ -487,6 +489,22 @@ body.fieldlive{height:100svh;overflow:hidden}
   .band .strip{height:auto}
   .grp{display:block;grid-column:1/-1;text-transform:uppercase;padding-block:20px 6px}
   .grp.gf{order:1}.tile.feat{order:2;grid-column:1/-1}.grp.gs{order:3}.tile{order:4}
+  /* the first page on a phone that may move (site.js adds .flow): one screen, the sentence above, the covers flowing up under a line across
+     the middle that names the one passing it. Who and where, and the line about now, are on About me. */
+  body.flow{height:100svh;overflow:hidden}
+  .flow .grid{flex:1;min-height:0}
+  .flow #say{padding-block:14px 12px}
+  .flow .bar,.flow .rail .who,.flow .acgrow,.flow .grp{display:none}
+  .flow .band{order:3;flex:1;min-height:0;position:relative;overflow:hidden;margin-inline:calc(var(--gut)*-1);padding-inline:var(--gut);border-top:1px solid var(--line);touch-action:none;user-select:none;-webkit-user-select:none}
+  #strip.flow{display:block;position:absolute;inset:0;height:auto;padding:0;overflow:visible;perspective:900px}
+  #strip.flow .pz{position:absolute;left:0;top:0;margin:0;grid-column:auto;will-change:transform;backface-visibility:hidden;box-shadow:0 30px 40px -34px rgba(0,0,0,.7)}
+  #strip.flow .pz[aria-hidden]{display:block}
+  #strip.flow .pz img{-webkit-user-drag:none}
+  .fcap{position:absolute;left:var(--gut);right:var(--gut);top:50%;z-index:5;display:flex;justify-content:space-between;align-items:baseline;gap:12px;transform:translateY(-50%);color:#fff;mix-blend-mode:difference;pointer-events:none}
+  .fcap .fl{display:flex;align-items:baseline;gap:12px;min-width:0}
+  .fcap .fk{font-family:var(--mono);font-size:11px;letter-spacing:.08em;flex:none}
+  .fcap .fn{font-size:15px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fcap a{pointer-events:auto;flex:none;color:inherit;font-size:15px;font-weight:500;text-decoration:underline;text-underline-offset:4px;padding:12px 0 12px 16px}
 
   .two{grid-template-columns:minmax(0,1fr)}
   .gal-tall{flex-direction:column;overflow:visible;align-items:stretch}
@@ -1036,25 +1054,34 @@ a.nt{text-decoration-style:dotted}
 .reach{display:flex;flex-direction:column;align-items:flex-start;gap:22px;min-width:0}
 .reach p{margin:0;font-size:clamp(20px,2.3vw,40px);font-weight:600;letter-spacing:-.035em;line-height:1.08;max-width:21em;text-wrap:balance}
 .reach p a{text-decoration:underline;text-underline-offset:3px}
-/* "write to me", the one loud thing on the page: a ground of the site's four colours drifting under cream letters, which now and then
-   flick through the site's faces (site.js). The plain word keeps the place in the line, so the sentence never moves. */
-.reach p a.wtm{position:relative;display:inline-block;white-space:nowrap;text-decoration:none;color:#efece6;isolation:isolate;padding:0 .13em;margin:0 .02em 0 .07em}
-.wtm::before{content:"";position:absolute;inset:.06em 0 -.02em;z-index:-1;border-radius:3px;background:radial-gradient(closest-side,#e0492c,rgba(224,73,44,0)) 0 0/95% 230% no-repeat,radial-gradient(closest-side,#2b4bd6,rgba(43,75,214,0)) 0 0/100% 240% no-repeat,radial-gradient(closest-side,#e8b73a,rgba(232,183,58,0)) 0 0/70% 200% no-repeat,radial-gradient(closest-side,#1c5f4b,rgba(28,95,75,0)) 0 0/95% 240% no-repeat,#2a1d3a;animation:wtmflow 7s ease-in-out infinite alternate;transition:transform .5s var(--ease)}
-@keyframes wtmflow{0%{background-position:-10% 20%,110% 80%,40% -40%,60% 140%,0 0}33%{background-position:50% 120%,10% -10%,105% 60%,-15% 30%,0 0}66%{background-position:115% 0%,60% 110%,-10% 90%,90% -30%,0 0}100%{background-position:30% 60%,-20% 30%,70% 130%,120% 70%,0 0}}
-.wtm::before{transition:filter .35s,transform .35s var(--ease)}
-.wtm .wf{transition:color .25s}
-/* while the pointer is on it the ground turns to its negative and the word is only drawn in outline */
-.wtm:is(:hover,:focus-visible)::before{animation-duration:4s;transform:scale(1.06,1.12);filter:invert(1)}
-.wtm:is(:hover,:focus-visible) .wf{color:transparent;-webkit-text-stroke:max(1px,.04em) #11110f}
+/* "write to me", the one loud thing on the page: the word cut out of a plate of ink, with a strip of the four poster colours running along its foot
+   like the colour bar on a printer's proof. Every few seconds a wave runs through it letter by letter (site.js): each letter passes quickly through
+   three of the site's faces and comes back to the plain one. The plain word keeps the place in the line, so the sentence never moves. */
+.reach p a.wtm{position:relative;display:inline-block;white-space:nowrap;text-decoration:none;color:var(--bg);isolation:isolate;padding:0 .14em;margin:0 .02em 0 .07em}
+.wtm::before{content:"";position:absolute;inset:.06em 0 -.02em;z-index:-1;border-radius:2px;background:var(--fg)}
+.wtm::after{content:"";position:absolute;left:0;right:0;bottom:-.02em;height:max(3px,.085em);z-index:2;border-radius:0 0 2px 2px;background:linear-gradient(90deg,#e0492c 0 25%,#2b4bd6 0 50%,#e8b73a 0 75%,#1c5f4b 0) 0 0/4em 100% repeat-x;animation:wtmbar 9s linear infinite}
+@keyframes wtmbar{to{background-position:4em 0}}
 .wtm .wb{visibility:hidden}
-.wtm .wf{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);white-space:nowrap;line-height:1}
+.wtm .wf{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);white-space:nowrap;line-height:1;transition:color .3s}
+.wtm .wl{position:absolute;top:0;bottom:0;text-align:center;visibility:hidden;white-space:nowrap}
+.wtm .wl i:not(.f0){letter-spacing:0}
+/* once the letters are set one by one (site.js) they stand in for the whole word, each exactly on its own place in it */
+.wtm.lit .wl{visibility:visible}.wtm.lit .wf{visibility:hidden}
+/* under the pointer or keyboard focus the wave stops, the bar runs faster, and the word settles, still, in the serif italic in the site's red */
+.wtm:is(:hover,:focus-visible)::after{animation-duration:2.2s}
+.wtm:is(:hover,:focus-visible) .wf{color:var(--accent)}
 .wtm .f0{font-family:var(--display);font-weight:600;font-style:normal;letter-spacing:-.035em}
 .wtm .f1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:400;font-style:italic;letter-spacing:-.02em}
 .wtm .f2{font-family:var(--mono);font-weight:500;font-style:normal;letter-spacing:0;text-transform:uppercase}
 .wtm .f3{font-family:var(--display);font-weight:200;font-style:normal;letter-spacing:-.04em}
 .wtm .f4{font-family:var(--display);font-weight:800;font-style:normal;letter-spacing:-.06em}
 .wtm .f5{font-family:var(--mono);font-weight:400;font-style:normal;letter-spacing:-.02em}
-@media(prefers-reduced-motion:reduce){.wtm::before{animation:none;background-position:10% 30%,90% 70%,50% 0%,40% 100%,0 0}}
+/* the address itself, set small under the sentence, for whoever would rather copy it than have a mail program open */
+.reach .rmail{margin:0;display:flex;align-items:baseline;gap:18px;font-size:11px;font-weight:400;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.reach .rmail a{color:var(--fg);text-decoration:none;text-transform:none;letter-spacing:.02em;font-size:12px}
+.reach .rmail button{all:unset;cursor:pointer;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:1px;transition:color .2s,border-color .2s}
+.reach .rmail button:is(:hover,:focus-visible){color:var(--fg);border-color:var(--fg)}
+@media(prefers-reduced-motion:reduce){.wtm::after{animation:none}}
 @media(max-width:820px){
   .about .g2,.frag{grid-template-columns:minmax(0,1fr)}
   .about .atop{gap:24px 0}

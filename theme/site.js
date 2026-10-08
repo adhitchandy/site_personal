@@ -20,6 +20,18 @@
     el.offsetWidth; el.style.transition = tr; };
   const lay = (el, T) => { el._T = T; el.style.transform = el._big && !el._big.still ? el._big.pre + T + el._big.post : T; };
   let opening = false;   /* true while the ACG blocks of the first page are still on their way down: until they have landed they answer to nothing */
+  /* A finger holds what it touches. The row, the table or the wall goes exactly as far as the finger goes, and a flick carries it on at the
+     finger's own speed, slowing as a thrown page does. (Followed a fixed part of the way each frame, as the wheel is, it lagged behind the
+     finger, ran ahead of it by a quarter, and lurched forward when it was let go.) Positions are given so that a larger one means further on. */
+  const hand = () => { let s = [], v = 0, coast = false;
+    return {
+      down(p) { const was = coast && Math.abs(v) > .05; s = [[performance.now(), p]]; v = 0; coast = false; return was; },   /* true: it was still running, so the touch only stops it */
+      move(p) { const t = performance.now(); s.push([t, p]); while (s.length > 2 && t - s[0][0] > 90) s.shift(); const a = s[0], b = s[s.length - 1]; v = Math.max(-6, Math.min(6, (b[1] - a[1]) / Math.max(8, b[0] - a[0]))); },
+      up() { const b = s[s.length - 1]; if (!b || performance.now() - b[0] > 70) v = 0; coast = Math.abs(v) > .02; },   /* a finger that stood still before it let go throws nothing */
+      step(dt) { if (!coast) return 0; const d = v * dt; v *= Math.pow(.997, dt); if (Math.abs(v) < .015) { coast = false; v = 0; } return d; },
+      get v() { return v; }, get coast() { return coast; }
+    }; };
+  const when = (q, fn) => { if (q.decode) q.decode().then(fn, () => {}); else q.onload = fn; };   /* call after q.src is set */
 
   /* Stopping the page while something lies open over it. Where scroll bars take up room of their own (a mouse plugged in, Windows), a
      stopped page loses its bar and would be laid out that much wider, so everything on it would shift, and shift back afterwards:
@@ -97,17 +109,44 @@
     })();
   }
 
-  /* "write to me" at the end of About me: every few seconds its letters pass through four of the site's faces, each held long enough to read, and come back to the plain one;
-     while the pointer is on it they keep changing, more slowly still, among the heavier faces that read well in outline. Each face is sized to the plain word's width, so the sentence around it never moves. */
-  { const w = $('.wtm'); if (w && !reduce) {
-    const b = $('.wb', w), f = $('.wf', w), FACES = ['f0', 'f1', 'f2', 'f3', 'f4', 'f5'], BOLD = ['f0', 'f1', 'f2', 'f4'], k = {}; let cur = 0, run = 0, hot = false;
-    const fit = () => { const bw = b.getBoundingClientRect().width; f.style.fontSize = ''; for (const c of FACES) { f.className = 'wf ' + c; k[c] = Math.min(1.08, (bw - 2) / Math.max(1, f.getBoundingClientRect().width)); } show(0); };
-    const show = i => { cur = i; const c = FACES[i]; f.className = 'wf ' + c; f.style.fontSize = (k[c] || 1).toFixed(3) + 'em'; };
-    const flick = n => { clearTimeout(run); let left = n; const step = () => { if (!hot && left-- <= 0) { show(0); return; } const set = hot ? BOLD : FACES; let i; do i = FACES.indexOf(set[Math.floor(Math.random() * set.length)]); while (i === cur); show(i); run = setTimeout(step, hot ? 650 : 420); }; step(); };
-    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => { fit(); setInterval(() => { if (!hot && !document.hidden) flick(4); }, 5200); });
-    addEventListener('resize', () => { clearTimeout(run); fit(); });
-    w.addEventListener('pointerenter', () => { hot = true; flick(0); });
-    w.addEventListener('pointerleave', () => { hot = false; clearTimeout(run); show(0); });
+  /* "write to me" at the end of About me: every few seconds a wave runs through it from the first letter to the last, each letter passing quickly through three
+     of the site's faces and back to the plain one. Under the pointer or keyboard focus the wave stops and the word
+     settles in the serif italic. Every face is sized to the place of the plain letter or word, so the sentence around it never moves. */
+  { const w = $('.wtm'); if (w) {
+    const b = $('.wb', w), f = $('.wf', w), FACES = ['f0', 'f1', 'f2', 'f3', 'f4', 'f5'], WAVE = ['f1', 'f2', 'f4', 'f3', 'f5'];
+    const STEP = 60, LAG = 36, HOLD = 3, EVERY = 2400;   /* how long a letter keeps a face, how far each letter follows the one before, how many faces it passes, and how often the wave comes */
+    const k = {}; let cells = [], t0 = -1, raf = 0, hot = false;
+    const show = c => { f.className = 'wf ' + c; f.style.fontSize = (k[c] || 1).toFixed(3) + 'em'; };
+    const rest = c => { c._s = -1; const g = c.firstChild; g.className = 'f0'; g.style.fontSize = ''; };
+    const quiet = () => { cancelAnimationFrame(raf); raf = 0; cells.forEach(rest); w.classList.toggle('lit', !hot && cells.length > 0); };
+    const fit = () => {
+      quiet(); const bw = b.getBoundingClientRect().width; f.style.fontSize = '';
+      for (const c of FACES) { f.className = 'wf ' + c; k[c] = Math.min(1.08, (bw - 2) / Math.max(1, f.getBoundingClientRect().width)); }
+      show(hot ? 'f1' : 'f0'); if (reduce) return;
+      cells.forEach(c => c.remove()); cells = [];
+      const a = w.getBoundingClientRect(), t = b.firstChild, r = document.createRange();
+      for (let i = 0; i < t.length; i++) { if (t.data[i] === ' ') continue;
+        r.setStart(t, i); r.setEnd(t, i + 1); const q = r.getBoundingClientRect(), c = document.createElement('span'), g = document.createElement('i');
+        c.className = 'wl'; c.setAttribute('aria-hidden', 'true'); c.style.left = (q.left - a.left).toFixed(2) + 'px'; c.style.width = q.width.toFixed(2) + 'px';
+        g.textContent = t.data[i]; c.append(g); w.append(c); c._k = {};
+        for (const fc of WAVE) { g.className = fc; g.style.fontSize = ''; c._k[fc] = Math.max(.62, Math.min(1, q.width * 1.25 / Math.max(1, g.getBoundingClientRect().width))).toFixed(3) + 'em'; }
+        rest(c); cells.push(c); }
+      quiet();
+    };
+    const tick = now => { if (t0 < 0) t0 = now; const e = now - t0;
+      cells.forEach((c, j) => { const s = Math.floor((e - j * LAG) / STEP);
+        if (s >= 0 && s < HOLD) { if (c._s !== s) { c._s = s; const fc = WAVE[(j + s) % WAVE.length], g = c.firstChild; g.className = fc; g.style.fontSize = c._k[fc]; } }
+        else if (c._s !== -1) rest(c); });
+      raf = e < (cells.length - 1) * LAG + HOLD * STEP ? requestAnimationFrame(tick) : 0; };
+    const wave = () => { if (raf || hot || document.hidden || !cells.length) return; t0 = -1; raf = requestAnimationFrame(tick); };
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => { fit(); if (!reduce) { wave(); setInterval(wave, EVERY); } });
+    addEventListener('resize', fit);
+    const still = on => { hot = on; quiet(); show(on ? 'f1' : 'f0'); };
+    const kb = () => w.matches(':focus-visible');   /* a click also gives the link focus; only focus from the keyboard holds the word still */
+    w.addEventListener('pointerenter', () => still(true)); w.addEventListener('pointerleave', () => { if (!kb()) still(false); });
+    w.addEventListener('focus', () => { if (kb()) still(true); }); w.addEventListener('blur', () => still(false));
+    const cp = $('.rcopy'); if (cp && navigator.clipboard) cp.addEventListener('click', () => navigator.clipboard.writeText(cp.dataset.mail).then(() => { cp.textContent = 'Copied'; setTimeout(() => { cp.textContent = 'Copy'; }, 1800); }));
+    else if (cp) cp.hidden = true;
   } }
 
   /* photographs appear when they have arrived, each out of its own average colour */
@@ -266,7 +305,7 @@
     const plain = t.dataset.plain !== undefined, r = box.getBoundingClientRect(), big = plain ? '' : t.dataset.big || t.dataset.im, title = t.dataset.sec, url = t.href, pp = t.dataset.pos || '50% 50%';
     const z = document.createElement('div'); z.className = 'zoomer';
     const b = document.createElement('div'); b.className = 'zb';
-    if (!plain) { b.style.backgroundImage = 'url("' + t.dataset.im + '")'; b.style.backgroundPosition = pp; const pre = new Image(); pre.onload = () => { b.style.backgroundImage = 'url("' + big + '")'; }; pre.src = big; }
+    if (!plain) { b.style.backgroundImage = 'url("' + t.dataset.im + '")'; b.style.backgroundPosition = pp; const pre = new Image(); pre.src = big; when(pre, () => { b.style.backgroundImage = 'url("' + big + '")'; }); }
     const sc = document.createElement('div'); sc.className = 'zs';
     const h = document.createElement('div'); h.className = 'zt'; h.innerHTML = title.split(' ').map(w => '<span class="zw">' + [...w].map(ch => '<span class="zl">' + ch.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</span>').join('') + '</span>').join(' ');
     z.append(b, sc, h); document.body.append(z);
@@ -337,7 +376,7 @@
        page, or a drag slides the row sideways, and while it moves it turns a little, as the table of projects does. The cover the
        pointer is on, or else the first one in view, is the one named in the panel at the left. */
     const SHAPE = { d: [.72, 1.6, 1], c: [.94, .8, .5], e: [.82, 1, 1], a: [.92, .75, .2], b: [.66, 1.5, .5], f: [.7, 1.6, .7], g: [.96, .8, .15], gw: [.72, 1.5, .8] };   /* height as a share of the row, width to height, how low it hangs */
-    let its = [], W = 0, T = 1, x = -10, target = -10, kk = 0, drag = null, moved = 0, vel = 0, touch = false, hov = -1, hq = -1, hpx = 0, opened = 0, live = false, raf = 0;
+    let its = [], W = 0, T = 1, x = -10, target = -10, kk = 0, drag = null, moved = 0, touch = false, hov = -1, hq = -1, hpx = 0, opened = 0, live = false, raf = 0, lt = 0; const fh = hand();
     /* each cover is seen in its own perspective, so one at the edge of a wide screen is turned no more than one in the middle */
     const TILT = 15, PV = 'perspective(1100px) ', all = () => $$('.hz', strip);
     function layout() {
@@ -352,8 +391,9 @@
     let hold = false;
     const frame = now => { raf = requestAnimationFrame(frame); if (!hold) step(now || performance.now()); };
     const step = now => {
-      x += (target - x) * (drag !== null && touch ? .5 : touch ? .12 : .085);
-      kk += (Math.max(-1, Math.min(1, (target - x) / 700 + (drag !== null && touch ? vel / 26 : 0))) - kk) * .1;
+      const dt = Math.min(50, now - (lt || now)); lt = now;
+      if (touch && (drag !== null || fh.coast)) { target += fh.step(dt); x = target; } else x += (target - x) * (touch ? .12 : .085);
+      kk += (Math.max(-1, Math.min(1, (target - x) / 700 + (touch ? fh.v * .35 : 0))) - kk) * .1;
       /* at rest every cover stands turned a little away; the one under the pointer turns to face you and its neighbours give it room */
       const hi = hq >= 0 ? its.find(o => o.q === hq) : null; if (hi) hpx = hi.px + hi.w / 2;
       opened += ((hi && drag === null ? 1 : 0) - opened) * .1;
@@ -379,15 +419,15 @@
     const setLive = () => {
       pick(); live = wide.matches && !reduce; strip.classList.toggle('live', live); cancelAnimationFrame(raf); raf = 0;
       if (live) { strip.setAttribute('data-drag', 'x'); layout(); raf = requestAnimationFrame(frame); }
-      else { strip.removeAttribute('data-drag'); all().forEach(el => { el.style.transform = ''; el.style.width = ''; el.style.visibility = ''; el.style.zIndex = ''; }); info(0); if (!wide.matches && !strip._rv) { strip._rv = 1; reveal(tiles); } }
+      else { strip.removeAttribute('data-drag'); if (!flowOn) all().forEach(el => { el.style.transform = ''; el.style.width = ''; el.style.visibility = ''; el.style.zIndex = ''; }); info(0); if (!wide.matches && !flowOn && !strip._rv) { strip._rv = 1; reveal(tiles); } }
     };
     let rz = 0; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (live) layout(); }, 120); });
     wide.addEventListener && wide.addEventListener('change', setLive);
     addEventListener('wheel', e => { if (!live) return; e.preventDefault(); if (hold) return; target += (Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX) * (e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? innerHeight : 1); }, { passive: false });
     addEventListener('keydown', e => { if (!live) return; const s = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!s || hold) return; e.preventDefault(); target += s * 320; });
-    strip.addEventListener('pointerdown', e => { if (!live || hold) return; drag = e.clientX; moved = 0; vel = 0; touch = e.pointerType !== 'mouse'; });
-    addEventListener('pointermove', e => { if (drag === null) return; const d = drag - e.clientX; drag = e.clientX; moved += Math.abs(d); vel = vel * .55 + d * .45; target += d * (touch ? 1.25 : 1.5); });
-    const drop = () => { if (drag !== null && touch) target += vel * 26; drag = null; };
+    strip.addEventListener('pointerdown', e => { if (!live || hold) return; drag = e.clientX; moved = 0; touch = e.pointerType !== 'mouse'; if (touch && fh.down(-e.clientX)) moved = 99; });
+    addEventListener('pointermove', e => { if (drag === null) return; const d = drag - e.clientX; drag = e.clientX; moved += Math.abs(d); if (touch) { target += d; fh.move(-e.clientX); } else target += d * 1.5; });
+    const drop = () => { if (drag !== null && touch) fh.up(); drag = null; };
     addEventListener('pointerup', drop); addEventListener('pointercancel', drop);
     strip.addEventListener('dragstart', e => e.preventDefault());
     strip.addEventListener('pointerover', e => { const a = e.target.closest('.hz'); hq = a && e.pointerType !== 'touch' ? all().indexOf(a) : -1; hov = hq < 0 ? -1 : hq % n; if (a && a.dataset.big && !a._pre) { a._pre = new Image(); a._pre.src = a.dataset.big; } });
@@ -460,7 +500,7 @@
       }
     } catch (e) { console.warn(e); }
     strip.addEventListener('focusin', e => { const it = its.find(o => o.el === e.target); if (live && it && e.target.matches(':focus-visible')) target = it.x - 40 + Math.round((x - it.x) / T) * T; });
-    strip.addEventListener('click', e => { const a = e.target.closest('.hz'); if (!a) return; if (live && moved > 8) { e.preventDefault(); return; } if (a.dataset.title && pzd && !e.metaKey && !e.ctrlKey && !e.shiftKey) { e.preventDefault(); e.stopPropagation(); if (!selH) showH(a); return; } leave(a, $('.zp', a) || a, e); });
+    strip.addEventListener('click', e => { const a = e.target.closest('.hz'); if (!a) return; if (live && moved > 8 || flowOn && fmoved > 8) { e.preventDefault(); return; } if (a.dataset.title && pzd && !e.metaKey && !e.ctrlKey && !e.shiftKey) { e.preventDefault(); e.stopPropagation(); if (!selH) showH(a); return; } leave(a, $('.zp', a) || a, e); });
     /* The pinned pieces of work are not self-explanatory, so their covers open first to say what they are: the rest of the row moves
        back and out of focus, the cover comes forward, and its details stand beside it with a button into the work itself. */
     const pzd = $('#pzd'), pzc = $('#pzc'), pzv = $('#pzv'), pzr = $('#pzr'), grid = $('main.grid'); let selH = null, th1 = 0, th2 = 0;
@@ -498,6 +538,62 @@
       pzv.addEventListener('click', e => { if (pzv._go && selH) { hush(0); leave(pzv, $('.zp', selH) || selH, e); } });
       addEventListener('pageshow', e => { if (e.persisted) closeH(); });
     }
+    /* On a phone, when it may move, the first page is one screen, as the row is on a wide one: the covers flow up it in a column that has no
+       end, a little at a time on their own, and a finger takes them exactly as far as it goes and throws them. A line across the middle names
+       the cover passing it, with the way into it, and the covers pass under that line. The page itself does not scroll. Without motion, or
+       without this script, the covers are simply stacked. */
+    const band = strip.parentNode, fq = matchMedia('(max-width:820px)'), gh = hand(), FW = [.66, .54, .7, .58, .62, .52], FX = [.08, .9, .3, 1, .02, .62];
+    let flowOn = false, fits = [], FT = 1, fy = null, fdrag = null, fmoved = 0, fk = 0, flt = 0, fidle = 0, fborn = 0, fa = 0, fcur = -1, fat = null, fraf = 0, fW = 0, fH = 0;
+    const cap = document.createElement('div'); cap.className = 'fcap'; cap.innerHTML = '<span class="fl"><span class="fk"></span><span class="fn"></span></span><a href="/">Open →</a>';
+    const fkn = $('.fk', cap), fnm = $('.fn', cap), fgo = $('a', cap);
+    const flowLay = () => {
+      const W = band.clientWidth, VH = band.clientHeight, g = parseFloat(getComputedStyle(band).paddingLeft) || 16, gap = Math.max(26, VH * .055); if (!W || !VH) return; fW = W; fH = VH;
+      let py = 0, mh = 0; const base = tiles.map((el, i) => { let w = W * FW[i % FW.length]; el.style.width = w.toFixed(1) + 'px'; let h = el.offsetHeight;
+        if (h > VH * .58) { w *= VH * .58 / h; el.style.width = w.toFixed(1) + 'px'; h = el.offsetHeight; }
+        const o = { w, h, x: g + (W - 2 * g - w) * FX[i % FX.length], y: py }; py += h + gap; mh = Math.max(mh, h); return o; });
+      const copies = Math.max(2, Math.ceil((VH * 2 + mh) / py));
+      while (all().length < n * copies) tiles.forEach(t => { const c = t.cloneNode(true); c.setAttribute('aria-hidden', 'true'); c.tabIndex = -1; c.style.animation = 'none'; strip.append(c); });
+      const old = fits; fits = all().map((el, q) => { const b = base[q % n], on = q < n * copies; el.style.width = b.w.toFixed(1) + 'px'; el.style.display = on ? '' : 'none'; const was = old.find(o => o.el === el);
+        return on ? { el, i: q % n, x: b.x, y: b.y + Math.floor(q / n) * py, w: b.w, h: b.h, a: was ? was.a : 0, off: was ? was.off : false } : null; }).filter(Boolean);
+      FT = py * copies; if (fy === null) fy = base[0].y - VH * .14;   /* the first cover begins across the middle line, so that the line names it at once */
+    };
+    const name = it => { fat = it.el; if (it.i === fcur) return; fcur = it.i; const t = tiles[it.i]; fkn.textContent = String(it.i + 1).padStart(2, '0') + ' / ' + String(n).padStart(2, '0'); fnm.textContent = t.dataset.in || t.dataset.sec; fgo.href = t.getAttribute('href'); };
+    const flowStep = now => {
+      fraf = requestAnimationFrame(flowStep); const dt = Math.min(50, now - (flt || now)); flt = now;
+      if (selH || leaving || !fits.length) return;
+      /* held or thrown it goes as the finger sends it; left alone a while, it takes up its own slow drift again, gently */
+      if (fdrag !== null || gh.coast) { fy += gh.step(dt); fidle = now; fa = 0; }
+      else if (now > fidle + 1600 && !document.hidden) { fa = Math.min(1, fa + dt / 1200); fy += dt * .022 * fa; }
+      fk += (Math.max(-1, Math.min(1, fdrag !== null || gh.coast ? gh.v * .3 : 0)) - fk) * .1;
+      const VH = fH, mid = VH / 2; let at = null;
+      for (const it of fits) {
+        let py = ((it.y - fy) % FT + FT) % FT; if (py > VH + 60) py -= FT;
+        if (py + it.h < -60 || py > VH + 60) { if (!it.off) { it.el.style.visibility = 'hidden'; it.off = true; } continue; }
+        if (it.off) { it.el.style.visibility = ''; it.off = false; }
+        if (py <= mid && py + it.h >= mid) at = it;
+        /* arriving: the covers come up into the column one after another, from the top */
+        let up = 0; if (it.a < 1) { if (now > fborn + Math.max(0, py) / VH * 520) it.a = Math.min(1, it.a + (1 - it.a) * .075 + .004); const e = 1 - Math.pow(1 - it.a, 2); up = (1 - e) * VH * .22; it.el.style.opacity = it.a >= 1 ? '' : e.toFixed(3); }
+        const cy = (py + it.h / 2) / VH * 2 - 1;
+        it.el.style.transform = 'translate3d(' + it.x.toFixed(1) + 'px,' + (py + up).toFixed(1) + 'px,' + (-Math.abs(fk) * cy * cy * 80).toFixed(1) + 'px) rotateX(' + (-fk * cy * 8).toFixed(2) + 'deg)';
+      }
+      if (at) name(at);   /* between two covers the line keeps the name it had */
+    };
+    band.addEventListener('pointerdown', e => { if (!flowOn || selH || e.target.closest('.fcap a')) return; fdrag = e.clientY; fmoved = 0; if (gh.down(-e.clientY)) fmoved = 99; });
+    addEventListener('pointermove', e => { if (fdrag === null) return; const d = fdrag - e.clientY; fdrag = e.clientY; fmoved += Math.abs(d); fy += d; gh.move(-e.clientY); });
+    const fdrop = () => { if (fdrag === null) return; gh.up(); fdrag = null; fidle = performance.now(); };
+    addEventListener('pointerup', fdrop); addEventListener('pointercancel', fdrop);
+    band.addEventListener('wheel', e => { if (!flowOn) return; e.preventDefault(); fy += e.deltaY * (e.deltaMode === 1 ? 32 : 1); fidle = performance.now(); fa = 0; }, { passive: false });
+    fgo.addEventListener('click', e => { e.preventDefault(); fmoved = 0; if (fat && fat.isConnected) fat.click(); });
+    const setFlow = () => {
+      const on = fq.matches && !reduce; if (on === flowOn) return; flowOn = on; document.body.classList.toggle('flow', on); strip.classList.toggle('flow', on); cancelAnimationFrame(fraf); fraf = 0;
+      if (on) { band.append(cap); flowLay(); fborn = performance.now() + (seen ? 250 : 1750); fidle = fborn + 1400; fraf = requestAnimationFrame(flowStep); }
+      else { cap.remove(); fits = []; if (!live) all().forEach(el => { el.style.transform = ''; el.style.width = ''; el.style.visibility = ''; el.style.opacity = ''; }); }
+    };
+    /* laid out again whenever the room changes: the sentence above settles its height as its type arrives */
+    const refit = () => { if (flowOn && (band.clientWidth !== fW || band.clientHeight !== fH)) flowLay(); };
+    if ('ResizeObserver' in window) new ResizeObserver(refit).observe(band); else addEventListener('resize', refit);
+    fq.addEventListener && fq.addEventListener('change', setFlow);
+    setFlow();
     setLive();
     /* ACG: the blocks start large in the middle, then fall, bounce and settle in the corner (first visit of a session only) */
     const veil = $('#veil'), ps = $$('#acg .p');
@@ -507,7 +603,7 @@
       const vw = innerWidth, vh = innerHeight, D = 1500, hold = 1000, spin = [0, -384, 360];
       opening = true; setTimeout(() => { opening = false; }, hold + 2 * 130 + D + 500);   /* and in any case once the fall must be long over */
       const w0 = ps[0].getBoundingClientRect().width, S = Math.min(vh * .3, vw * .24) / w0;
-      ps.forEach((p, i) => {
+      if (w0) ps.forEach((p, i) => {
         const r = p.getBoundingClientRect(), dx = vw / 2 + (i - 1) * w0 * S * 1.08 - (r.left + r.width / 2), dy = vh * .44 - (r.top + r.height / 2);
         const delay = hold + i * 130, up = Math.abs(dy), In = 'cubic-bezier(.5,0,1,.6)', Out = 'cubic-bezier(0,.4,.5,1)';
         p.animate([{ transform: 'translateY(' + dy + 'px)', easing: In }, { transform: 'translateY(0)', offset: .46, easing: Out }, { transform: 'translateY(' + (-up * .13) + 'px)', offset: .62, easing: In }, { transform: 'translateY(0)', offset: .78, easing: Out }, { transform: 'translateY(' + (-up * .03) + 'px)', offset: .88, easing: In }, { transform: 'translateY(0)' }], { duration: D, delay, fill: 'backwards' }).onfinish = () => { if (i === ps.length - 1) opening = false; };   /* the last block to land frees all three */
@@ -576,7 +672,7 @@
   if (field && !reduce) {
     document.body.classList.add('fieldlive'); field.classList.add('live'); field.setAttribute('data-drag', 'y');
     const rnd = (i, s) => { const x = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return x - Math.floor(x); };
-    const base = $$('.ph', field), root = document.documentElement; let its = [], W = 0, VH = 0, H = 1, y = 0, target = 0, k = 0, maxH = 0, intro = !root.classList.contains('came'), born = 0;
+    const base = $$('.ph', field), root = document.documentElement, fh = hand(); let its = [], W = 0, VH = 0, H = 1, y = 0, target = 0, k = 0, maxH = 0, intro = !root.classList.contains('came'), born = 0, lt = 0;
     function layout() {
       W = field.clientWidth; VH = field.clientHeight;
       const want = +field.dataset.cols || 3, cols = W < 620 ? 2 : W < 1000 ? Math.min(3, want) : want, pad = W * .035, cw = (W - pad * 2) / cols;
@@ -593,24 +689,27 @@
       let n = 1; build(n); while (H < VH * 1.5 + maxH + 80 && n < 8) build(++n);
     }
     layout(); intro = false; addEventListener('resize', layout);
+    /* every photograph of the wall is fetched once the page stands, so that none is still arriving while the wall is thrown past it */
+    addEventListener('load', () => setTimeout(() => $$('img[loading=lazy]', field).forEach(im => { im.loading = 'eager'; }), 400), { once: true });
     /* the wall opens on its first frame, close under the heading */
     y = target = Math.min(...its.map(o => o.y)) - 26;
     const push = d => { target += d; };
     field.addEventListener('wheel', e => { e.preventDefault(); push(e.deltaY * (e.deltaMode === 1 ? 32 : 1)); }, { passive: false });
-    let drag = null, moved = 0, vel = 0, touch = false;
-    field.addEventListener('pointerdown', e => { drag = e.clientY; moved = 0; vel = 0; touch = e.pointerType !== 'mouse'; });
+    let drag = null, moved = 0, touch = false;
+    field.addEventListener('pointerdown', e => { drag = e.clientY; moved = 0; touch = e.pointerType !== 'mouse'; if (touch && fh.down(-e.clientY)) moved = 99; });
     field.addEventListener('dragstart', e => e.preventDefault());      /* a press on a picture moves the wall; it does not pick the picture up */
-    addEventListener('pointermove', e => { if (drag === null) return; const d = drag - e.clientY; drag = e.clientY; moved += Math.abs(d); vel = vel * .55 + d * .45; push(d * (touch ? 1.25 : 1.6)); });
+    addEventListener('pointermove', e => { if (drag === null) return; const d = drag - e.clientY; drag = e.clientY; moved += Math.abs(d); if (touch) { push(d); fh.move(-e.clientY); } else push(d * 1.6); });
     /* a finger moves the wall directly, and a flick keeps it going */
-    const drop = () => { if (drag !== null && touch) push(vel * 26); drag = null; };
+    const drop = () => { if (drag !== null && touch) fh.up(); drag = null; };
     addEventListener('pointerup', drop); addEventListener('pointercancel', drop);
     field.addEventListener('click', e => { if (moved > 8) { e.stopPropagation(); e.preventDefault(); } }, true);
     addEventListener('keydown', e => { if ($('#lbx.open')) return; const s = { ArrowDown: 160, ArrowUp: -160, PageDown: VH * .8, PageUp: -VH * .8, ' ': VH * .8 }[e.key]; if (s && (document.activeElement === field || document.activeElement === document.body || field.contains(document.activeElement))) { push(s); e.preventDefault(); } });
     field.addEventListener('focusin', e => { const it = its.find(o => o.el.contains(e.target)); if (it) target = it.y + it.h / 2 - VH / 2 + Math.round((y - it.y) / H) * H; });
     (function frame(now) {
       now = now || performance.now(); if (!born) born = now + 140;
-      y += (target - y) * (drag !== null && touch ? .5 : touch ? .12 : .085);
-      k += (Math.max(-1, Math.min(1, (target - y) / 700 + (drag !== null && touch ? vel / 26 : 0))) - k) * .1;      /* + scrolling down: the wall bows away; − scrolling up: it bows towards you */
+      const dt = Math.min(50, now - (lt || now)); lt = now;
+      if (touch && (drag !== null || fh.coast)) { target += fh.step(dt); y = target; } else y += (target - y) * (touch ? .12 : .085);
+      k += (Math.max(-1, Math.min(1, (target - y) / 700 + (touch ? fh.v * .35 : 0))) - k) * .1;      /* + scrolling down: the wall bows away; − scrolling up: it bows towards you */
       for (const it of its) {
         let py = ((it.y - y) % H + H) % H; if (py > VH + 40) py -= H;
         if (py + it.h < -60 || py > VH + 60) { if (!it.off) { it.el.style.visibility = 'hidden'; it.off = true; } if (it.a < 1) { it.a = 1; it.el.style.opacity = ''; } continue; }
@@ -635,7 +734,7 @@
        and moves, while the genres beside it stay. That needs the two halves side by side and a window tall enough to hold them. */
     const loose = lab.hasAttribute('data-loose');
     const live = (loose ? matchMedia('(min-width:960px) and (min-height:560px)').matches : big.matches) && !reduce && !lab.hasAttribute('data-still'), base = $$('.pz', lab);
-    let sel = null, t1 = 0, t2 = 0, its = [], W = 0, VH = 0, H = 1, y = 0, target = 0, k = 0, mx = 0, my = 0, pmx = 0, pmy = 0, drag = null, moved = 0, vel = 0, touch = false, intro = true, born = 0, hvEl = null;
+    let sel = null, t1 = 0, t2 = 0, its = [], W = 0, VH = 0, H = 1, y = 0, target = 0, k = 0, mx = 0, my = 0, pmx = 0, pmy = 0, drag = null, moved = 0, touch = false, intro = true, born = 0, hvEl = null, lt = 0; const fh = hand();
     const all = () => $$('.pz', lab), root = document.documentElement;
     const settle = o => { o.a = 1; o.el.style.opacity = ''; o.el.style.transition = ''; };   /* a cover that has arrived answers to the page's own rules again */
     const filters = $$('.filters button');
@@ -738,10 +837,10 @@
       }
       addEventListener('resize', () => { layout(); if (sel) place(); });
       addEventListener('wheel', e => { if (e.target.closest('.pzd')) return; e.preventDefault(); if (!sel) target += e.deltaY * (e.deltaMode === 1 ? 32 : 1); }, { passive: false });
-      lab.addEventListener('pointerdown', e => { if (sel) return; drag = e.clientY; moved = 0; vel = 0; touch = e.pointerType !== 'mouse'; });
+      lab.addEventListener('pointerdown', e => { if (sel) return; drag = e.clientY; moved = 0; touch = e.pointerType !== 'mouse'; if (touch && fh.down(-e.clientY)) moved = 99; });
       lab.addEventListener('dragstart', e => e.preventDefault());
-      addEventListener('pointermove', e => { if (drag === null) return; const d = drag - e.clientY; drag = e.clientY; moved += Math.abs(d); vel = vel * .55 + d * .45; target += d * (touch ? 1.25 : 1.6); });
-      const drop = () => { if (drag !== null && touch) target += vel * 26; drag = null; };
+      addEventListener('pointermove', e => { if (drag === null) return; const d = drag - e.clientY; drag = e.clientY; moved += Math.abs(d); if (touch) { target += d; fh.move(-e.clientY); } else target += d * 1.6; });
+      const drop = () => { if (drag !== null && touch) fh.up(); drag = null; };
       addEventListener('pointerup', drop); addEventListener('pointercancel', drop);
       addEventListener('keydown', e => { if (sel) return; const s = { ArrowDown: 160, ArrowUp: -160, PageDown: VH * .8, PageUp: -VH * .8 }[e.key]; if (s) { target += s; e.preventDefault(); } });
       (function frame(now) {
@@ -749,8 +848,9 @@
         now = now || performance.now();
         /* the covers are dealt once the page can be seen: at once, or when the picture that brought the visitor here is drawn away */
         if (!born && (!root.classList.contains('entering') || root.classList.contains('entered'))) born = now + (root.classList.contains('came') ? 560 : 160);
-        y += (target - y) * (drag !== null && touch ? .5 : touch ? .12 : .085);
-        k += (Math.max(-1, Math.min(1, (target - y) / 700 + (drag !== null && touch ? vel / 26 : 0))) - k) * .1;
+        const dt = Math.min(50, now - (lt || now)); lt = now;
+        if (touch && (drag !== null || fh.coast)) { target += fh.step(dt); y = target; } else y += (target - y) * (touch ? .12 : .085);
+        k += (Math.max(-1, Math.min(1, (target - y) / 700 + (touch ? fh.v * .35 : 0))) - k) * .1;
         pmx += (mx - pmx) * .06; pmy += (my - pmy) * .06;
         for (const it of its) {
           let py = ((it.y - y) % H + H) % H; if (py > VH + 60) py -= H; it.py = py;
@@ -1004,21 +1104,21 @@
     document.body.append(box);
     const im = $('img', box), imw = $('.im', box);
     /* the picture is given its size outright, so that its box is the picture and nothing more */
-    const fit = () => {
-      const p = L[i]; if (!p.w || !p.h) { im.style.width = im.style.height = ''; return; }
+    const fit = (el = im, p = L[i]) => {
+      if (!p.w || !p.h) { el.style.width = el.style.height = ''; return; }
       const r = imw.getBoundingClientRect(), cs = getComputedStyle(imw), px = parseFloat(cs.paddingLeft) || 0, py = parseFloat(cs.paddingTop) || 0, k = Math.min((r.width - 2 * px) / p.w, (r.height - 2 * py) / p.h, 1);
-      im.style.width = (p.w * k).toFixed(1) + 'px'; im.style.height = (p.h * k).toFixed(1) + 'px';
+      el.style.width = (p.w * k).toFixed(1) + 'px'; el.style.height = (p.h * k).toFixed(1) + 'px';
     };
     /* a picture may come in two versions, one for each theme of the site (the screens of a piece of software do) */
     const dark = () => (document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')) !== 'light';
     const lg = p => dark() && p.ld ? p.ld : p.l, sm = p => dark() && p.sd ? p.sd : p.s;
     const tell = (what, detail) => { try { document.dispatchEvent(new CustomEvent(what, { detail })); } catch (x) {} };
-    const put = j => {
+    const put = (j, keep) => {   /* keep: the picture already showing is this one (a swipe brought it), so it is not put back to the small copy first */
       i = (j + L.length) % L.length; const p = L[i], big = lg(p);
       if (src) { src.style.visibility = ''; src = null; }
       tell('lb:show', i);
-      im.dataset.want = big; im.src = sm(p); im.alt = p.t || ''; fit();
-      const pre = new Image(); pre.onload = () => { if (im.dataset.want !== big) return; im.src = big; if (!p.w) { p.w = pre.naturalWidth; p.h = pre.naturalHeight; fit(); } }; pre.src = big;
+      im.dataset.want = big; if (!keep) im.src = sm(p); im.alt = p.t || ''; fit();
+      const pre = new Image(); pre.src = big; when(pre, () => { if (im.dataset.want !== big) return; im.src = big; if (!p.w) { p.w = pre.naturalWidth; p.h = pre.naturalHeight; fit(); } });
       const nx = L[(i + 1) % L.length]; if (nx && L.length > 1) { const n = new Image(); n.src = lg(nx); }
       $('#lbT').textContent = p.t || ''; $('#lbE').textContent = p.e || ''; $('#lbN').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(L.length).padStart(2, '0');
     };
@@ -1037,8 +1137,8 @@
       if (t && !reduce && im.animate && seen(t)) { const a = t.getBoundingClientRect(), b = im.getBoundingClientRect(); if (b.width > 8) { src = t; t.style.visibility = 'hidden'; fly = im.animate([{ transform: from(a, b) }, { transform: 'none' }], { duration: T_OPEN, easing: E }); } }
       $('#lbC').focus({ preventScroll: true });
     };
-    const close = () => {
-      if (!box.classList.contains('open')) return; box.classList.remove('open'); hush(0);
+    const close = was => {   /* was: where a finger left the picture, if it was pulled down; it goes on from there */
+      if (!box.classList.contains('open')) return; was = typeof was === 'string' ? was : ''; if (was) im.style.transform = ''; box.classList.remove('open', 'drag'); box.style.removeProperty('--lbo'); hush(0);
       /* back into its frame if that frame is in view, otherwise it steps back and fades */
       const z = $$('.zoom[data-i="' + i + '"]').find(b => b._pic), zp = z ? z._pic() : null;
       let t = (zp && seen(zp) ? zp : null) || (src && src.isConnected && seen(src) ? src : null);
@@ -1047,21 +1147,50 @@
       tell('lb:close', i);
       if (reduce || !im.animate) return end();
       if (fly) fly.cancel();
-      if (t) { if (src && src !== t) src.style.visibility = ''; src = t; t.style.visibility = 'hidden'; fly = im.animate([{ transform: 'none' }, { transform: from(t.getBoundingClientRect(), im.getBoundingClientRect()) }], { duration: T_CLOSE, easing: E_CLOSE, fill: 'forwards' }); }
-      else fly = im.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.94)' }], { duration: 300, easing: 'ease', fill: 'forwards' });
+      if (t) { if (src && src !== t) src.style.visibility = ''; src = t; t.style.visibility = 'hidden'; fly = im.animate([{ transform: was || 'none' }, { transform: from(t.getBoundingClientRect(), im.getBoundingClientRect()) }], { duration: T_CLOSE, easing: was ? E_OPEN : E_CLOSE, fill: 'forwards' }); }
+      else fly = im.animate([{ opacity: 1, transform: was || 'none' }, { opacity: 0, transform: 'scale(.94)' }], { duration: 300, easing: 'ease', fill: 'forwards' });
       fly.onfinish = end;
     };
     document.addEventListener('click', e => { const b = e.target.closest('.ph .open,.zoom[data-i]'); if (b) open(+b.dataset.i, b); });
     $('#lbP').onclick = () => show(i - 1, -1); $('#lbX2').onclick = () => show(i + 1, 1); $('#lbC').onclick = close;
     addEventListener('resize', () => { if (!box.hidden) fit(); });
-    /* swipe sideways for the next or previous picture, down to close */
-    let sx = null, sy = 0, dx = 0, dy = 0, swiped = false;
-    imw.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; dx = dy = 0; swiped = false; im.style.transition = ''; });
-    imw.addEventListener('pointermove', e => { if (sx === null) return; dx = e.clientX - sx; dy = e.clientY - sy; if (Math.abs(dx) > 8 || dy > 8) { swiped = true; im.style.transform = Math.abs(dx) >= Math.abs(dy) ? 'translateX(' + dx + 'px)' : 'translateY(' + Math.max(0, dy) + 'px) scale(' + Math.max(.8, 1 - Math.max(0, dy) / 900) + ')'; } });
+    /* Swiping, as the photographs on a phone are swiped. The picture follows the finger and the next one (or the one before) comes in beside
+       it; let go past a fifth of the window, or with a flick, and the two carry on at the finger's own speed until the new one stands where
+       the old one stood, otherwise they go back. Pulled down, the picture shrinks a little and the ground thins; let go far enough down and it
+       goes back into its frame from where the finger left it. (Before, a swipe sent the picture back to the middle first and then faded it.) */
+    const pk = document.createElement('img'); pk.className = 'pk'; pk.alt = ''; pk.setAttribute('aria-hidden', 'true'); pk.draggable = false; imw.append(pk);
+    let sx = null, sy = 0, dx = 0, dy = 0, swiped = false, axis = '', side = 0, trail = [], busy = false;
+    const span = () => imw.clientWidth + 28, at = x => 'translate(-50%,-50%) translateX(' + x.toFixed(1) + 'px)';
+    const peek = d => { if (side === d) return; side = d; const p = L[(i + d + L.length) % L.length], big = lg(p); pk.dataset.want = big; pk.src = sm(p); fit(pk, p); pk.style.visibility = 'visible';
+      const q = new Image(); q.src = big; when(q, () => { if (pk.dataset.want === big) pk.src = big; }); };
+    const speed = () => { const a = trail[0], b = trail[trail.length - 1]; return !a || performance.now() - b[0] > 70 ? 0 : (b[1] - a[1]) / Math.max(8, b[0] - a[0]); };
+    const unpeek = () => { pk.getAnimations().forEach(a => a.cancel()); pk.style.visibility = ''; pk.style.transform = ''; side = 0; };
+    imw.addEventListener('pointerdown', e => { if (busy || sx !== null || !e.isPrimary) return; sx = e.clientX; sy = e.clientY; dx = dy = 0; swiped = false; axis = ''; trail = []; });
+    imw.addEventListener('pointermove', e => {
+      if (sx === null || !e.isPrimary) return; dx = e.clientX - sx; dy = e.clientY - sy;
+      if (!axis && Math.hypot(dx, dy) > 8) { axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : dy > 0 ? 'y' : 'n'; swiped = true; if (fly) { fly.cancel(); fly = null; } }
+      const t = performance.now(); trail.push([t, axis === 'y' ? dy : dx]); while (trail.length > 2 && t - trail[0][0] > 90) trail.shift();
+      if (axis === 'x') { im.style.transform = 'translateX(' + dx.toFixed(1) + 'px)'; if (L.length > 1) { const d = dx < 0 ? 1 : -1; peek(d); pk.style.transform = at(dx + d * span()); } }
+      else if (axis === 'y') { const yy = Math.max(0, dy); box.classList.add('drag'); box.style.setProperty('--lbo', Math.max(.25, 1 - yy / 520).toFixed(3)); im.style.transform = 'translateY(' + yy.toFixed(1) + 'px) scale(' + Math.max(.8, 1 - yy / 900).toFixed(4) + ')'; }
+    });
     const fin = () => {
-      if (sx === null) return; sx = null; im.style.transition = 'transform .25s';
-      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(i + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); else if (dy > 90 && dy > Math.abs(dx)) close();
-      im.style.transform = '';
+      if (sx === null) return; sx = null; const v = speed(), was = im.style.transform;
+      if (axis === 'x' && !reduce && im.animate) {
+        const W = span(), d = dx < 0 ? 1 : -1, go = L.length > 1 && (Math.abs(dx) > W * .2 || Math.abs(v) > .35 && Math.sign(v) === Math.sign(dx));
+        const ms = go ? Math.max(170, Math.min(380, (W - Math.abs(dx)) / Math.max(Math.abs(v), 1.4))) : 300, how = { duration: ms, easing: 'cubic-bezier(.22,.7,.3,1)', fill: 'forwards' };
+        busy = true; im.style.transform = ''; const a = im.animate([{ transform: was }, { transform: 'translateX(' + (go ? -d * W : 0) + 'px)' }], how);
+        if (L.length > 1 && side) pk.animate([{ transform: pk.style.transform }, { transform: at(go ? 0 : side * W) }], how);
+        a.onfinish = () => {
+          if (!go) { a.cancel(); unpeek(); busy = false; return; }
+          /* the picture that came in takes the place of the one that left, already drawn: the viewer's own picture is given its file, and the
+             one beside it is put away only once that is ready to be seen */
+          const keep = pk.currentSrc || pk.src; im.src = keep; put(i + d, true);
+          const swap = () => { a.cancel(); unpeek(); busy = false; };
+          (im.decode ? im.decode() : Promise.resolve()).then(swap, swap);
+        };
+      } else if (axis === 'y' && (dy > 110 || v > .5 && dy > 40)) { im.style.transform = was; close(was); }
+      else if (axis === 'y' && im.animate && !reduce) { box.classList.remove('drag'); box.style.removeProperty('--lbo'); im.style.transform = ''; im.animate([{ transform: was }, { transform: 'none' }], { duration: 300, easing: E_OPEN }); }
+      else { box.classList.remove('drag'); box.style.removeProperty('--lbo'); im.style.transform = ''; unpeek(); if (axis === 'x' && L.length > 1 && Math.abs(dx) > 50) put(i + (dx < 0 ? 1 : -1)); }
     };
     imw.addEventListener('pointerup', fin); imw.addEventListener('pointercancel', fin);
     imw.addEventListener('click', e => { if (e.target !== im && !swiped) close(); });
