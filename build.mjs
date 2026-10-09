@@ -13,6 +13,9 @@ const C = (...p) => path.join(ROOT, 'content', ...p);
 const OUT = path.join(ROOT, 'dist');
 const CACHE = path.join(ROOT, '.cache');
 const site = JSON.parse(fs.readFileSync(C('site.json'), 'utf8'));
+/* What each photograph shows, for anyone who cannot see it, keyed by its path inside photos/. One list serves the genres, the
+   stories and the covers, so a picture used in two places is described once. */
+const ALT = fs.existsSync(C('alt.json')) ? JSON.parse(fs.readFileSync(C('alt.json'), 'utf8')) : {};
 /* The photographs live outside the site folder. photoRoot may start with ~ for the home folder, so the site folder can sit anywhere;
    PHOTO_ROOT in the environment overrides it for a one-off build from elsewhere. */
 const PHOTOS = path.resolve(ROOT, String(process.env.PHOTO_ROOT || site.photoRoot || '..').replace(/^~(?=$|\/)/, os.homedir()));
@@ -83,7 +86,7 @@ async function photo(src, extra = {}) {
     const ch = (await sharp(small).stats()).channels, px = q => Math.round((ch[Math.min(q, ch.length - 1)] || { mean: 128 }).mean).toString(16).padStart(2, '0');
     meta.c = '#' + px(0) + px(1) + px(2); fs.writeFileSync(metaFile, JSON.stringify(meta));
   }
-  return { id, src, ...meta, exif: shot(meta.exif), s: '/img/' + id + '-s.webp', l: '/img/' + id + '.jpg', title: '', ...extra };
+  return { id, src, ...meta, exif: shot(meta.exif), s: '/img/' + id + '-s.webp', l: '/img/' + id + '.jpg', title: '', ...extra, alt: extra.alt || ALT[src] || '' };
 }
 /* A screen of a piece of software, shown on its project page. It is read, not only looked at, so it is kept sharper than a
    photograph's small copy, and it is made in two sizes: one for small windows, one for large. */
@@ -180,7 +183,7 @@ const siteHost = (() => { try { return new URL(site.url).host.replace(/^www\./, 
 const outward = html => html.split(/(<script[\s\S]*?<\/script>)/).map((part, i) => i % 2 ? part : part.replace(/<a\b([^>]*?)\shref="(https?:\/\/[^"]+)"([^>]*)>/g, (m, a, href, b) => {
   let host = ''; try { host = new URL(href).host.replace(/^www\./, ''); } catch {}
   return !host || host === siteHost || /\starget=/.test(a + b) ? m : `<a${a} href="${href}"${b} target="_blank" rel="noopener">`; })).join('');
-function shell({ url, title, desc, body, cls = '', og, file }) {
+function shell({ url, title, desc, body, cls = '', og, file, head = '' }) {
   const who = site.fullName || site.name, full = title ? title + ' — ' + who : who + (site.tagline ? ' — ' + site.tagline : '');
   const nav = NAV.map(n => `<a href="${n.url}"${url.startsWith(n.url) && (n.url !== '/' || url === '/') ? ' class="on" aria-current="page"' : ''}>${esc(n.label)}</a>`).join('');
   const html = `<!doctype html>
@@ -203,7 +206,7 @@ ${file ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href=
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">${url === '/' || url === '/about/' ? `
-<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Person', name: site.fullName || site.name, alternateName: [site.name, 'ACG'], url: site.url + '/', image: portrait ? site.url + portrait.l : undefined, jobTitle: plainText(site.currently), affiliation: { '@type': 'CollegeOrUniversity', name: 'Universität Hamburg' }, sameAs: (site.links || []).map(l => l.url) }).replace(/</g, '\\u003c')}</script>` : ''}
+<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Person', name: site.fullName || site.name, alternateName: [site.name, 'ACG'], url: site.url + '/', image: portrait ? site.url + portrait.l : undefined, jobTitle: plainText(site.currently), affiliation: { '@type': 'CollegeOrUniversity', name: 'Universität Hamburg' }, sameAs: (site.links || []).map(l => l.url) }).replace(/</g, '\\u003c')}</script>` : ''}${head}
 ${fs.existsSync(path.join(ROOT, 'theme', 'fonts', 'bricolage-grotesque-latin-opsz-normal.woff2')) ? '<link rel="preload" href="/fonts/bricolage-grotesque-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>' : `<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">`}
 <link rel="stylesheet" href="/site.css?v=${STAMP}">
@@ -227,9 +230,9 @@ ${body}
 const STAMP = Date.now().toString(36);
 const YEAR = new Date().getFullYear();
 const COPY = `© ${YEAR} ${esc(site.fullName)}. All rights reserved.`;
-const footer = () => `<footer class="foot"><a class="acg" href="/" aria-label="ACG, back to the start">${ACG}</a><div class="fr sm"><span class="k">${site.links.map(l => `<a href="${esc(l.url)}">${esc(l.label)}</a>`).join(' · ')}${site.email ? ` · <a href="mailto:${esc(site.email)}">${esc(site.email)}</a>` : ''}</span><span class="k">${COPY}</span></div></footer>`;
-const figure = (p, i, opt = {}) => `<figure class="ph" style="--ar:${(p.w / p.h).toFixed(4)};--c:${p.c || 'var(--panel)'}"><button type="button" class="open" data-i="${i}" data-cur="Open" aria-label="Open ${esc(p.title || 'photograph ' + (i + 1))}"><img class="fi" loading="lazy" decoding="async" src="${p.s}" width="${p.w}" height="${p.h}" alt="${esc(p.alt || p.title || (p.set ? p.set + ', photograph ' + (i + 1) : ''))}"></button>${opt.caption === false ? '' : `<figcaption class="sm"><span>${opt.number ? `<span class="k">${String(i + 1).padStart(2, '0')}</span> ` : ''}${esc(p.title)}</span><span class="k mono">${esc(p.exif)}</span></figcaption>`}</figure>`;
-const lightData = list => `<script type="application/json" id="lb">${JSON.stringify(list.map(p => ({ l: p.l, s: p.s, t: p.title, e: p.exif, w: p.w, h: p.h }))).replace(/</g, '\\u003c')}</script>`;
+const footer = () => `<footer class="foot"><a class="acg" href="/" aria-label="ACG, back to the start">${ACG}</a><div class="fr sm"><span class="k">${site.links.map(l => `<a href="${esc(l.url)}">${esc(l.label)}</a>`).join(' · ')}${site.email ? ` · <a href="mailto:${esc(site.email)}">${esc(site.email)}</a>` : ''}</span><span class="k">${COPY}${fs.existsSync(C('privacy.md')) ? ' · <a href="/privacy/">Privacy</a>' : ''}</span></div></footer>`;
+const figure = (p, i, opt = {}) => `<figure class="ph" style="--ar:${(p.w / p.h).toFixed(4)};--c:${p.c || 'var(--panel)'}"><button type="button" class="open" data-i="${i}" data-cur="Open"><img class="fi" loading="lazy" decoding="async" src="${p.s}" width="${p.w}" height="${p.h}" alt="${esc(p.alt || p.title || (p.set ? p.set + ', photograph ' + (i + 1) : ''))}"></button>${opt.caption === false ? '' : `<figcaption class="sm"><span>${opt.number ? `<span class="k">${String(i + 1).padStart(2, '0')}</span> ` : ''}${esc(p.title)}</span><span class="k mono">${esc(p.exif)}</span></figcaption>`}</figure>`;
+const lightData = list => `<script type="application/json" id="lb">${JSON.stringify(list.map(p => ({ l: p.l, s: p.s, t: p.title, a: p.alt, e: p.exif, w: p.w, h: p.h }))).replace(/</g, '\\u003c')}</script>`;
 
 /* ---------- content ---------- */
 console.log('Reading content…');
@@ -404,7 +407,7 @@ shell({
         <div class="r">${site.links.map(l => `<a href="${esc(l.url)}">${esc(l.label)}</a>`).join('')}</div>
       </div>
     </div>
-    <div class="acgrow"><div class="acg" id="acg" role="img" aria-label="ACG, for ${esc(site.fullName)}">${ACG}</div><span class="k copy">${COPY}</span></div>
+    <div class="acgrow"><div class="acg" id="acg" role="img" aria-label="ACG, for ${esc(site.fullName)}">${ACG}</div><span class="k copy">${COPY}${fs.existsSync(C('privacy.md')) ? ' · <a href="/privacy/">Privacy</a>' : ''}</span></div>
   </aside>
   <div class="stage">
     <h1 id="say" data-keys="${esc(JSON.stringify(sayKeys))}" data-rot="${esc(JSON.stringify((site.home && site.home.rotate) || null))}">${esc(site.statement)}</h1>
@@ -413,8 +416,8 @@ shell({
   </div>
   </div>
 </main>
-${highlights.length ? `<button type="button" class="pzc mono" id="pzc" hidden>Close ✕</button>
-<aside class="pzd" id="pzd" hidden aria-live="polite"><div class="pzi"><span class="pzp"></span><span class="pzm mono k"></span><h2 class="pzt"></h2><p class="pzs"></p><div class="pzl"><a class="pzv" id="pzv" href="#"></a><a class="pzr mono" id="pzr" href="#" hidden>View the code ↗</a></div></div></aside>` : ''}` });
+${highlights.length ? `<button type="button" class="pzc ctl" id="pzc" hidden>Close ✕</button>
+<aside class="pzd" id="pzd" hidden aria-live="polite"><div class="pzi"><span class="pzp"></span><span class="pzm mono k"></span><h2 class="pzt"></h2><p class="pzs"></p><div class="pzl"><a class="pzv" id="pzv" href="#"></a><a class="pzr ctl" id="pzr" href="#" hidden>View the code ↗</a></div></div></aside>` : ''}` });
 
 /* Every piece of work has a cover set as a small poster. Six layouts: five take turns, the sixth (a book jacket) is asked for by name
    with "poster: f". On the Projects page the posters lie in fixed places on a table; elsewhere each is given its own place. */
@@ -464,7 +467,7 @@ function nextBlock(cur) {
   const { v, tone, tx } = ident(p), url = p.link || '/projects/' + p.slug + '/', ext = /^https?:/.test(url), story = url.startsWith('/photography/'), title = p.short || p.title;
   const kind = p.kind || (story ? 'Photo story' : p.types.map(t => t[0].toUpperCase() + t.slice(1)).join(' · '));
   const go = ext ? 'Visit the site ↗' : story ? 'Read the story →' : p.paper ? `Read the ${(p.paper.kind || 'paper').toLowerCase().replace(/^.*\s/, '')} →` : 'Open the project →', travel = !ext && p.cover && !p.flat;
-  return `<a class="next" href="${esc(url)}"${ext ? ' target="_blank" rel="noopener"' : ''} data-cur="${ext ? 'Visit' : story || p.paper ? 'Read' : 'Open'}"${travel ? ` data-im="${p.cover.s}" data-big="${p.cover.l}" data-sec="${esc(title)}" data-in="${esc(p.opening || p.summary || '')}"` : ''}><span class="nxt"><span class="mono k up">Next · ${esc([kind, p.year].filter(Boolean).join(' · '))}</span><span class="nxh">${esc(p.title)}</span>${p.summary ? `<span class="nxs">${esc(p.summary)}</span>` : ''}<span class="nxg mono up">${go}</span></span><span class="pz pz-${v}${title.length > 20 ? ' lg' : ''}" style="--tone:${tone};--tx:${tx}"><span class="zz">${face(v, { title, kind, year: p.year, pic: zp(p.cover, p.flat), words: title.split(/\s+/) })}</span></span></a>`;
+  return `<a class="next" href="${esc(url)}"${ext ? ' target="_blank" rel="noopener"' : ''} data-cur="${ext ? 'Visit' : story || p.paper ? 'Read' : 'Open'}"${travel ? ` data-im="${p.cover.s}" data-big="${p.cover.l}" data-sec="${esc(title)}" data-in="${esc(p.opening || p.summary || '')}"` : ''}><span class="nxt"><span class="mono k up">Next · ${esc([kind, p.year].filter(Boolean).join(' · '))}</span><span class="nxh">${esc(p.title)}</span>${p.summary ? `<span class="nxs">${esc(p.summary)}</span>` : ''}<span class="nxg ctl">${go}</span></span><span class="pz pz-${v}${title.length > 20 ? ' lg' : ''}" style="--tone:${tone};--tx:${tx}"><span class="zz">${face(v, { title, kind, year: p.year, pic: zp(p.cover, p.flat), words: title.split(/\s+/) })}</span></span></a>`;
 }
 
 /* ---------- photography ---------- */
@@ -485,12 +488,12 @@ shell({
     <section class="half genres" aria-label="Genres">
       <p class="hl"><span class="mono k up">Genres</span><span class="mono k">${String(types.length).padStart(2, '0')}</span></p>
       <div class="doors">
-        ${types.map((t, i) => `<a class="door" style="--d:${i};--c:${t.face.c || 'var(--panel)'}" href="/photography/${t.slug}/" data-cur="Open" data-im="${t.face.s}" data-big="${t.face.l}" data-sec="${esc(t.title)}" data-in="${esc([t.opening || t.intro, t.items.length + ' photographs.'].filter(Boolean).join(' '))}"><span class="dw"><img class="fi" src="${t.face.s}" alt=""></span><span class="dn mono">${String(i + 1).padStart(2, '0')}</span><span class="dc mono">${t.items.length} photographs</span><span class="dt">${esc(t.title)}</span><span class="de mono">Open the gallery →</span></a>`).join('\n        ')}
+        ${types.map((t, i) => `<a class="door" style="--d:${i};--c:${t.face.c || 'var(--panel)'}" href="/photography/${t.slug}/" data-cur="Open" data-im="${t.face.s}" data-big="${t.face.l}" data-sec="${esc(t.title)}" data-in="${esc([t.opening || t.intro, t.items.length + ' photographs.'].filter(Boolean).join(' '))}"><span class="dw"><img class="fi" src="${t.face.s}" alt=""></span><span class="dn mono">${String(i + 1).padStart(2, '0')}</span><span class="dc mono">${t.items.length} photographs</span><span class="dt">${esc(t.title)}</span><span class="de ctl">Open the gallery →</span></a>`).join('\n        ')}
       </div>
     </section>
   </div>
-  ${storyItems.length ? `<button type="button" class="pzc mono" id="pzc" hidden>Close ✕</button>
-  <aside class="pzd" id="pzd" hidden aria-live="polite"><div class="pzi"><span class="pzp"></span><span class="pzm mono k"></span><h2 class="pzt"></h2><p class="pzs"></p><div class="pzl"><a class="pzv" id="pzv" href="#"></a><a class="pzr mono" id="pzr" href="#" hidden>View the code ↗</a></div></div></aside>` : ''}
+  ${storyItems.length ? `<button type="button" class="pzc ctl" id="pzc" hidden>Close ✕</button>
+  <aside class="pzd" id="pzd" hidden aria-live="polite"><div class="pzi"><span class="pzp"></span><span class="pzm mono k"></span><h2 class="pzt"></h2><p class="pzs"></p><div class="pzl"><a class="pzv" id="pzv" href="#"></a><a class="pzr ctl" id="pzr" href="#" hidden>View the code ↗</a></div></div></aside>` : ''}
 </main>${footer()}` });
 function card({ url, title, sub, year, cover, labels = [], ext, flat }) {
   return `<a class="card" href="${esc(url)}" data-types="${labels.map(slug).join(' ')}" data-cur="Open">${cover ? `<div class="cv${flat ? ' flat' : ''}"><img loading="lazy" src="${cover.s}" alt=""></div>` : '<div class="cv none"></div>'}<div class="ct"><div class="row sm"><span class="k">${labels.map(esc).join(' · ')}</span><span class="k">${esc(year || '')}</span></div><h3>${esc(title)}${ext ? ' ↗' : ''}</h3><p class="sm k">${esc(sub || '')}</p></div></a>`;
@@ -536,7 +539,7 @@ function storyBlocks(sec, n) {
 for (const s of stories) { const chapters = s.sections.filter(x => x.head); shell({
   url: '/photography/' + s.slug + '/', title: s.title, desc: s.summary, og: s.cover?.l, cls: 'story', body: `
 <main class="page">
-  <header class="cover"${s.cover ? ` data-hero="${s.cover.l}"` : ''}>${s.cover ? `<img src="${s.cover.l}" alt="" data-sp="0.12">` : ''}<a class="bk sm" href="/photography/">← Photography</a><div class="ttl">${h1(s.title)}<p class="sub">${esc(s.subtitle || '')}</p><p class="sm">${[s.place, s.year].filter(Boolean).map(esc).join(' · ')}</p></div></header>
+  <header class="cover"${s.cover ? ` data-hero="${s.cover.l}"` : ''}>${s.cover ? `<img src="${s.cover.l}" alt="${esc(s.cover.alt || '')}" data-sp="0.12">` : ''}<a class="bk sm" href="/photography/">← Photography</a><div class="ttl">${h1(s.title)}<p class="sub">${esc(s.subtitle || '')}</p><p class="sm">${[s.place, s.year].filter(Boolean).map(esc).join(' · ')}</p></div></header>
   <div class="credits sm"><div><span class="k">${esc(s.creditLabel || 'Photographs')}:</span><span>${esc(s.photographs || site.name)}</span></div>${s.text ? `<div><span class="k">Text:</span><span>${esc(s.text)}</span></div>` : ''}${s.format ? `<div><span class="k">Made as:</span><span>${esc(s.format)}</span></div>` : ''}<div><span class="k">Frames:</span><span>${s.all.length}</span></div></div>
   <nav class="chapnav sm" aria-label="Chapters">${chapters.map((sec, n) => `<a href="#c${n + 1}">${esc(sec.head)}</a>`).join('')}</nav>
   ${s.sections.map((sec, n) => { const c = chapters.indexOf(sec); return `<section class="chap${sec.head ? '' : ' open'}"${c >= 0 ? ` id="c${c + 1}"` : ''}><div class="side"><div class="stick">${sec.head ? `<span class="mono k">${String(c + 1).padStart(2, '0')} / ${String(chapters.length).padStart(2, '0')}</span><h2>${esc(sec.head)}</h2>${sec.count ? `<span class="sm k">${sec.count} frames</span>` : ''}` : ''}</div></div><div class="flow">${storyBlocks(sec, n)}</div></section>`; }).join('\n')}
@@ -552,8 +555,8 @@ shell({
   <div class="lead">${h1('Projects')}<p class="sm k">Everything in one place. Pick a cover to see what it is.</p></div>
   <div class="filters sm" role="group" aria-label="Filter projects"><button type="button" class="on" data-f="" aria-pressed="true">All ${projects.length}</button>${allTypes.map(t => `<button type="button" data-f="${slug(t)}" aria-pressed="false">${esc(t[0].toUpperCase() + t.slice(1))} ${projects.filter(p => p.types.includes(t)).length}</button>`).join('')}</div>
   ${(() => { const L = rowsLayout(projects.map((p, i) => ident(p, i).v)); return `<section class="lab" id="lab" style="--h:${L.H.toFixed(2)}">${projects.map((p, i) => poster(p, i, { at: L.boxes[i] })).join('')}</section>`; })()}
-  <button type="button" class="pzc mono" id="pzc" hidden>Close ✕</button>
-  <aside class="pzd" id="pzd" hidden aria-live="polite"><div class="pzi"><span class="pzp"></span><span class="pzm mono k"></span><h2 class="pzt"></h2><p class="pzs"></p><div class="pzl"><a class="pzv" id="pzv" href="#"></a><a class="pzr mono" id="pzr" href="#" hidden>View the code ↗</a></div></div></aside>
+  <button type="button" class="pzc ctl" id="pzc" hidden>Close ✕</button>
+  <aside class="pzd" id="pzd" hidden aria-live="polite"><div class="pzi"><span class="pzp"></span><span class="pzm mono k"></span><h2 class="pzt"></h2><p class="pzs"></p><div class="pzl"><a class="pzv" id="pzv" href="#"></a><a class="pzr ctl" id="pzr" href="#" hidden>View the code ↗</a></div></div></aside>
 </main>${footer()}` });
 /* A project's own page. Its name stays at the left while the text is read; the first paragraph is set large as a way in, the
    picture follows it whole, then the rest of the text. */
@@ -568,13 +571,13 @@ function stagedPage(p, kinds) {
   const line = [p.lead ? p.lead.replace(/[.\s]+$/, '') + '.' : '', [kinds, p.year].filter(Boolean).join(', ') + '.'].filter(Boolean).join(' ');
   return `
 <main class="page proj staged">
-  <div class="lead row"><p class="sm"><a href="/projects/">← Projects</a></p>${h1(p.title)}<p class="sm k">${esc(line)}</p>${p.repo ? `<a class="pjr mono up" href="${esc(p.repo)}">View the code ↗</a>` : ''}</div>
+  <div class="lead row"><p class="sm"><a href="/projects/">← Projects</a></p>${h1(p.title)}<p class="sm k">${esc(line)}</p>${p.repo ? `<a class="pjr ctl" href="${esc(p.repo)}">View the code ↗</a>` : ''}</div>
   <div class="pw">
     ${p.facts.length ? `<div class="rband"><div class="credits sm">${p.facts.map(([k, v]) => `<div><span class="k">${esc(k)}:</span><span>${inline(v)}</span></div>`).join('')}</div></div>` : ''}
     <div class="pstage" id="stage" style="--ar:${p.steps[0].light.w}/${p.steps[0].light.h}">
       <div class="pwalk">${st.label ? `<p class="mono k up">${esc(st.label)}</p>` : ''}<p class="pwt">${walk}</p></div>
       <button type="button" class="pscr zoom" data-i="0" data-cur="Open" aria-label="Open this screen large">${p.steps.map((x, i) => `<span class="sf${i ? '' : ' on'}" style="--cl:${x.light.c};--cd:${x.dark.c}">${pic(x.light, 'lt', p.title + ': ' + x.title, !i)}${pic(x.dark, 'dk', p.title + ': ' + x.title, !i)}</span>`).join('')}</button>
-      <div class="pcap"><ol class="pcl">${p.steps.map((x, i) => `<li id="step-${i + 1}"${i ? '' : ' class="on"'}><span class="mono k"><b>${nn(i)}</b> / ${nn(N - 1)}</span><p><b>${esc(x.title)}.</b> ${inline(x.text)}</p></li>`).join('')}</ol><div class="pctl mono up"><button type="button" class="pstep" data-d="-1" aria-label="Previous screen">←</button><button type="button" class="pstep" data-d="1" aria-label="Next screen">→</button><button type="button" class="ppz" aria-pressed="false">Pause</button></div></div>
+      <div class="pcap"><ol class="pcl">${p.steps.map((x, i) => `<li id="step-${i + 1}"${i ? '' : ' class="on"'}><span class="mono k"><b>${nn(i)}</b> / ${nn(N - 1)}</span><p><b>${esc(x.title)}.</b> ${inline(x.text)}</p></li>`).join('')}</ol><div class="pctl ctl"><button type="button" class="pstep" data-d="-1" aria-label="Previous screen">←</button><button type="button" class="pstep" data-d="1" aria-label="Next screen">→</button><button type="button" class="ppz" aria-pressed="false">Pause</button></div></div>
     </div>
     ${p.html.trim() ? `<div class="pmore"><div class="prose rmore">${p.html}</div></div>` : ''}
   </div>
@@ -592,11 +595,11 @@ for (const p of projects.filter(p => !p.link)) {
     <p class="sm"><a href="/projects/">← Projects</a></p>
     <p class="mono k up">${esc([kinds, p.year].filter(Boolean).join(' · '))}</p>
     ${h1(p.title)}
-    ${p.repo ? `<a class="pjr mono up" href="${esc(p.repo)}">View the code ↗</a>` : ''}
+    ${p.repo ? `<a class="pjr ctl" href="${esc(p.repo)}">View the code ↗</a>` : ''}
   </div></aside>
   <div class="pjc">
     ${lede ? `<div class="prose big">${lede}</div>` : ''}
-    ${p.cover ? `<figure class="pjf${p.flat ? ' flat' : ''}"><img data-hero="${p.cover.l}" src="${p.cover.l}" width="${p.cover.w}" height="${p.cover.h}" alt=""></figure>` : ''}
+    ${p.cover ? `<figure class="pjf${p.flat ? ' flat' : ''}"><img data-hero="${p.cover.l}" src="${p.cover.l}" width="${p.cover.w}" height="${p.cover.h}" alt="${esc(p.cover.alt || '')}"></figure>` : ''}
     ${rest.trim() ? `<div class="prose">${rest}</div>` : ''}
   </div>
   ${nextBlock(p)}
@@ -607,7 +610,7 @@ for (const p of projects.filter(p => !p.link)) {
 /* a paper is announced by its question, its picture and a few of its numbers */
 function paperCard(r, n) {
   const p = r.paper, q = p.overview && p.overview.question && p.overview.question.lead;
-  return `<a class="rfeat" style="--d:${n || 0}" href="${esc(r.link)}" data-cur="Read"${p.cover ? ` data-im="${p.cover.s}" data-big="${p.cover.l}" data-sec="${esc(p.short || p.title)}" data-in="${esc(p.opening || p.summary || '')}"` : ''}>${p.cover ? `<span class="rw" style="--c:${p.cover.c || 'var(--panel)'}"><img class="fi" src="${p.cover.l}" alt=""></span>` : ''}<span class="rx"><span class="mono k up">${esc([p.kind, p.date || p.year].filter(Boolean).join(' · '))}</span><span class="rq">${esc(q || p.summary || p.title)}</span><span class="rt sm k">${esc(p.title)}</span>${p.glance ? `<span class="rn">${p.glance.slice(0, 3).map(([n, t]) => `<span><b>${esc(n)}</b><span class="sm k">${esc(t)}</span></span>`).join('')}</span>` : ''}<span class="se mono">${p.overview ? 'Start with the overview →' : 'Read the paper →'}</span></span></a>`;
+  return `<a class="rfeat" style="--d:${n || 0}" href="${esc(r.link)}" data-cur="Read"${p.cover ? ` data-im="${p.cover.s}" data-big="${p.cover.l}" data-sec="${esc(p.short || p.title)}" data-in="${esc(p.opening || p.summary || '')}"` : ''}>${p.cover ? `<span class="rw" style="--c:${p.cover.c || 'var(--panel)'}"><img class="fi" src="${p.cover.l}" alt=""></span>` : ''}<span class="rx"><span class="mono k up">${esc([p.kind, p.date || p.year].filter(Boolean).join(' · '))}</span><span class="rq">${esc(q || p.summary || p.title)}</span><span class="rt sm k">${esc(p.title)}</span>${p.glance ? `<span class="rn">${p.glance.slice(0, 3).map(([n, t]) => `<span><b>${esc(n)}</b><span class="sm k">${esc(t)}</span></span>`).join('')}</span>` : ''}<span class="se ctl">${p.overview ? 'Start with the overview →' : 'Read the paper →'}</span></span></a>`;
 }
 shell({
   url: '/research/', title: 'Research', desc: site.research.topic, body: `
@@ -626,6 +629,28 @@ shell({
 
 /* papers: long-form reading pages with a contents rail, numbered figures, tables and equations */
 const plain = s => s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+/* what Google Scholar reads (the citation_ tags of Highwire Press) and the same facts as schema.org, both taken from paper.json:
+   the authors and the university from its facts, the date from "Submitted" when there is one, else the year */
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+function paperMeta(p, base) {
+  const fact = k => ((p.facts || []).find(([n]) => n.toLowerCase() === k) || [])[1] || '';
+  const authors = (fact('authors') || fact('author') || site.fullName || site.name).split(/,\s*/).filter(Boolean);
+  const sub = fact('submitted').match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/i), m = sub ? MONTHS.indexOf(sub[2].toLowerCase()) + 1 : 0;
+  const date = m ? [sub[3], String(m).padStart(2, '0'), sub[1].padStart(2, '0')] : [String(p.year || '')];
+  const uni = fact('university'), url = site.url + base, me = site.fullName || site.name;
+  const tag = (n, v) => v ? `\n<meta name="${n}" content="${esc(v)}">` : '';
+  const ld = { '@context': 'https://schema.org', '@graph': [
+    { '@type': 'Thesis', '@id': url + '#thesis', name: p.title, headline: p.title, url, inLanguage: 'en', isAccessibleForFree: true,
+      author: authors.map(a => a === me ? { '@type': 'Person', name: a, url: site.url + '/' } : { '@type': 'Person', name: a }),
+      datePublished: date.join('-'), abstract: (p.abstract || []).join(' '), keywords: (p.keywords || []).join(', '), inSupportOf: fact('degree') || p.kind,
+      sourceOrganization: uni ? { '@type': 'CollegeOrUniversity', name: uni } : undefined, image: p.cover ? site.url + p.cover.l : undefined },
+    { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Research', item: site.url + '/research/' }, { '@type': 'ListItem', position: 2, name: p.title, item: url }] }] };
+  return tag('citation_title', p.title) + authors.map(a => tag('citation_author', a)).join('') + tag('citation_publication_date', date.join('/'))
+    + tag('citation_dissertation_institution', uni) + tag('citation_language', 'en')
+    + tag('citation_keywords', (p.keywords || []).join('; ')) + tag('citation_abstract_html_url', url) + tag('citation_fulltext_html_url', url)
+    + (p.pdf ? tag('citation_pdf_url', site.url + p.pdf) : '')
+    + `\n<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+}
 for (const p of papers) {
   const base = '/research/' + p.slug + '/', figDir = C('research', p.slug, 'fig'), outFig = path.join(OUT, 'research', p.slug, 'fig');
   if (fs.existsSync(figDir)) { fs.mkdirSync(outFig, { recursive: true }); for (const f of fs.readdirSync(figDir)) fs.copyFileSync(path.join(figDir, f), path.join(outFig, f)); }
@@ -641,17 +666,17 @@ for (const p of papers) {
     if (ov.limits) parts.push(`<div class="ovc l">${no('04', 'Its limits')}${ov.limits.lead ? `<p class="ovp">${esc(ov.limits.lead)}</p>` : ''}<ul class="ovl">${(ov.limits.points || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`);
   }
   shell({
-    url: base, title: p.title, desc: p.summary, og: p.cover?.l, cls: 'paperpage', body: `
+    url: base, title: p.title, desc: p.summary, og: p.cover?.l, cls: 'paperpage', head: paperMeta(p, base), body: `
 <div id="prog" aria-hidden="true"></div>
 <main class="page paper">
-  <p class="sm ptop"><a href="/research/">← Research</a>${p.repo ? `<a class="pjr mono up" href="${esc(p.repo)}">View the code ↗</a>` : ''}</p>
+  <p class="sm ptop"><a href="/research/">← Research</a>${p.repo ? `<a class="pjr ctl" href="${esc(p.repo)}">View the code ↗</a>` : ''}</p>
   <header class="phead">
     <p class="mono k up">${esc([p.kind, p.date || p.year].filter(Boolean).join(' · '))}</p>
     ${h1(p.title)}
-    ${p.cover ? `<img class="pcover${p.coverFit === 'contain' ? ' contain' : ''}" data-hero="${p.cover.l}" src="${p.cover.l}" alt="${esc(p.coverAlt || '')}"${p.coverPosition ? ` style="object-position:${esc(p.coverPosition)}"` : ''}>` : ''}
+    ${p.cover ? `<img class="pcover${p.coverFit === 'contain' ? ' contain' : ''}" data-hero="${p.cover.l}" src="${p.cover.l}" alt="${esc(p.coverAlt || p.cover.alt || '')}"${p.coverPosition ? ` style="object-position:${esc(p.coverPosition)}"` : ''}>` : ''}
     ${p.cover && p.coverCredit ? `<p class="pcredit sm k">Photo by <a href="${esc(p.coverCredit.authorUrl)}">${esc(p.coverCredit.author)}</a> on <a href="${esc(p.coverCredit.sourceUrl)}">${esc(p.coverCredit.source)}</a></p>` : ''}
     <div class="credits sm">${(p.facts || []).map(([k, v]) => `<div><span class="k">${esc(k)}:</span><span>${esc(v)}</span></div>`).join('')}</div>
-    ${parts.length ? `<section class="ov" id="overview" aria-label="Overview"><div class="ovh"><h2 class="mono k up">Overview</h2><span class="mono k up">${esc(ov.note || 'The short version')}</span></div><div class="ovg">${parts.join('')}</div><a class="ovgo mono" href="#${toc[0] ? esc(toc[0].id) : 'paper'}">Read the full ${esc((p.kind || 'paper').toLowerCase().replace(/^.*\s/, ''))} ↓</a></section>` : ''}
+    ${parts.length ? `<section class="ov" id="overview" aria-label="Overview"><div class="ovh"><h2 class="mono k up">Overview</h2><span class="mono k up">${esc(ov.note || 'The short version')}</span></div><div class="ovg">${parts.join('')}</div><a class="ovgo ctl" href="#${toc[0] ? esc(toc[0].id) : 'paper'}">Read the full ${esc((p.kind || 'paper').toLowerCase().replace(/^.*\s/, ''))} ↓</a></section>` : ''}
     <div class="abs">
       <div class="abst"><h2 class="mono k up">Abstract</h2>${(p.abstract || []).map(t => `<p>${esc(t)}</p>`).join('')}${p.keywords ? `<p class="sm k kw">Keywords: ${esc(p.keywords.join(', '))}</p>` : ''}</div>
       ${p.glance ? `<ul class="glance">${p.glance.map(([n, t]) => `<li><span class="n">${esc(n)}</span><span class="sm k">${esc(t)}</span></li>`).join('')}</ul>` : ''}
@@ -723,7 +748,7 @@ shell({
     ${site.cv || site.about.contact ? `<div class="endrow g2" id="contact"><div class="endl">${site.cv ? `<button type="button" class="cvc" id="cvc" data-cur="Open" aria-haspopup="dialog" aria-label="Curriculum vitae: read it or download it">${cvFace}</button>` : ''}</div>${site.about.contact ? `<div class="reach"><p>${reach(site.about.contact)}</p>${site.email ? `<p class="mono rmail"><a href="mailto:${esc(site.email)}">${esc(site.email)}</a><button type="button" class="rcopy" data-mail="${esc(site.email)}">Copy</button></p>` : ''}</div>` : ''}</div>` : ''}
   </div>
 </main>
-${site.cv ? `<div class="cvr" id="cvr" hidden role="dialog" aria-modal="true" aria-label="Curriculum vitae"><button type="button" class="pzc mono" id="cvx">Close ✕</button><div class="cvb"><div class="cvl"><span class="cvk" id="cvk" aria-hidden="true">${cvFace}</span>${cvPdf ? `<div class="cvd"><a class="pzv" href="${cvPdf}" download>Download the PDF ↓</a><a class="mono up cvo" href="${cvPdf}" target="_blank" rel="noopener">Open the PDF ↗</a></div>` : ''}</div><div class="cv" tabindex="0">${site.cv.sections.map(s => `<div class="cvs"><h3 class="mono k up">${esc(s.title)}</h3>${s.text ? `<p class="cvt">${esc(s.text)}</p>` : ''}${(s.items || []).map(it => `<div class="cvi"><span class="sm k">${esc(it.when || '')}</span><div><p class="t">${esc(it.title)}</p>${it.org ? `<p class="sm k">${esc(it.org)}</p>` : ''}${it.points ? `<ul>${it.points.map(p => `<li>${inline(p)}</li>`).join('')}</ul>` : ''}</div></div>`).join('')}</div>`).join('')}</div></div></div>` : ''}${site.email && site.turnstile ? `<div class="cvr wtr" id="wtr" hidden role="dialog" aria-modal="true" aria-labelledby="wth" data-key="${esc(site.turnstile)}" data-mail="${esc(site.email)}"><div class="wtb"><button type="button" class="pzc mono" id="wtx">Close ✕</button><div class="wtl"><h2 id="wth">Write to me</h2><p class="k">It goes straight to my inbox, and I answer from there.</p></div><div class="wtw"><form class="wtf" id="wtf" action="/api/contact" method="post" novalidate><label class="wfi"><span class="mono k up">Your name</span><input name="name" autocomplete="name" required maxlength="120"></label><label class="wfi"><span class="mono k up">Your email</span><input name="email" type="email" autocomplete="email" required maxlength="200"></label><label class="wfi"><span class="mono k up">Message</span><textarea name="message" rows="6" required maxlength="5000"></textarea></label><label class="wfh" aria-hidden="true">Company <input name="company" tabindex="-1" autocomplete="off"></label><div class="wft" id="wtt"></div><div class="wfs"><button type="submit" class="pzv">Send →</button><p class="mono k wfm" id="wts" role="status" aria-live="polite"></p></div></form><div class="wtd" id="wtd" hidden tabindex="-1"><p class="wtdh">Sent. Thank you.</p><p class="k">I'll write back to <span id="wte"></span>.</p></div></div></div></div>` : ''}${footer()}` });
+${site.cv ? `<div class="cvr" id="cvr" hidden role="dialog" aria-modal="true" aria-label="Curriculum vitae"><button type="button" class="pzc ctl" id="cvx">Close ✕</button><div class="cvb"><div class="cvl"><span class="cvk" id="cvk" aria-hidden="true">${cvFace}</span>${cvPdf ? `<div class="cvd"><a class="pzv" href="${cvPdf}" download>Download the PDF ↓</a><a class="ctl cvo" href="${cvPdf}" target="_blank" rel="noopener">Open the PDF ↗</a></div>` : ''}</div><div class="cv" tabindex="0">${site.cv.sections.map(s => `<div class="cvs"><h3 class="mono k up">${esc(s.title)}</h3>${s.text ? `<p class="cvt">${esc(s.text)}</p>` : ''}${(s.items || []).map(it => `<div class="cvi"><span class="sm k">${esc(it.when || '')}</span><div><p class="t">${esc(it.title)}</p>${it.org ? `<p class="sm k">${esc(it.org)}</p>` : ''}${it.points ? `<ul>${it.points.map(p => `<li>${inline(p)}</li>`).join('')}</ul>` : ''}</div></div>`).join('')}</div>`).join('')}</div></div></div>` : ''}${site.email && site.turnstile ? `<div class="cvr wtr" id="wtr" hidden role="dialog" aria-modal="true" aria-labelledby="wth" data-key="${esc(site.turnstile)}" data-mail="${esc(site.email)}"><div class="wtb"><button type="button" class="pzc ctl" id="wtx">Close ✕</button><div class="wtl"><h2 id="wth">Write to me</h2><p class="k">It goes straight to my inbox, and I answer from there. <a href="/privacy/#writing-to-me">What happens to it</a>.</p></div><div class="wtw"><form class="wtf" id="wtf" action="/api/contact" method="post" novalidate><label class="wfi"><span class="mono k up">Your name</span><input name="name" autocomplete="name" required maxlength="120"></label><label class="wfi"><span class="mono k up">Your email</span><input name="email" type="email" autocomplete="email" required maxlength="200"></label><label class="wfi"><span class="mono k up">Message</span><textarea name="message" rows="6" required maxlength="5000"></textarea></label><label class="wfh" aria-hidden="true">Company <input name="company" tabindex="-1" autocomplete="off"></label><div class="wft" id="wtt"></div><div class="wfs"><button type="submit" class="pzv">Send →</button><p class="mono k wfm" id="wts" role="status" aria-live="polite"></p></div></form><div class="wtd" id="wtd" hidden tabindex="-1"><p class="wtdh">Sent. Thank you.</p><p class="k">I'll write back to <span id="wte"></span>.</p></div></div></div></div>` : ''}${footer()}` });
 
 /* ---------- static files ---------- */
 /* icons made from theme/favicon.svg, a sitemap and a robots file, so that search engines and phones find what they look for */
@@ -744,6 +769,8 @@ ${site.cv ? `<div class="cvr" id="cvr" hidden role="dialog" aria-modal="true" ar
 fs.writeFileSync(path.join(OUT, '_headers'), ['/img/*', '/site.css', '/site.js'].map(u => u + '\n  Cache-Control: public, max-age=31536000, immutable\n').join('') + '/fonts/*\n  Cache-Control: public, max-age=2592000\n');
 /* what a Mac leaves behind in folders is not part of the site (wrangler reads this list when it uploads) */
 fs.writeFileSync(path.join(OUT, '.assetsignore'), '.DS_Store\n');
+/* the privacy page: content/privacy.md, what the site keeps about its visitors (it serves Two Readings too) */
+if (fs.existsSync(C('privacy.md'))) shell({ url: '/privacy/', title: 'Privacy', desc: 'What adhitchandy.com and Two Readings keep about visitors, which is very little.', body: `<main class="page text"><div class="lead row">${h1('Privacy')}<p class="sm k">What this site keeps about you, which is very little.</p></div><div class="prose">${md(fs.readFileSync(C('privacy.md'), 'utf8')).replace(/<h2>([^<]+)<\/h2>/g, (m, t) => `<h2 id="${slug(t)}">${t}</h2>`)}</div></main>${footer()}` });
 shell({ url: '/404/', file: '404.html', title: 'Nothing here', desc: 'This page does not exist.', body: `
 <main class="page">
   <div class="lead">${h1('Nothing here')}<p class="sm k">That page does not exist, or it has moved. These do:</p></div>

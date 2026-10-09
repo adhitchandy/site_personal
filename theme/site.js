@@ -20,6 +20,24 @@
     el.offsetWidth; el.style.transition = tr; };
   const lay = (el, T) => { el._T = T; el.style.transform = el._big && !el._big.still ? el._big.pre + T + el._big.post : T; };
   let opening = false;   /* true while the ACG blocks of the first page are still on their way down: until they have landed they answer to nothing */
+  /* Leaving the first page, the ACG blocks jump out through the left edge of the screen one after another, A first, each in a small arc
+     and a turn, since the next page has only the plain name. Returns how long the jump takes, so that a plain link can wait for it. */
+  const phone = () => matchMedia('(max-width:820px)').matches;   /* the jumps are for phones only: on a wide screen the blocks simply stay (Adhit, 9 October 2026) */
+  const hopOut = () => {
+    if (reduce || !phone() || !document.body.classList.contains('home')) return 0;
+    const ps = $$('#acg .p'); if (!ps.length || !ps[0].animate || ps[0]._out) return 0;
+    ps.forEach((p, i) => { const r = p.getBoundingClientRect(); if (!r.width) return; p._out = true; const x = -(r.right + 40);
+      p.animate([{ transform: 'none', easing: 'cubic-bezier(.3,0,.6,1)' }, { transform: 'translate(' + (r.width * .35).toFixed(1) + 'px,' + (-r.height * .9).toFixed(1) + 'px) rotate(12deg)', offset: .3, easing: 'cubic-bezier(.5,0,.9,.5)' }, { transform: 'translate(' + x.toFixed(1) + 'px,' + (r.height * .5).toFixed(1) + 'px) rotate(-220deg)' }], { duration: 560, delay: i * 70, fill: 'forwards' }); });
+    return 560 + 2 * 70;
+  };
+  /* Coming back to the first page (after the first visit's opening has been seen), the blocks jump back in through the left edge the
+     same way, G first since it goes furthest, and land where they live with a little bounce. */
+  const hopIn = (wait = 0) => {
+    if (reduce || !phone() || !document.body.classList.contains('home')) return;
+    const ps = $$('#acg .p'); if (!ps.length || !ps[0].animate) return;
+    ps.forEach((p, i) => { p._out = false; p.getAnimations().forEach(a => a.cancel()); const r = p.getBoundingClientRect(); if (!r.width) return; const x = -(r.right + 40);
+      p.animate([{ transform: 'translate(' + x.toFixed(1) + 'px,' + (r.height * .5).toFixed(1) + 'px) rotate(-220deg)', easing: 'cubic-bezier(.1,.5,.5,1)' }, { transform: 'translate(' + (r.width * .12).toFixed(1) + 'px,' + (-r.height * .7).toFixed(1) + 'px) rotate(8deg)', offset: .72, easing: 'cubic-bezier(.5,0,.8,.6)' }, { transform: 'translateY(0) rotate(0deg)', offset: .88, easing: 'ease-out' }, { transform: 'translateY(' + (-r.height * .06).toFixed(1) + 'px)', offset: .94, easing: 'ease-in' }, { transform: 'none' }], { duration: 760, delay: wait + (ps.length - 1 - i) * 90, fill: 'backwards' }); });
+  };
   /* A finger holds what it touches. The row, the table or the wall goes exactly as far as the finger goes, and a flick carries it on at the
      finger's own speed, slowing as a thrown page does. (Followed a fixed part of the way each frame, as the wheel is, it lagged behind the
      finger, ran ahead of it by a quarter, and lurched forward when it was let go.) Positions are given so that a larger one means further on. */
@@ -300,7 +318,7 @@
   let leaving = false;
   function leave(t, box, e) {
     if (leaving || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button || !t.animate) return;
-    e.preventDefault(); leaving = true;
+    e.preventDefault(); leaving = true; hopOut();
     /* a cover marked plain (About) crosses without its picture: what grows is a dark card that carries only the title */
     const plain = t.dataset.plain !== undefined, r = box.getBoundingClientRect(), big = plain ? '' : t.dataset.big || t.dataset.im, title = t.dataset.sec, url = t.href, pp = t.dataset.pos || '50% 50%';
     const z = document.createElement('div'); z.className = 'zoomer';
@@ -321,7 +339,13 @@
     try { sessionStorage.setItem('enter', JSON.stringify({ img: big, pos: pp, title, sub: t.dataset.in || '', t: Date.now(), bar: innerWidth - document.documentElement.clientWidth }));   /* bar: the room this page's scroll bar takes, so that the next page can begin just as wide */ } catch (err) {}
     setTimeout(() => { location.href = url; }, reduce ? 1 : Math.max(dur + 60, 320 + title.length * 30 + 260));
   }
-  addEventListener('pageshow', e => { if (e.persisted) { leaving = false; $$('.zoomer').forEach(z => z.remove()); } });
+  addEventListener('pageshow', e => { if (e.persisted) { leaving = false; $$('.zoomer').forEach(z => z.remove()); hopIn(80); } });
+  /* any other link off the first page waits for the blocks to have jumped out (most of the way) before the page changes */
+  document.addEventListener('click', e => {
+    if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !document.body.classList.contains('home')) return;
+    const a = e.target.closest && e.target.closest('a[href]'); if (!a || a.target === '_blank' || a.hasAttribute('download') || a.origin !== location.origin || a.pathname === location.pathname) return;
+    const ms = hopOut(); if (!ms) return; e.preventDefault(); setTimeout(() => { location.href = a.href; }, ms - 120);
+  });
   /* a picture that carries the visitor across is its own change of page */
   addEventListener('pageswap', e => { if (leaving && e.viewTransition) e.viewTransition.skipTransition(); });
   /* the pictures that stand for the kinds of photograph on the Photography page grow into their galleries the same way */
@@ -543,11 +567,11 @@
        the cover passing it, with the way into it, and the covers pass under that line. The page itself does not scroll. Without motion, or
        without this script, the covers are simply stacked. */
     const band = strip.parentNode, fq = matchMedia('(max-width:820px)'), gh = hand(), FW = [.66, .54, .7, .58, .62, .52], FX = [.08, .9, .3, 1, .02, .62];
-    let flowOn = false, fits = [], FT = 1, fy = null, fdrag = null, fmoved = 0, fk = 0, flt = 0, fidle = 0, fborn = 0, fa = 0, fcur = -1, fat = null, fraf = 0, fW = 0, fH = 0;
-    const cap = document.createElement('div'); cap.className = 'fcap'; cap.innerHTML = '<span class="fl"><span class="fk"></span><span class="fn"></span></span><a href="/">Open →</a>';
-    const fkn = $('.fk', cap), fnm = $('.fn', cap), fgo = $('a', cap);
+    let flowOn = false, fits = [], FT = 1, fy = null, fdrag = null, fmoved = 0, fk = 0, flt = 0, fidle = 0, fborn = 0, fa = 0, fcur = -1, fat = null, fraf = 0, fW = 0, fH = 0, fCH = 0;
+    const cap = document.createElement('div'); cap.className = 'fcap'; cap.innerHTML = '<i class="fpr" aria-hidden="true"></i><span class="fl"><span class="fk"><b></b><span></span></span><span class="fn"></span></span><a href="/" aria-label="Open">→</a>';
+    const fkn = $('.fk b', cap), fof = $('.fk span', cap), fnm = $('.fn', cap), fgo = $('a', cap), fpr = $('.fpr', cap); let fP = 1, fC0 = 0, fny = 0;
     const flowLay = () => {
-      const W = band.clientWidth, VH = band.clientHeight, g = parseFloat(getComputedStyle(band).paddingLeft) || 16, gap = Math.max(26, VH * .055); if (!W || !VH) return; fW = W; fH = VH;
+      const W = band.clientWidth, VH = band.clientHeight, g = parseFloat(getComputedStyle(band).paddingLeft) || 16, gap = Math.max(26, VH * .055); if (!W || !VH) return; fW = W; fH = VH; fCH = cap.offsetHeight;
       let py = 0, mh = 0; const base = tiles.map((el, i) => { let w = W * FW[i % FW.length]; el.style.width = w.toFixed(1) + 'px'; let h = el.offsetHeight;
         if (h > VH * .58) { w *= VH * .58 / h; el.style.width = w.toFixed(1) + 'px'; h = el.offsetHeight; }
         const o = { w, h, x: g + (W - 2 * g - w) * FX[i % FX.length], y: py }; py += h + gap; mh = Math.max(mh, h); return o; });
@@ -555,9 +579,22 @@
       while (all().length < n * copies) tiles.forEach(t => { const c = t.cloneNode(true); c.setAttribute('aria-hidden', 'true'); c.tabIndex = -1; c.style.animation = 'none'; strip.append(c); });
       const old = fits; fits = all().map((el, q) => { const b = base[q % n], on = q < n * copies; el.style.width = b.w.toFixed(1) + 'px'; el.style.display = on ? '' : 'none'; const was = old.find(o => o.el === el);
         return on ? { el, i: q % n, x: b.x, y: b.y + Math.floor(q / n) * py, w: b.w, h: b.h, a: was ? was.a : 0, off: was ? was.off : false } : null; }).filter(Boolean);
-      FT = py * copies; if (fy === null) fy = base[0].y - VH * .14;   /* the first cover begins across the middle line, so that the line names it at once */
+      FT = py * copies; fP = py; fC0 = base[0].y + base[0].h / 2; if (fy === null) fy = base[0].y - VH * .14;   /* the first cover begins across the middle line, so that the line names it at once */
     };
-    const name = it => { fat = it.el; if (it.i === fcur) return; fcur = it.i; const t = tiles[it.i]; fkn.textContent = String(it.i + 1).padStart(2, '0') + ' / ' + String(n).padStart(2, '0'); fnm.textContent = t.dataset.in || t.dataset.sec; fgo.href = t.getAttribute('href'); };
+    /* The page takes on a faint wash of the cover crossing the middle, and glides from one to the next as they pass. The colour is the
+       cover's own: its ground where that is a colour of its own (a blue, a yellow), otherwise its picture's average; the page mixes a
+       little of it into its own ground, light or dark (site.css, --wash). */
+    const hue = el => { const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g); return m && (m[3] === undefined || +m[3] > .5) ? m.slice(0, 3).map(Number) : null; };
+    const chroma = c => c ? Math.max(...c) - Math.min(...c) : -1;
+    const washOf = t => { if (t._wash === undefined) { const a = hue($('.zz', t) || t), b = hue($('.zp', t) || t), c = chroma(a) >= chroma(b) ? a : b; t._wash = c ? 'rgb(' + c.join(',') + ')' : ''; } return t._wash; };
+    const name = it => { fat = it.el; if (it.i === fcur) return; fcur = it.i; const t = tiles[it.i]; const w = washOf(t); if (w) document.body.style.setProperty('--wash', w); /* The name changes with motion of its own: the number rolls over the way the covers are going, the short line rises in word by word
+         and the arrow nudges on. Under reduced motion or before the first naming it is simply set. */
+      const up = fy >= fny, first = !fkn.textContent; fny = fy; fkn.textContent = String(it.i + 1).padStart(2, '0'); fof.textContent = '/' + String(n).padStart(2, '0');
+      const words = (t.dataset.in || t.dataset.sec).split(' '); fnm.setAttribute('aria-label', words.join(' ')); fnm.innerHTML = words.map(x => '<span class="fw">' + x.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</span>').join(' ');
+      if (!first && fkn.animate) { const k = up ? 1 : -1;
+        fkn.animate([{ transform: 'translateY(' + (k * 70) + '%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 520, easing: E_OPEN });
+        $$('.fw', fnm).forEach((w, q) => w.animate([{ transform: 'translateY(' + (k * .7) + 'em)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 480, delay: 60 + q * 32, easing: E_OPEN, fill: 'backwards' }));
+        fgo.animate([{ transform: 'none' }, { transform: 'translateX(6px)' }, { transform: 'none' }], { duration: 520, delay: 120, easing: 'ease-in-out' }); } fgo.href = t.getAttribute('href'); };
     const flowStep = now => {
       fraf = requestAnimationFrame(flowStep); const dt = Math.min(50, now - (flt || now)); flt = now;
       if (selH || leaving || !fits.length) return;
@@ -565,7 +602,7 @@
       if (fdrag !== null || gh.coast) { const s = gh.step(dt); fy += s; if (fdrag === null) lean(s); fidle = now; fa = 0; }
       else if (now > fidle + 1600 && !document.hidden) { fa = Math.min(1, fa + dt / 1200); fy += dt * .022 * fa; }
       fk += (Math.max(-1, Math.min(1, fdrag !== null || gh.coast ? gh.v * .3 : 0)) - fk) * .1;
-      const VH = fH, mid = VH / 2; let at = null;
+      const VH = fH, mid = (VH - fCH) / 2;   /* the middle of what is seen above the name at the foot */ let at = null;
       for (const it of fits) {
         let py = ((it.y - fy) % FT + FT) % FT; if (py > VH + 60) py -= FT;
         if (py + it.h < -60 || py > VH + 60) { if (!it.off) { it.el.style.visibility = 'hidden'; it.off = true; } continue; }
@@ -577,6 +614,8 @@
         it.el.style.transform = 'translate3d(' + it.x.toFixed(1) + 'px,' + (py + up).toFixed(1) + 'px,' + (-Math.abs(fk) * cy * cy * 80).toFixed(1) + 'px) rotateX(' + (-fk * cy * 8).toFixed(2) + 'deg)';
       }
       if (at) name(at);   /* between two covers the line keeps the name it had */
+      /* the thin line along the top of the name runs with the column itself: how far round the six covers it has come */
+      fpr.style.transform = 'scaleX(' + ((((fy + mid - fC0) % fP) + fP) % fP / fP).toFixed(4) + ')';
     };
     /* the sentence above goes up out of the way while the covers are sent onward, and comes back down as soon as they are drawn back;
        the covers' own slow drift leaves it where it is */
@@ -590,7 +629,7 @@
     const setFlow = () => {
       const on = fq.matches && !reduce; if (on === flowOn) return; flowOn = on; document.body.classList.toggle('flow', on); strip.classList.toggle('flow', on); cancelAnimationFrame(fraf); fraf = 0;
       if (on) { band.append(cap); flowLay(); fborn = performance.now() + (seen ? 250 : 1750); fidle = fborn + 1400; fraf = requestAnimationFrame(flowStep); }
-      else { cap.remove(); fits = []; document.body.classList.remove('sayoff'); if (!live) all().forEach(el => { el.style.transform = ''; el.style.width = ''; el.style.visibility = ''; el.style.opacity = ''; }); }
+      else { cap.remove(); fits = []; document.body.classList.remove('sayoff'); document.body.style.removeProperty('--wash'); if (!live) all().forEach(el => { el.style.transform = ''; el.style.width = ''; el.style.visibility = ''; el.style.opacity = ''; }); }
     };
     /* laid out again whenever the room changes: the sentence above settles its height as its type arrives */
     const refit = () => { if (flowOn && (band.clientWidth !== fW || band.clientHeight !== fH)) flowLay(); };
@@ -600,7 +639,7 @@
     setLive();
     /* ACG: the blocks start large in the middle, then fall, bounce and settle in the corner (first visit of a session only) */
     const veil = $('#veil'), ps = $$('#acg .p');
-    if (reduce || seen || !veil.animate) veil.style.visibility = 'hidden';
+    if (reduce || seen || !veil.animate) { veil.style.visibility = 'hidden'; if (seen) hopIn(260); }
     else {
       try { sessionStorage.setItem('acg', '1'); } catch (e) {}
       const vw = innerWidth, vh = innerHeight, D = 1500, hold = 1000, spin = [0, -384, 360];
@@ -1168,7 +1207,7 @@
   if (data) {
     const L = JSON.parse(data.textContent), E = E_OPEN; let i = 0, src = null, fly = null, ct = 0;
     const box = document.createElement('div'); box.id = 'lbx'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Photograph'); box.hidden = true;
-    box.innerHTML = '<button type="button" class="pzc mono" id="lbC">Close ✕</button><div class="im" data-cur="Close"><img alt="" data-cur=""></div><div class="bar2 sm"><span id="lbT"></span><span class="mono k" id="lbE"></span><div><span class="mono" id="lbN"></span><button type="button" id="lbP" aria-label="Previous">←</button><button type="button" id="lbX2" aria-label="Next">→</button></div></div>';
+    box.innerHTML = '<button type="button" class="pzc ctl" id="lbC">Close ✕</button><div class="im" data-cur="Close"><img alt="" data-cur=""></div><div class="bar2 sm"><span id="lbT"></span><span class="mono k" id="lbE"></span><div><span class="mono" id="lbN"></span><button type="button" id="lbP" aria-label="Previous">←</button><button type="button" id="lbX2" aria-label="Next">→</button></div></div>';
     document.body.append(box);
     const im = $('img', box), imw = $('.im', box);
     /* the picture is given its size outright, so that its box is the picture and nothing more */
@@ -1185,8 +1224,10 @@
       i = (j + L.length) % L.length; const p = L[i], big = lg(p);
       if (src) { src.style.visibility = ''; src = null; }
       tell('lb:show', i);
-      im.dataset.want = big; if (!keep) im.src = sm(p); im.alt = p.t || ''; fit();
-      const pre = new Image(); pre.src = big; when(pre, () => { if (im.dataset.want !== big) return; im.src = big; if (!p.w) { p.w = pre.naturalWidth; p.h = pre.naturalHeight; fit(); } });
+      im.dataset.want = big; if (!keep) im.src = sm(p); im.alt = p.a || p.t || ''; fit();
+      const pre = new Image(); pre.src = big; when(pre, () => { const go = () => { if (im.dataset.want !== big) return; im.src = big; if (!p.w) { p.w = pre.naturalWidth; p.h = pre.naturalHeight; fit(); } };
+        /* the large file takes over only once the picture has stopped growing: changing it mid-flight makes a phone draw it anew while it moves */
+        const f = fly; if (f && f.playState === 'running') f.finished.then(go, go); else go(); });
       const nx = L[(i + 1) % L.length]; if (nx && L.length > 1) { const n = new Image(); n.src = lg(nx); }
       $('#lbT').textContent = p.t || ''; $('#lbE').textContent = p.e || ''; $('#lbN').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(L.length).padStart(2, '0');
     };
@@ -1195,6 +1236,13 @@
       im.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(' + (-dir * 46) + 'px)' }], { duration: 130, easing: 'ease-in' }).onfinish = () => { put(j); im.animate([{ opacity: 0, transform: 'translateX(' + (dir * 46) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: E }); };
     };
     const seen = el => { const f = el.closest('.ph,.zoom') || el.parentNode, r = el.getBoundingClientRect(); return getComputedStyle(f).visibility !== 'hidden' && r.width > 8 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; };
+    /* where the picture, sent onto its frame a from its own box b, is to be cut so that only what can be seen of the frame shows: the part
+       under the heading, the bar or the edge of the wall is cut away, so that the picture never passes over them on its way to or from it */
+    const shown = t => { const f = t.closest('[data-field]'); if (f) return f.getBoundingClientRect(); let top = 0; $$('.top,.chapnav').forEach(e => { const p = getComputedStyle(e).position; if (p === 'sticky' || p === 'fixed') top = Math.max(top, e.getBoundingClientRect().bottom); }); return { top, left: 0, right: innerWidth, bottom: innerHeight }; };
+    const hid = (a, b, v) => { const k = Math.max(a.width / b.width, a.height / b.height), L0 = a.left + a.width / 2 - b.width * k / 2, T0 = a.top + a.height / 2 - b.height * k / 2;
+      const t = Math.max(a.top, v.top), l = Math.max(a.left, v.left), r = Math.min(a.right, v.right), btm = Math.min(a.bottom, v.bottom);
+      return 'inset(' + [(t - T0) / k, (L0 + b.width * k - r) / k, (T0 + b.height * k - btm) / k, (l - L0) / k].map(x => Math.max(0, x).toFixed(1) + 'px').join(' ') + ')'; };
+    const whole = 'inset(0px 0px 0px 0px)';
     const from = (a, b) => 'translate(' + (a.left + a.width / 2 - b.left - b.width / 2).toFixed(1) + 'px,' + (a.top + a.height / 2 - b.top - b.height / 2).toFixed(1) + 'px) scale(' + Math.max(a.width / b.width, a.height / b.height).toFixed(4) + ')';
     const open = (j, btn) => {
       if (box.classList.contains('open')) return;
@@ -1202,7 +1250,7 @@
       const t = btn ? ((btn._pic && btn._pic()) || $('img', btn) || btn) : null, p = L[(j + L.length) % L.length];
       if (t && !p.w && t.naturalWidth) { p.w = t.naturalWidth; p.h = t.naturalHeight; }
       put(j); box.offsetWidth; box.classList.add('open');
-      if (t && !reduce && im.animate && seen(t)) { const a = t.getBoundingClientRect(), b = im.getBoundingClientRect(); if (b.width > 8) { src = t; t.style.visibility = 'hidden'; fly = im.animate([{ transform: from(a, b) }, { transform: 'none' }], { duration: T_OPEN, easing: E }); } }
+      if (t && !reduce && im.animate && seen(t)) { const a = t.getBoundingClientRect(), b = im.getBoundingClientRect(); if (b.width > 8) { src = t; t.style.visibility = 'hidden'; fly = im.animate([{ transform: from(a, b), clipPath: hid(a, b, shown(t)) }, { transform: 'none', clipPath: whole }], { duration: T_OPEN, easing: E }); } }
       $('#lbC').focus({ preventScroll: true });
     };
     const close = was => {   /* was: where a finger left the picture, if it was pulled down; it goes on from there */
@@ -1215,7 +1263,7 @@
       tell('lb:close', i);
       if (reduce || !im.animate) return end();
       if (fly) fly.cancel();
-      if (t) { if (src && src !== t) src.style.visibility = ''; src = t; t.style.visibility = 'hidden'; fly = im.animate([{ transform: was || 'none' }, { transform: from(t.getBoundingClientRect(), im.getBoundingClientRect()) }], { duration: T_CLOSE, easing: was ? E_OPEN : E_CLOSE, fill: 'forwards' }); }
+      if (t) { if (src && src !== t) src.style.visibility = ''; src = t; t.style.visibility = 'hidden'; const a = t.getBoundingClientRect(), b = im.getBoundingClientRect(); fly = im.animate([{ transform: was || 'none', clipPath: whole }, { transform: from(a, b), clipPath: hid(a, b, shown(t)) }], { duration: T_CLOSE, easing: was ? E_OPEN : E_CLOSE, fill: 'forwards' }); }
       else fly = im.animate([{ opacity: 1, transform: was || 'none' }, { opacity: 0, transform: 'scale(.94)' }], { duration: 300, easing: 'ease', fill: 'forwards' });
       fly.onfinish = end;
     };
@@ -1262,6 +1310,15 @@
     };
     imw.addEventListener('pointerup', fin); imw.addEventListener('pointercancel', fin);
     imw.addEventListener('click', e => { if (e.target !== im && !swiped) close(); });
+    /* With a mouse the whole window steps through the pictures, not only the picture itself: its left half goes back and its right half
+       goes on, through a band across the middle (its middle 30%, a little less than the Close above and below) that is the same for every picture, so that pictures of any size can be clicked through
+       without moving the mouse. Above and below that band, beside the picture, the pointer says Close and a click closes. The pointer says
+       which. A finger keeps to swiping and tapping as before. */
+    if (fine) {
+      const zone = e => { if (L.length < 2) return 0; const r = imw.getBoundingClientRect(), y = (e.clientY - r.top) / r.height; if (y < .35 || y > .65) return 0; return e.clientX < r.left + r.width / 2 ? -1 : 1; };
+      imw.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; const z = zone(e), w = z < 0 ? 'Previous' : z > 0 ? 'Next' : 'Close'; imw.dataset.cur = w; im.dataset.cur = w; });
+      imw.addEventListener('click', e => { if (swiped || e.pointerType && e.pointerType !== 'mouse') return; const d = zone(e); if (!d) return; e.stopImmediatePropagation(); show(i + d, d); }, true);
+    }
     addEventListener('keydown', e => { if (!box.classList.contains('open')) return; if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') show(i - 1, -1); else if (e.key === 'ArrowRight') show(i + 1, 1); });
   }
 })();

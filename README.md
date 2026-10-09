@@ -46,6 +46,8 @@ First copy the finished picture into `photos/genres/landscapes/edited/` (and its
 
 **A photo story.** Make a folder in `content/stories/` with a `story.md` in it. Start a chapter with `## Chapter name`, write the text, and add `@images: path/to/folder` (or a list of files separated by commas) where the pictures go.
 
+**Describing a photograph.** Every photograph the site shows has a line in `content/alt.json`, keyed by its path inside `photos/` (`"genres/street/edited/039.jpg": "Wide curved steps…"`). Screen readers read it out instead of the picture. Say what is in the frame in one plain sentence. A new picture without a line there has no description, so add one when you add the picture. An `"alt"` written beside a photo in a genre file, or a paper's `coverAlt`, wins over the list.
+
 **A project.** Add a `.md` file to `content/projects/`. The top block sets `title`, `type` (any of `photography`, `research`, `code`, `writing`, separated by commas), `year`, `summary`, and optionally `link`, `cover` and `opening` (the short line typed while the page opens, under 60 characters; without it the summary is typed). Projects with the type `research` also appear on the Research page. See `_example-thesis.md`.
 
 **A blog post.** Add a `.md` file to `content/writing/`. See `_example-post.md`. The Writing section appears in the menu once one post is published.

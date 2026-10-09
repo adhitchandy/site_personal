@@ -15,7 +15,7 @@ cover: projects/beyond/edited/_DSC0069.jpg
 
 > The earth is ART, the Photographer is only a Witness. — Yann Arthus-Bertrand
 
-## The Ascend Begins
+## The Ascent Begins
 
 @images: projects/beyond/edited/_DSC9931.jpg, projects/beyond/edited/_DSC9942.jpg
 
@@ -43,7 +43,7 @@ As we took in the stunning views, savouring the hut’s food and converse with t
 
 @images: projects/beyond/edited/_DSC0089.jpg, projects/beyond/edited/_DSC0087.jpg
 
-## Changing landscapes
+## Changing Landscapes
 
 > The distant mountains are reflected in the eyes of the dragonfly. — Kobayashi Issa
 
@@ -71,7 +71,7 @@ As we set off towards the Austriahütte, a light drizzle began, prompting us to 
 
 We arrived around 7:00 pm, welcomed by the warmth of a hot shower and a comforting meal of dumplings and pancake soup. Afterward, we stepped outside just in time to catch the sunset, its golden light casting a serene glow over the landscape, making the day's end poetic.
 
-## Between stones & sky
+## Between Stones & Sky
 
 @images: projects/beyond/edited/_DSC0302.jpg
 
@@ -95,7 +95,7 @@ After passing Gruber Scharte, we descended through grassy fields until Gutenberg
 
 We slipped off our boots, enjoyed the food, and took in the stunning views from 2,146 meters, overlooking Ramstein am Dachstein. Over goulash soup and Kaiserschmarrn, we swapped stories with a fellow hiker and as the stars became visible in the dark sky, I decided to take some photos and then went back slowly to the bed.
 
-## The last day
+## The Last Day
 
 The last day of our trip was on us. We slowly decended towards the village Kulm. It was a descend of more than 1000 meteres and we were already feeling our legs and knees due to the tough trails of the previous days. On the way we met some eager sheeps who were interested in the contents of our bags and also our breakfast which we barely saved from these sheeps.
 
