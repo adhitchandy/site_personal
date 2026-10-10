@@ -316,9 +316,11 @@
   /* click: the picture grows from where it stands until it fills the window and its title is struck in, letter by letter;
      the page that opens begins with that same picture (see "arriving" below) */
   let leaving = false;
+  /* the page a cover or link is about to open is asked for at once, so it is there when the motion ends rather than only then requested */
+  const ahead = u => { try { const l = new URL(u, location.href); if (l.origin !== location.origin || $('link[rel=prefetch][href="' + l.pathname + '"]')) return; const k = document.createElement('link'); k.rel = 'prefetch'; k.href = l.pathname; document.head.append(k); } catch (x) {} };
   function leave(t, box, e) {
     if (leaving || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button || !t.animate) return;
-    e.preventDefault(); leaving = true; hopOut();
+    e.preventDefault(); leaving = true; hopOut(); ahead(t.href);
     /* a cover marked plain (About) crosses without its picture: what grows is a dark card that carries only the title */
     const plain = t.dataset.plain !== undefined, r = box.getBoundingClientRect(), big = plain ? '' : t.dataset.big || t.dataset.im, title = t.dataset.sec, url = t.href, pp = t.dataset.pos || '50% 50%';
     const z = document.createElement('div'); z.className = 'zoomer';
@@ -344,7 +346,7 @@
   document.addEventListener('click', e => {
     if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !document.body.classList.contains('home')) return;
     const a = e.target.closest && e.target.closest('a[href]'); if (!a || a.target === '_blank' || a.hasAttribute('download') || a.origin !== location.origin || a.pathname === location.pathname) return;
-    const ms = hopOut(); if (!ms) return; e.preventDefault(); setTimeout(() => { location.href = a.href; }, ms - 120);
+    const ms = hopOut(); if (!ms) return; e.preventDefault(); ahead(a.href); setTimeout(() => { location.href = a.href; }, ms - 120);
   });
   /* a picture that carries the visitor across is its own change of page */
   addEventListener('pageswap', e => { if (leaving && e.viewTransition) e.viewTransition.skipTransition(); });
@@ -490,7 +492,7 @@
           const show = () => { const cs = $$('.c', rot); cs.forEach((c, q) => { c.classList.toggle('h', q >= vis); c.classList.toggle('cur', q === vis - 1); }); };
           /* while the sentence is arriving, the words of the phrase come up in their turn with the rest (and carry on from where they were if the phrase is set again meanwhile) */
           const enter = j => { const d = base + (at0 + j) * .025 - (performance.now() - born0) / 1000; return d > -1.2 ? ' style="animation:rise 1.2s var(--ease) both ' + d.toFixed(3) + 's"' : ''; };
-          const put = (t, n) => { full = t; const ws = t.split(' '); rot.innerHTML = ws.map((w, j) => '<span class="w"' + enter(j) + '>' + chars(w) + (j === ws.length - 1 ? '<span class="c tl">' + tail + '</span>' : '') + '</span>').join(' '); vis = n === undefined ? [...t].filter(ch => ch !== ' ').length + 1 : n; show(); };
+          const put = (t, n) => { full = t; rot.setAttribute('aria-label', t); const ws = t.split(' '); rot.innerHTML = ws.map((w, j) => '<span class="w"' + enter(j) + '>' + chars(w) + (j === ws.length - 1 ? '<span class="c tl">' + tail + '</span>' : '') + '</span>').join(' '); vis = n === undefined ? [...t].filter(ch => ch !== ' ').length + 1 : n; show(); };
 /* on a phone the sentence keeps room for its longest version, so nothing below it moves while the phrase is rewritten */
           const reserve = () => { say.style.minHeight = ''; if (wide.matches) return; const keep = full, kv = vis; let m = 0; rc.phrases.forEach(ph => { put(ph[0]); m = Math.max(m, say.offsetHeight); }); put(keep, kv); say.style.minHeight = m + 'px'; };
           put(shown); reserve(); let rv = 0; addEventListener('resize', () => { clearTimeout(rv); rv = setTimeout(reserve, 150); }); document.fonts && document.fonts.ready && document.fonts.ready.then(reserve);
@@ -987,7 +989,7 @@
      of a broken link is meant. (Without this script the browser shows the same note in its own way.) */
   { const nts = $$('a.nt');
     if (nts.length) {
-      const box = document.createElement('div'); box.className = 'ntb'; box.setAttribute('role', 'tooltip'); document.body.append(box);
+      const box = document.createElement('div'); box.className = 'ntb'; box.setAttribute('aria-hidden', 'true'); document.body.append(box);
       const show = (a, e) => {
         box.textContent = a.dataset.note || ''; box.classList.add('on');
         const rs = [...a.getClientRects()], y = e && typeof e.clientY === 'number' ? e.clientY : -1, r = rs.find(q => y >= q.top - 2 && y <= q.bottom + 2) || rs[0]; if (!r) return;
@@ -1152,14 +1154,19 @@
       wtm.addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; e.preventDefault(); open(); });
       $('#wtx').addEventListener('click', shut);
       wtr.addEventListener('click', e => { if (e.target === wtr) shut(); });
-      addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
-      form.addEventListener('input', e => { const l = e.target.closest('.wfi'); if (l) l.classList.remove('bad'); });
+      addEventListener('keydown', e => { if (e.key === 'Escape') return shut();
+        /* while the letter is open, Tab goes round inside it rather than on to the page behind */
+        if (e.key !== 'Tab' || wtr.hidden) return;
+        const fs = $$('a[href],button:not([disabled]),input:not([tabindex="-1"]),textarea,iframe,[tabindex="0"]', wtr).filter(x => x.getClientRects().length && !x.closest('[hidden],[aria-hidden="true"]'));
+        if (!fs.length) return; const a = fs[0], z = fs[fs.length - 1], at = document.activeElement;
+        if (e.shiftKey ? at === a || !wtr.contains(at) : at === z || !wtr.contains(at)) { e.preventDefault(); (e.shiftKey ? z : a).focus(); } });
+      form.addEventListener('input', e => { const l = e.target.closest('.wfi'); if (l) { l.classList.remove('bad'); e.target.removeAttribute('aria-invalid'); } });
       const NEED = { name: 'Your name, please.', email: 'An address I can write back to, please.', message: 'The message is empty.' };
       form.addEventListener('submit', async e => {
         e.preventDefault(); if (btn.disabled) return;
         const f = new FormData(form), ok = { name: v => v.trim().length > 0, email: v => /^[^\s@<>"(),;:\\]+@[^\s@<>"(),;:\\]+\.[^\s@<>"(),;:\\]+$/.test(v.trim()), message: v => v.trim().length > 0 };
         let first = null;
-        for (const k in ok) { const good = ok[k](String(f.get(k) || '')); form.elements[k].closest('.wfi').classList.toggle('bad', !good); if (!good && !first) first = k; }
+        for (const k in ok) { const good = ok[k](String(f.get(k) || '')), el = form.elements[k]; el.closest('.wfi').classList.toggle('bad', !good); if (good) el.removeAttribute('aria-invalid'); else el.setAttribute('aria-invalid', 'true'); if (!good && !first) first = k; }
         if (first) { say(NEED[first], 1); form.elements[first].focus(); return; }
         btn.disabled = true; say('Sending…'); check();
         /* the spam check usually has its answer before the message is written; if not, it is given a few seconds */
@@ -1178,6 +1185,9 @@
       });
     }
   }
+
+  /* an equation wider than the column scrolls sideways, so it takes the focus, or a keyboard could not scroll it */
+  { const eqs = $$('.thesis math[display=block]'); if (eqs.length) { const fit = () => eqs.forEach(m => { if (m.scrollWidth > m.clientWidth + 1) m.tabIndex = 0; else m.removeAttribute('tabindex'); }); fit(); addEventListener('resize', fit); } }
 
   /* papers: a reading-progress line, and the contents rail follows the section being read */
   const prog = $('#prog'), tocA = $$('.toc a');
@@ -1231,9 +1241,14 @@
       const nx = L[(i + 1) % L.length]; if (nx && L.length > 1) { const n = new Image(); n.src = lg(nx); }
       $('#lbT').textContent = p.t || ''; $('#lbE').textContent = p.e || ''; $('#lbN').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(L.length).padStart(2, '0');
     };
-    const show = (j, dir) => {
-      if (!dir || reduce || !im.animate || !box.classList.contains('open')) return put(j);
-      im.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(' + (-dir * 46) + 'px)' }], { duration: 130, easing: 'ease-in' }).onfinish = () => { put(j); im.animate([{ opacity: 0, transform: 'translateX(' + (dir * 46) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: E }); };
+    /* An arrow key steps at once: keys are pressed many times in a row, and a slide made each press wait for the last (presses that came
+       during it were lost). A click still slides; a second click during the slide goes on from the picture the first was going to. */
+    let sa = null, sj = 0;
+    const show = (j, dir, key) => {
+      if (sa) { sa.onfinish = null; sa.cancel(); sa = null; if (dir) j = sj + dir; }
+      if (key || !dir || reduce || !im.animate || !box.classList.contains('open')) return put(j);
+      sj = j; sa = im.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(' + (-dir * 46) + 'px)' }], { duration: 130, easing: 'cubic-bezier(.23,1,.32,1)' });
+      sa.onfinish = () => { sa = null; put(j); im.animate([{ opacity: 0, transform: 'translateX(' + (dir * 46) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: E }); };
     };
     const seen = el => { const f = el.closest('.ph,.zoom') || el.parentNode, r = el.getBoundingClientRect(); return getComputedStyle(f).visibility !== 'hidden' && r.width > 8 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; };
     /* where the picture, sent onto its frame a from its own box b, is to be cut so that only what can be seen of the frame shows: the part
@@ -1319,6 +1334,6 @@
       imw.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; const z = zone(e), w = z < 0 ? 'Previous' : z > 0 ? 'Next' : 'Close'; imw.dataset.cur = w; im.dataset.cur = w; });
       imw.addEventListener('click', e => { if (swiped || e.pointerType && e.pointerType !== 'mouse') return; const d = zone(e); if (!d) return; e.stopImmediatePropagation(); show(i + d, d); }, true);
     }
-    addEventListener('keydown', e => { if (!box.classList.contains('open')) return; if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') show(i - 1, -1); else if (e.key === 'ArrowRight') show(i + 1, 1); });
+    addEventListener('keydown', e => { if (!box.classList.contains('open')) return; if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') show(i - 1, -1, 1); else if (e.key === 'ArrowRight') show(i + 1, 1, 1); });
   }
 })();

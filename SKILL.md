@@ -128,6 +128,20 @@ Motion
 Pointer
 - On a mouse or trackpad the system pointer is hidden everywhere (`html.curon`, set by a small script written into every page right after `#cur` (`build.mjs`), so a page still loading never shows the system pointer; it also sets the dot down where the pointer was left and moves it until `site.js` takes the dot over). A 6px dot (`.cdot`, `mix-blend-mode:difference`) marks the exact point; the ring trails it and hugs controls; over covers the Open disc replaces the dot. Touch screens are untouched.
 
+
+Accessibility, speed and touch (settled 10 October 2026, from the skills review in the project's skills-review folder)
+- Every page starts with a "Skip to content" link (`.skip`, hidden until focused) to `main#main` (`tabindex="-1"`, added in `page()`).
+- Orange used as text is `var(--accent-t)`: the same `#e0492c` in dark, `#b8361c` in light (4.5:1 on the light ground and panel). Backgrounds, rules and the word on the "write to me" ink plate keep `var(--accent)`.
+- Reduced motion runs every animation once (`animation-iteration-count:1`), so nothing endless flickers.
+- Accessible names start with the visible text ("ACG, Adhit Chandy, home"); decorative text inside a named control is `aria-hidden`.
+- The letter (`#wtr`) keeps Tab inside while open; a wrong field gets `aria-invalid` and is described by `#wts`; the field being written in has a 2px line.
+- The custom pointer gives way to the text cursor in inputs and textareas, and to the system pointer under `forced-colors` or `prefers-contrast:more`.
+- Arrow keys in the viewer step at once (no slide); clicks still slide, and a second click during a slide carries on from where it was going (`show(j, dir, key)`).
+- The page a cover or a home link opens is prefetched the moment it is clicked (`ahead()` in `site.js`), and Chromium also prefetches on hover (speculation rules in the page head). The motion is unchanged; the page is ready when it ends.
+- First-page cover pictures carry a `srcset` of the small and large copies (`sset()` in `build.mjs`); the hidden twin of the Photography card is `loading="lazy"`.
+- On touch screens the small text controls (footer links, About me links, `.ovgo`, the way back on stories, the Price Lens steps) answer 44px around them through an invisible `::after`; `.gnav` links on phones have 12px padding taken back by the line's negative margin. Their look does not change.
+- Pressed buttons give a little (`scale:.97` on `:active`, the separate `scale` property, 160 ms); hovers that move something sit inside `(hover:hover) and (pointer:fine)` so a tap never leaves them stuck.
+
 Links and contact
 - Every link that leaves the site opens in a new tab; `outward()` in `build.mjs` writes that into the pages.
 - Privacy (9 October 2026): `content/privacy.md` becomes `/privacy/` (a `lead row` title over `.prose`; its `##` headings get ids), linked at the end of the footer line, after the copyright line in the home rail (desktop; the phone home has no room and was left alone) and from the letter ("What happens to it" → `#writing-to-me`). It covers Two Readings too, whose footer links it. Both sites serve their own fonts; never load Google Fonts (Two Readings has copies in `site/fonts/`). No Impressum: Adhit decided against one. When the site starts using a new outside service (analytics, embeds, another mail provider), add it to the privacy page.
